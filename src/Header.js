@@ -2,13 +2,10 @@ import React, { Component } from 'react';
 
 class Header extends Component {
   render() {
-    let button = null;
-    if(!this.props.isUserLogin){
-      button = <a id="log-link" className="mdl-navigation__link">Login</a>;
-    }
-    else {
-      button = <a id="log-link" className="mdl-navigation__link">Logout</a>;
-    }
+    let userNext = !this.props.isUserLogin ? "login" : "logout";
+    let button = <a id="log-link" className="mdl-navigation__link"
+        onClick={this.props.headerClick(userNext)} style={{cursor: "pointer"}}>{userNext}</a>;
+
     return (
       <div className="mdl-layout__header mdl-layout--fixed-header">
         <header className="mdl-layout__header">
