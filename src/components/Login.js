@@ -14,13 +14,23 @@ class Login extends Component {
     var uiConfig = {
       'callbacks': {
         'signInSuccess': function(user, credential, redirectUrl) {
+          console.log(user);
+          let userId = user.uid;
+          window.firebase.database().ref('/users/' + userId).once('value').then(function(snapshot) {
+            console.log(snapshot.val());
+            if(!snapshot.val()) {
+              window.firebase.database().ref('/users/' + userId).set({
+                displayName: user.displayName
+              }).then(() => window.location.assign("/"));
+            }
+          });
           //if(!user.emailVerified){
           //  user.sendEmailVerification().then(function(){
           //    dialog.showModal();
           //  });
           //  return false;
           //}else
-          return true;
+          return false;
         }
       },
       'signInSuccessUrl': '/',

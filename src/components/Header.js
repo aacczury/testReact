@@ -5,7 +5,7 @@ class Header extends Component {
     let button = null;
     if(this.props.buttonTitle){
         button = <a id="log-link" className="mdl-navigation__link"
-          onClick={this.props.buttonClick} style={{cursor: "pointer"}}>{this.props.buttonTitle}</a>;
+          onClick={this.props.handleHeaderButtonClick} style={{cursor: "pointer"}}>{this.props.buttonTitle}</a>;
     }
 
     return (
