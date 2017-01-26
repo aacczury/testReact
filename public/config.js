@@ -1,8 +1,11 @@
 // Initialize Firebase
 
-var config = {
+var firebaseConfig = {
   apiKey: "AIzaSyAjdarRIsUshhdQOwaFLxlBneFWz12JrTU",
   authDomain: "chcwcup.firebaseapp.com",
   databaseURL: "https://chcwcup.firebaseio.com",
 };
-firebase.initializeApp(config);
+firebase.initializeApp(firebaseConfig);
+
+
+var firebaseuiContainer = new firebaseui.auth.AuthUI(firebase.auth());

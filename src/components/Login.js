@@ -11,7 +11,8 @@ class Login extends Component {
   }
 
   componentDidMount() {
-    var uiConfig = {
+    let self = this;
+    var firebaseuiConfig = {
       'callbacks': {
         'signInSuccess': function(user, credential, redirectUrl) {
           console.log(user);
@@ -21,7 +22,9 @@ class Login extends Component {
             if(!snapshot.val()) {
               window.firebase.database().ref('/users/' + userId).set({
                 displayName: user.displayName
-              }).then(() => window.location.assign("/"));
+              }).then(() => self.context.router.push("/"));
+            }else {
+              self.context.router.push("/");
             }
           });
           //if(!user.emailVerified){
@@ -41,9 +44,9 @@ class Login extends Component {
       'tosUrl': 'https://www.google.com/policies/terms/'
     };
 
-    var ui = new window.firebaseui.auth.AuthUI(window.firebase.auth());
-    if(document.querySelector("#firebaseui-auth-container"));
-      ui.start('#firebaseui-auth-container', uiConfig);
+    if(document.querySelector("#firebaseui-auth-container")){
+      window.firebaseuiContainer.start('#firebaseui-auth-container', firebaseuiConfig);
+    }
   }
 
   render() {
@@ -64,5 +67,9 @@ class Login extends Component {
     );
   }
 }
+
+Login.contextTypes = {
+  router: React.PropTypes.object.isRequired
+};
 
 export default Login;
