@@ -9,10 +9,12 @@
     "react": "^15.4.1",
     "react-dom": "^15.4.1"
   },
+  "homepage": "http://aacczury.github.io/testReact",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "deploy": "npm run build&&gh-pages -d build"
   }
 }
