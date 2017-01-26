@@ -1,0 +1,43 @@
+
+  html, body{
+    font-family: "Helvetica","微軟正黑體","Arial",sans-serif;
+    /*background-color: #263238;*/
+  }
+
+  h1, h2, h3, h4 {
+    font-family: "Roboto","微軟正黑體","Helvetica","Arial",sans-serif;
+  }
+
+  .mdl-typography--display-4, .mdl-typography--display-3,
+  .mdl-typography--display-2, .mdl-typography--display-1 {
+    font-family: "Roboto","微軟正黑體","Helvetica","Arial",sans-serif;
+  }
+
+  .mdl-layout__title, .mdl-layout-title {
+    font-family: "Roboto","微軟正黑體","Helvetica","Arial",sans-serif;
+  }
+
+  .mdl-button {
+    font-family: "Roboto","微軟正黑體","Helvetica","Arial",sans-serif;
+  }
+
+  .mdl-textfield__input {
+    font-family: "Helvetica","微軟正黑體","Arial",sans-serif;
+  }
+  
+  /** by firebaseui **/
+  .mdl-error-wrapper {
+    min-height: 16px;
+    width: 300px;
+    margin: 0px auto;
+  }
+  .mdl-error {
+    color: #dd2c00;
+    direction: ltr;
+    font-size: 12px;
+    line-height: 16px;
+    margin: -16px 0 16px;
+    text-align: left;
+    overflow: hidden;
+    white-space: nowrap;
+  }
