@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import Header from './Header.js';
+import Header from './Header';
 
 import './Login.css'
 
@@ -17,11 +17,11 @@ class Login extends Component {
         'signInSuccess': function(user, credential, redirectUrl) {
           console.log(user);
           let userId = user.uid;
-          window.firebase.database().ref('/users/' + userId).once('value').then(function(snapshot) {
+          window.firebase.database().ref(`/users/${userId}`).once('value').then(function(snapshot) {
             console.log(snapshot.val());
             if(!snapshot.val()) {
-              window.firebase.database().ref('/users/' + userId).set({
-                displayName: user.displayName
+              window.firebase.database().ref(`/users/${userId}`).set({
+                display_name: user.displayName
               }).then(() => self.context.router.push("/"));
             }else {
               self.context.router.push("/");

@@ -16,7 +16,9 @@ class Header extends Component {
           <span className="mdl-layout-title">{this.props.title}</span>
           <div className="mdl-layout-spacer"></div>
           {/* Navigation */}
-          <nav className="mdl-navigation">
+          <nav className="mdl-navigation mdl-js-ripple-effect">
+            <a className="mdl-navigation__link is-active" style={{cursor: "pointer"}}>11th</a>
+            <a className="mdl-navigation__link is-active" style={{cursor: "pointer"}}>Info</a>
             {button}
           </nav>
         </div>

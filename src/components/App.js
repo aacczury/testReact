@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 
-import Header from './Header.js';
-import UserInfo from './UserInfo.js'
+import Header from './Header';
+import UserInfo from './UserInfo';
+import Register from './Register';
 
 import './App.css';
 
@@ -59,7 +60,10 @@ class App extends Component {
       <Header title="正興城灣盃" buttonTitle="Login" isUserLogin={this.state.user} handleHeaderButtonClick={this.handleHeaderButtonClick("login")}  />;
 
     let page = null;
-    if(this.state.user) {
+    if(this.props.params.th && this.state.user){
+      page = <Register th={this.props.params.th} user={this.state.user} />
+    }
+    else if(this.state.user) {
       page = <UserInfo user={this.state.user} />;
     }
     else {
@@ -72,7 +76,7 @@ class App extends Component {
         </main>
       );
     }
-
+    console.log(page);
     return (
       <div className="App mdl-layout mdl-js-layout">
         {header}

@@ -10,6 +10,7 @@ const Routes = (props) => (
   <Router {...props}>
     <Route path="/" component={App} />
     <Route path="/login" component={Login} />
+    <Route path="/th/:th" component={App} />
     {/*<Route path="*" component={NotFound} />*/}
   </Router>
 );

@@ -25,13 +25,28 @@ class Input extends Component {
   }
 
   render() {
-    return (
-      <div ref={(inputNode) => {this.inputNode = inputNode;}} className="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-        <input className="mdl-textfield__input" type={this.props.type} name={this.props.name}
-          id={this.state.id} value={this.state.value} onChange={this.handleChange} disabled={this.props.disabled} />
-        <label className="mdl-textfield__label" htmlFor={this.state.id}>{this.props.text}</label>
-      </div>
-    );
+    let inputComponent = null;
+    if(this.props.type === "text" || this.props.type === "email" || this.props.type === "date") {
+      inputComponent = (
+        <div ref={(inputNode) => {this.inputNode = inputNode;}} className="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+          <input className="mdl-textfield__input" type={this.props.type} name={this.props.name}
+            id={this.state.id} value={this.state.value} onChange={this.handleChange} disabled={this.props.disabled} />
+          <label className="mdl-textfield__label" htmlFor={this.state.id}>{this.props.text}</label>
+        </div>
+      )
+    }else if(this.props.type === "checkbox") {
+      inputComponent = (
+        <label ref={(inputNode) => {this.inputNode = inputNode;}}
+          className="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" htmlFor={this.state.id}>
+          <input type={this.props.type} name={this.props.name}
+            id={this.state.id} className="mdl-checkbox__input" />
+          <span className="mdl-checkbox__label">{this.props.text}</span>
+        </label>
+      )
+    }
+
+
+    return inputComponent;
   }
 }
 

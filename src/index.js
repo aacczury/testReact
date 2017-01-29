@@ -7,7 +7,7 @@ import Routes from './Routes';
 
 import './index.css';
 
-const browserHistory = useRouterHistory(createHistory)({ basename: "/testReact" })
+const browserHistory = useRouterHistory(createHistory)({ basename: "/" })
 
 ReactDOM.render(
   <Routes history={browserHistory} />,
