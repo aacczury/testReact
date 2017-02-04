@@ -4,17 +4,14 @@ import Input from '../components/Input.js';
 
 class InputContainer extends Component {
   render() {
-    let inputItems = this.props.inputData.map((d, index) => {
-      return <Input key={d.name + index} {...d} handleInfoUpdate={this.props.handleInfoUpdate} />
-    });
-
-    const inputContainerStyle = {
-      maxWidth: "300px",
-      margin: "10px auto"
-    }
+    let inputItems = this.props.inputData.reduce((p, c, index) => {
+      p.push(<Input key={`${c.name}_${index}`} {...c} handleInfoUpdate={this.props.handleInfoUpdate} />);
+      p.push(<br key={`br_${c.name}_${index}`} />);
+      return p;
+    }, []);
 
     return (
-      <div className="input-container" style={inputContainerStyle}>
+      <div className="input-container">
         {inputItems}
       </div>
     );

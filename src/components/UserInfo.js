@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import {AppBar, RaisedButton, IconButton} from 'material-ui';
+import {ActionHome, NavigationExpandMore} from 'material-ui/svg-icons';
 
 import InputContainer from '../containers/InputContainer';
 
@@ -30,7 +32,7 @@ class UserInfo extends Component {
           user: user,
           inputData: [
             { type: "email", name: "email", text: "電子信箱", value: userInfo.email, disabled: true },
-            { type: "text", name: "displayName", text: "顯示名稱", value: userInfo.displayName, disabled: false },
+            { type: "text", name: "displayName", text: "顯示名稱", value: userInfo.displayName, disabled: false }
           ],
           userInfo: {
             displayName: userInfo.displayName
@@ -57,20 +59,32 @@ class UserInfo extends Component {
   }
 
   render() {
-    return (
-      <main className="mdl-layout__content" style={{marginTop: "50px"}}>
-        <div className="mdl-switch mdl-js-switch mdl-js-ripple-effect" htmlFor="switch-1">
-          <input type="checkbox" id="switch-1" className="mdl-switch__input" checked />
-          <span className="mdl-switch__label">123</span>
-        </div>
-        <div className="mdl-typography--text-center">
+    let header = (
+      <AppBar
+        title="正興城灣盃"
+        iconElementRight={<IconButton tooltip="Font Icon"><NavigationExpandMore /></IconButton>}
+      />
+    );
+
+    let page = (
+      <div style={{paddingTop: "64px"}}>
+        <div style={{textAlign: "center"}}>
+          <ActionHome />
           <InputContainer inputData={this.state.inputData} handleInfoUpdate={this.handleInfoUpdate} />
-          <button className="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent"
-            onClick={this.handleInfoUpdateClick}>
-            更新
-          </button>
+          <RaisedButton
+            secondary={true}
+            label="更新"
+            onTouchTap={this.handleInfoUpdateClick}
+          />
         </div>
-      </main>
+      </div>
+    );
+
+    return (
+      <div>
+        {header}
+        {page}
+      </div>
     );
   }
 }
