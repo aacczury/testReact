@@ -5,7 +5,7 @@ import Input from '../components/Input.js';
 class InputContainer extends Component {
   render() {
     let inputItems = this.props.inputData.reduce((p, c, index) => {
-      p.push(<Input key={`${c.name}_${index}`} {...c} handleInfoUpdate={this.props.handleInfoUpdate} />);
+      p.push(<Input key={`${c.name}_${index}`} {...c} handleInputUpdate={this.props.handleInputUpdate} />);
       p.push(<br key={`br_${c.name}_${index}`} />);
       return p;
     }, []);

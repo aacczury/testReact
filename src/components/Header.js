@@ -1,28 +1,38 @@
 import React, { Component } from 'react';
+import {AppBar, IconMenu, IconButton, MenuItem, FlatButton, Divider} from 'material-ui';
+import {NavigationExpandMore} from 'material-ui/svg-icons'
 
 class Header extends Component {
   render() {
-    let button = null;
-    if(this.props.buttonTitle){
-        button = <a id="log-link" className="mdl-navigation__link"
-          onClick={this.props.handleHeaderButtonClick} style={{cursor: "pointer"}}>{this.props.buttonTitle}</a>;
+    let rightButton = null;
+    if(this.props.user) {
+      rightButton = (
+        <IconMenu
+          iconButtonElement={<IconButton><NavigationExpandMore /></IconButton>}
+          anchorOrigin={{horizontal: 'right', vertical: 'top'}}
+          targetOrigin={{horizontal: 'right', vertical: 'top'}}
+        >
+          <MenuItem primaryText="登出" onTouchTap={this.props.handleHeaderButtonClick} />
+          <MenuItem primaryText="個人資料" onTouchTap={() => this.props.handleRedirect('/')} />
+          <Divider />
+          {/*need dynamic*/}
+          <MenuItem primaryText="11屆" onTouchTap={() => this.props.handleRedirect('/th/11')} />
+        </IconMenu>
+      )
+    }
+    else if(this.props.route.path === '/login') {
+      rightButton = null;
+    }
+    else {
+      rightButton = <FlatButton onTouchTap={this.props.handleHeaderButtonClick} label="登入" />
     }
 
     return (
-      <header className="mdl-layout__header mdl-layout--fixed-header">
-        {/* Top row, always visible */}
-        <div className="mdl-layout__header-row">
-          {/* Title */}
-          <span className="mdl-layout-title">{this.props.title}</span>
-          <div className="mdl-layout-spacer"></div>
-          {/* Navigation */}
-          <nav className="mdl-navigation mdl-js-ripple-effect">
-            <a className="mdl-navigation__link is-active" style={{cursor: "pointer"}}>11th</a>
-            <a className="mdl-navigation__link is-active" style={{cursor: "pointer"}}>Info</a>
-            {button}
-          </nav>
-        </div>
-      </header>
+      <AppBar
+        showMenuIconButton={false}
+        title={this.props.title}
+        iconElementRight={rightButton}
+      />
     );
   }
 }

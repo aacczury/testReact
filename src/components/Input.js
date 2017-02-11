@@ -4,6 +4,7 @@ import {TextField, Checkbox, DatePicker} from 'material-ui';
 class Input extends Component {
   constructor(props) {
     super(props);
+
     this.state = {
       id: props.name + +new Date(),
       value: this.props.value ? this.props.value : ''
@@ -17,7 +18,7 @@ class Input extends Component {
     let node = e ? e.target : this.inputNode.props;
     this.setState({value: v});
     if(node.name) {
-      this.props.handleInfoUpdate({
+      this.props.handleInputUpdate({
         [node.name]: v
       });
     }
@@ -50,7 +51,7 @@ class Input extends Component {
       inputComponent = (
         <DatePicker ref={(inputNode) => {this.inputNode = inputNode;}}
           container="inline"
-          value={this.state.value ? this.state.value : null}
+          value={this.state.value ? new Date(this.state.value) : null}
           floatingLabelText={this.props.text}
           onChange={this.handleChange}
           disabled={this.props.disabled ? true : false}

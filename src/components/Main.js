@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
-import AppBar from 'material-ui/AppBar';
-import FontIcon from 'material-ui/FontIcon';
+import {ActionHome} from 'material-ui/svg-icons';
 
 //import Header from './Header';
 //import UserInfo from './UserInfo';
@@ -9,19 +8,10 @@ import FontIcon from 'material-ui/FontIcon';
 
 class Main extends Component {
   render() {
-    let header = (
-      <AppBar
-        title="正興城灣盃"
-        iconClassNameRight="icon-expand-more"
-      />
-    );
-
-    let page = (
+    let content = (
       <div style={{paddingTop: "64px"}}>
         <div style={{textAlign: "center"}}>
-           <FontIcon
-             className="icon-home"
-           />
+          <ActionHome />
           <h1>正興城灣盃報名系統</h1>
           <h2>請先登入</h2>
         </div>
@@ -29,9 +19,8 @@ class Main extends Component {
     );
 
     return (
-      <div>
-        {header}
-        {page}
+      <div className="content">
+        {content}
       </div>
     );
   }

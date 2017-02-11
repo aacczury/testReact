@@ -1,9 +1,5 @@
 import React, { Component } from 'react';
 
-import Header from './Header';
-
-import './Login.css'
-
 class Login extends Component {
   constructor(props) {
     super(props);
@@ -50,19 +46,13 @@ class Login extends Component {
   }
 
   render() {
-    //console.log(this.state.isUserLogin);
-
-    let header = <Header title="登入" />;
-    let page = (
-      <main className="mdl-layout__content">
-        <div id="firebaseui-auth-container" style={{marginTop: "50px"}}></div>
-      </main>
-    );
+    let content = (
+        <div style={{paddingTop: "64px"}} id="firebaseui-auth-container"></div>
+    )
 
     return (
-      <div className="Login mdl-layout mdl-js-layout">
-        {header}
-        {page}
+      <div className="content">
+        {content}
       </div>
     );
   }

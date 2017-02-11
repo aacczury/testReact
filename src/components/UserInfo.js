@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import {AppBar, RaisedButton, IconButton} from 'material-ui';
-import {ActionHome, NavigationExpandMore} from 'material-ui/svg-icons';
+import {RaisedButton} from 'material-ui';
+import {ActionHome} from 'material-ui/svg-icons';
 
 import InputContainer from '../containers/InputContainer';
 
@@ -21,7 +21,8 @@ class UserInfo extends Component {
       let user = this.props.user;
       let userId = user.uid;
       let self = this;
-      window.firebase.database().ref('/users/' + userId).once('value').then(function(snapshot) {
+      window.firebase.database().ref(`/users/${userId}`).once('value').then(function(snapshot) {
+        // need loading icon
         let userValue = snapshot.val() ? snapshot.val() : {};
         let userInfo = {
           email: user.email,
@@ -32,7 +33,7 @@ class UserInfo extends Component {
           user: user,
           inputData: [
             { type: "email", name: "email", text: "電子信箱", value: userInfo.email, disabled: true },
-            { type: "text", name: "displayName", text: "顯示名稱", value: userInfo.displayName, disabled: false }
+            { type: "text", name: "displayName", text: "顯示名稱", value: userInfo.displayName, disabled: false },
           ],
           userInfo: {
             displayName: userInfo.displayName
@@ -50,27 +51,22 @@ class UserInfo extends Component {
 
   handleInfoUpdateClick() {
     if(this.state.user) {
-      console.log("QQQ");
+      console.log("Update Info");
       let userId = this.state.user.uid;
       window.firebase.database().ref(`/users/${userId}`).update({
-        display_name: this.state.userInfo.displayName
+        'display_name': this.state.userInfo.displayName
       });
     }
   }
 
   render() {
-    let header = (
-      <AppBar
-        title="正興城灣盃"
-        iconElementRight={<IconButton tooltip="Font Icon"><NavigationExpandMore /></IconButton>}
-      />
-    );
-
-    let page = (
+    let content = (
       <div style={{paddingTop: "64px"}}>
         <div style={{textAlign: "center"}}>
           <ActionHome />
-          <InputContainer inputData={this.state.inputData} handleInfoUpdate={this.handleInfoUpdate} />
+          <div style={{width: "256px", margin: "0px auto", textAlign: "left"}}>
+            <InputContainer inputData={this.state.inputData} handleInputUpdate={this.handleInfoUpdate} />
+          </div>
           <RaisedButton
             secondary={true}
             label="更新"
@@ -81,9 +77,8 @@ class UserInfo extends Component {
     );
 
     return (
-      <div>
-        {header}
-        {page}
+      <div className="content">
+        {content}
       </div>
     );
   }
