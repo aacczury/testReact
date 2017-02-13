@@ -11,13 +11,13 @@ import Register from './Register';
 class App extends Component {
   constructor(props) {
     super(props);
-    console.log(this.props);
-    this.state = {
-      user: null
-    };
+    console.log("app construct");
 
-    this.handleRedirect=this.handleRedirect.bind(this);
-    this.handleHeaderButtonClick = this.handleHeaderButtonClick.bind(this);
+    this.state = {
+      user: null,
+      userReg: {},
+      userInfo: {}
+    };
 
     var self = this;
     window.firebase.auth().onAuthStateChanged(function(user) {
@@ -29,32 +29,27 @@ class App extends Component {
   }
 
   componentDidUpdate(){
-    console.log("Update!!");
+    console.log("App Update!!");
   }
 
-  handleRedirect(url){
+  handleRedirect = url => {
     console.log(url);
-    this.context.router.push(url);
+    this.props.router.push(url);
   }
 
-  handleHeaderButtonClick(event) {
+  handleHeaderButtonClick = event => {
     return {
-    logout: () => {
-      window.firebase.auth().signOut().then(function(){
-        console.log("Logout safe."); // need a dialog
-        this.context.router.push('/login');
-      });
-    },
-    login: () => {
-      this.context.router.push('/login');
-    }
+      logout: () => {
+        let self = this;
+        window.firebase.auth().signOut().then(function(){
+          console.log("Logout safe."); // need a dialog
+          self.handleRedirect('/');
+        });
+      },
+      login: () => {
+        this.handleRedirect('/login');
+      }
     }[event]
-  }
-
-  handleRegisterUpdate(th, data) {
-    this.setState(prevState => {
-      return {register: Object.assign(prevState.register, Object.assign(prevState.register[th], data))}
-    })
   }
 
   render() {
@@ -71,11 +66,11 @@ class App extends Component {
     }
     else if(this.props.route.path === '/login') {
       header = <Header route={this.props.route} title="正興城灣盃-登入" />
-      content = <Login router={this.context.router} />
+      content = <Login route={this.props.route} router={this.context.router} />
     }
     else {
       header = <Header route={this.props.route} title="正興城灣盃" handleHeaderButtonClick={this.handleHeaderButtonClick("login")} />
-      content = <Main />;
+      content = <Main route={this.props.route} />;
     }
 
     return (

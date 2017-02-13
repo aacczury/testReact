@@ -7,6 +7,7 @@ import InputContainer from '../containers/InputContainer';
 class Register extends Component {
   constructor(props) {
     super(props);
+    console.log("register construct");
 
     this.state = {
       inputData: [],
@@ -21,7 +22,7 @@ class Register extends Component {
       let userId = user.uid;
       let self = this;
       window.firebase.database().ref(`/user_register/${this.props.th}/${userId}`).once('value').then(function(snapshot) {
-        console.log("QQ");
+        console.log("query user register");
         let userValue = snapshot.val() ? snapshot.val() : {};
         let userReg = {
           sport: userValue.sport ? userValue.sport : null,

@@ -7,10 +7,10 @@ import App from './components/App';
 class Routes extends Component {
   render() {
     return(
-      <Router history={this.props.history}>
-        <Route path="/" component={App} store={this.props.store} />
-        <Route path="/login" component={App} store={this.props.store} />
-        <Route path="/th/:th" component={App} store={this.props.store} />
+      <Router {...this.props}>
+        <Route path="/" component={App} />
+        <Route path="/login" component={App} />
+        <Route path="/th/:th" component={App} />
         {/*<Route path="*" component={NotFound} />*/}
       </Router>
     )
