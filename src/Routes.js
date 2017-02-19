@@ -10,7 +10,8 @@ class Routes extends Component {
       <Router {...this.props}>
         <Route path="/" component={App} />
         <Route path="/login" component={App} />
-        <Route path="/th/:th" component={App} />
+        <Route path="/:th" component={App} />
+        <Route path="/:th/:sport" component={App} />
         {/*<Route path="*" component={NotFound} />*/}
       </Router>
     )

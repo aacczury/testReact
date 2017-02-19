@@ -4,9 +4,9 @@ import {TextField, Checkbox, DatePicker} from 'material-ui';
 class Input extends Component {
   constructor(props) {
     super(props);
-
+    
     this.state = {
-      id: props.name + +new Date(),
+      id: this.props.name + +new Date(),
       value: this.props.value ? this.props.value : ''
     };
 

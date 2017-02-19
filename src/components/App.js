@@ -3,8 +3,9 @@ import React, { Component } from 'react';
 import Header from './Header';
 import Main from './Main';
 import Login from './Login';
-import UserInfo from './UserInfo';
-import Register from './Register';
+import Years from './Years';
+import Sports from './Sports';
+import Participants from './Participants'
 
 //import './App.css';
 
@@ -15,10 +16,11 @@ class App extends Component {
 
     this.state = {
       user: null,
-      userReg: {},
-      userInfo: {}
     };
+  }
 
+  componentDidMount(){
+    console.log("app did mount");
     var self = this;
     window.firebase.auth().onAuthStateChanged(function(user) {
       // need loading icon
@@ -56,13 +58,21 @@ class App extends Component {
     let header = null;
     let content = null;
 
-    if(this.props.route.path === '/th/:th' && this.props.params.th && this.state.user) {
-      header = <Header route={this.props.route} title={`正興城灣盃-第${this.props.params.th}屆報名資料`} user={this.state.user} handleHeaderButtonClick={this.handleHeaderButtonClick("logout")} handleRedirect={this.handleRedirect} th={this.props.params.th} />
-      content = <Register user={this.state.user} th={this.props.params.th} />
-    }
-    else if(this.state.user) {
-      header = <Header route={this.props.route} title="正興城灣盃-個人資料" user={this.state.user} handleHeaderButtonClick={this.handleHeaderButtonClick("logout")} handleRedirect={this.handleRedirect} />
-      content = <UserInfo user={this.state.user} />;
+    if(this.state.user) {
+      if(this.props.params.th) {
+        if(this.props.params.sport) {
+          header = <Header route={this.props.route} title={`正興城灣盃-第${this.props.params.th}屆報名資料`} user={this.state.user} handleHeaderButtonClick={this.handleHeaderButtonClick("logout")} handleRedirect={this.handleRedirect} th={this.props.params.th} />
+          content = <Participants user={this.state.user} th={this.props.params.th} sport={this.props.params.sport} />
+        }
+        else {
+          header = <Header route={this.props.route} title={`正興城灣盃-第${this.props.params.th}屆報名資料`} user={this.state.user} handleHeaderButtonClick={this.handleHeaderButtonClick("logout")} handleRedirect={this.handleRedirect} th={this.props.params.th} />
+          content = <Sports user={this.state.user} router={this.props.router} th={this.props.params.th} />
+        }
+      }
+      else {
+        header = <Header route={this.props.route} title="正興城灣盃-歷屆資料" user={this.state.user} handleHeaderButtonClick={this.handleHeaderButtonClick("logout")} handleRedirect={this.handleRedirect} />
+        content = <Years user={this.state.user} router={this.props.router} />;
+      }
     }
     else if(this.props.route.path === '/login') {
       header = <Header route={this.props.route} title="正興城灣盃-登入" />
