@@ -4,16 +4,14 @@ import {TextField, Checkbox, DatePicker} from 'material-ui';
 class Input extends Component {
   constructor(props) {
     super(props);
-    
+
     this.state = {
       id: this.props.name + +new Date(),
       value: this.props.value ? this.props.value : ''
     };
-
-    this.handleChange = this.handleChange.bind(this);
   }
 
-  handleChange(e, v) {
+  handleChange = (e, v) => {
     // need check input data
     let node = e ? e.target : this.inputNode.props;
     this.setState({value: v});
@@ -56,6 +54,7 @@ class Input extends Component {
           onChange={this.handleChange}
           disabled={this.props.disabled ? true : false}
           name={this.props.name}
+          style={{display: "inline-block"}}
         />
       )
     }
