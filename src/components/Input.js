@@ -11,6 +11,13 @@ class Input extends Component {
     };
   }
 
+  componentWillReceiveProps = (nextProps) => {
+    // You don't have to do this check first, but it can help prevent an unneeded render
+    if (nextProps.value !== this.state.value) {
+      this.setState({ value: typeof nextProps.value === 'undefined' ? '' : nextProps.value });
+    }
+  }
+
   handleChange = (e, v) => {
     // need check input data
     let node = e ? e.target : this.inputNode.props;
@@ -27,7 +34,7 @@ class Input extends Component {
     if(this.props.type === "text" || this.props.type === "email") {
       inputComponent = (
         <TextField
-          defaultValue={this.state.value}
+          value={this.state.value}
           floatingLabelText={this.props.text}
           onChange={this.handleChange}
           disabled={this.props.disabled ? true : false}
