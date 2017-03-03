@@ -16,7 +16,13 @@ class Participants extends Component {
     this.tmpRemove = {};
   }
 
+  beforeunload = () => {
+    console.log("QQQ");
+    this.removeParticipant();
+  }
+
   componentDidMount() {
+    window.addEventListener("beforeunload", this.beforeunload);
     if(this.props.user){ // need varify
       let self = this;
       this.dataRef.on('value', function(snapshot) {
@@ -26,6 +32,32 @@ class Participants extends Component {
   }
 
   componentWillUnmount() {
+    window.removeEventListener("beforeunload", this.beforeunload);
+    this.removeParticipant();
+  }
+
+  updateParticipants = (d) => {
+    // need loading icon
+    let data = d ? d : {};
+    let cardData = [
+      { title: "教練", uid: data.coach, content: (<ParticipantInfo user={this.props.user} th={this.props.th} uid={data.coach} />) },
+      { title: "管理", uid: data.manager, content: (<ParticipantInfo user={this.props.user} th={this.props.th} uid={data.manager} />) },
+      { title: "隊長", uid: data.leader, content: (<ParticipantInfo user={this.props.user} th={this.props.th} uid={data.leader} />) }
+    ];
+
+    if(data.member){
+      Object.keys(data.member).map(uid => {
+        cardData.push({ title: "隊員", uid: uid, content: (<ParticipantInfo user={this.props.user} th={this.props.th} uid={uid} />) });
+        return 0;
+      });
+    }
+
+    this.setState({ // need loading
+      cardData: cardData
+    });
+  }
+
+  removeParticipant = () => {
     if(Object.keys(this.tmpRemove).length > 0)
       window.firebase.database().ref().update(
         Object.keys(this.tmpRemove).reduce((p, c) => {
@@ -38,28 +70,6 @@ class Participants extends Component {
           this.dataRef.off();
         }
       });
-
-  }
-
-  updateParticipants = (d) => {
-    // need loading icon
-    let data = d ? d : {};
-    let cardData = [
-      { title: "教練", content: (<ParticipantInfo user={this.props.user} th={this.props.th} uid={data.coach} />) },
-      { title: "管理", content: (<ParticipantInfo user={this.props.user} th={this.props.th} uid={data.manager} />) },
-      { title: "隊長", content: (<ParticipantInfo user={this.props.user} th={this.props.th} uid={data.leader} />) }
-    ];
-
-    if(data.member){
-      Object.keys(data.member).map(uid => {
-        cardData.push({ title: "隊員", content: (<ParticipantInfo user={this.props.user} th={this.props.th} uid={uid} />) });
-        return 0;
-      });
-    }
-
-    this.setState({ // need loading
-      cardData: cardData
-    });
   }
 
   handleAddParticipantInfo = () => {
@@ -74,11 +84,13 @@ class Participants extends Component {
   }
 
   handleRemoveParticipantInfo = (uid, isRemove = true) => {
-    window.firebase.database().ref().update({
-      [`/participants/ncku/${this.props.th}/${this.props.sport}/member/${uid}`] : isRemove ? null : true
-    }, (err) => { // can add redo
-      this.tmpRemove = Object.assign(this.tmpRemove, {[uid]: isRemove});
-    });
+    return () => {
+      window.firebase.database().ref().update({
+        [`/participants/ncku/${this.props.th}/${this.props.sport}/member/${uid}`] : isRemove ? null : true
+      }, (err) => { // can add redo
+        this.tmpRemove = Object.assign(this.tmpRemove, {[uid]: isRemove});
+      });
+    }
   }
 
   render() {
@@ -86,7 +98,8 @@ class Participants extends Component {
       <div style={{paddingTop: "64px"}}>
         <div style={{textAlign: "center"}}>
           <ActionHome />
-          <CardContainer cardData={this.state.cardData} router={this.props.router} handleRemoveParticipantInfo={this.handleRemoveParticipantInfo}
+          <CardContainer cardData={this.state.cardData} router={this.props.router}
+            handleRemoveParticipantInfo={this.handleRemoveParticipantInfo}
             cardHeight={620}
             plus1Position="after" handlePlus1={this.handleAddParticipantInfo} />
         </div>

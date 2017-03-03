@@ -21,11 +21,21 @@ class CardItem extends Component {
       )
     }
 
+    let clearButton = null;
+    if(this.props.handleRemoveParticipantInfo)
+      clearButton = (
+        <div style={{textAlign: "right"}}>
+          <IconButton>
+            <ContentClear onTouchTap={this.props.handleRemoveParticipantInfo} />
+          </IconButton>
+        </div>
+      )
+
     let cardComponent = null;
     if(this.props.url) {
       cardComponent = (
         <Card style={{width: "280px", height: this.props.cardHeight, margin: "10px", display: "inline-block"}}>
-          <div style={{textAlign: "right"}}><IconButton><ContentClear /></IconButton></div>
+          {clearButton}
           <CardTitle title={this.props.title} subtitle={this.props.subtitle} style={{cursor: "pointer"}}
             onTouchTap={() => this.props.router.push(this.props.url)} />
           {cardContent}
@@ -35,7 +45,7 @@ class CardItem extends Component {
     else {
       cardComponent = (
         <Card style={{width: "280px", height: +this.props.cardHeight, margin: "10px", display: "inline-block"}}>
-          <div style={{textAlign: "right"}}><IconButton><ContentClear /></IconButton></div>
+          {clearButton}
           <CardTitle title={this.props.title} subtitle={this.props.subtitle}  />
           {cardContent}
         </Card>

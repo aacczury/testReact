@@ -7,7 +7,9 @@ class CardContainer extends Component {
   render() {
     let cardItems = this.props.cardData.map((d, index) => {
       return <CardItem key={`${d.title}_${index}`} {...d} router={this.props.router}
-        cardHeight={this.props.cardHeight} handleCardTouch={this.props.handleCardTouch} />;
+        cardHeight={this.props.cardHeight}
+        handleCardTouch={this.props.handleCardTouch}
+        handleRemoveParticipantInfo={this.props.handleRemoveParticipantInfo && this.props.handleRemoveParticipantInfo(d.uid)} />;
     });
 
     return (
