@@ -9,7 +9,7 @@ class CardContainer extends Component {
       return <CardItem key={`${d.title}_${index}`} {...d} router={this.props.router}
         cardHeight={this.props.cardHeight}
         handleCardTouch={this.props.handleCardTouch}
-        handleRemoveParticipantInfo={this.props.handleRemoveParticipantInfo && this.props.handleRemoveParticipantInfo(d.uid)} />;
+        handleRemoveParticipantInfo={this.props.handleRemoveParticipantInfo && d.uid && this.props.handleRemoveParticipantInfo(d.uid)} />;
     });
 
     return (

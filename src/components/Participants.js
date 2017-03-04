@@ -17,7 +17,6 @@ class Participants extends Component {
   }
 
   beforeunload = () => {
-    console.log("QQQ");
     this.removeParticipant();
   }
 
@@ -40,9 +39,9 @@ class Participants extends Component {
     // need loading icon
     let data = d ? d : {};
     let cardData = [
-      { title: "教練", uid: data.coach, content: (<ParticipantInfo user={this.props.user} th={this.props.th} uid={data.coach} />) },
-      { title: "管理", uid: data.manager, content: (<ParticipantInfo user={this.props.user} th={this.props.th} uid={data.manager} />) },
-      { title: "隊長", uid: data.leader, content: (<ParticipantInfo user={this.props.user} th={this.props.th} uid={data.leader} />) }
+      { title: "教練", content: (<ParticipantInfo user={this.props.user} th={this.props.th} uid={data.coach} />) },
+      { title: "管理", content: (<ParticipantInfo user={this.props.user} th={this.props.th} uid={data.manager} />) },
+      { title: "隊長", content: (<ParticipantInfo user={this.props.user} th={this.props.th} uid={data.leader} />) }
     ];
 
     if(data.member){
@@ -73,7 +72,7 @@ class Participants extends Component {
   }
 
   handleAddParticipantInfo = () => {
-    let uid = window.firebase.database().ref().push().key;
+    let uid = window.firebase.database().ref(`/participant/ncku/${this.props.th}/`).push().key;
     window.firebase.database().ref().update({
       [`/participant/ncku/${this.props.th}/${uid}`]: {sport: this.props.sport},
       [`/participants/ncku/${this.props.th}/${this.props.sport}/member/${uid}`]: true

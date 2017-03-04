@@ -44,6 +44,19 @@ class ParticipantInfo extends Component {
     }
   }
 
+  createInputData = (ptcInfo) => {
+    return [
+      { type: "text", name: "name", text: "姓名", value: ptcInfo.name, disabled: false },
+      { type: "text", name: "deptyear", text: "系級", value: ptcInfo.deptyear, disabled: false },
+      { type: "text", name: "id", text: "身分證字號", value: ptcInfo.id, disabled: false },
+      { type: "date", name: "birthday", text: "出生年月日", value: ptcInfo.birthday, disabled: false },
+      { type: "text", name: "size", text: "衣服尺寸", value: ptcInfo.size, disabled: false },
+      { type: "checkbox", name: "lodging", text: "住宿", value: ptcInfo.lodging, disabled: false },
+      { type: "checkbox", name: "bus", text: "搭乘遊覽車", value: ptcInfo.bus, disabled: false },
+      { type: "checkbox", name: "vegetarian", text: "素食", value: ptcInfo.vegetarian, disabled: false }
+    ]
+  }
+
   updateParticipantInfo = (d) => {
     // need loading icon
     let data = d ? d : {};
@@ -57,16 +70,7 @@ class ParticipantInfo extends Component {
       bus: typeof data.bus === 'undefined' ? false : data.bus,
       vegetarian: typeof data.vegetarian === 'undefined' ? false : data.vegetarian
     }
-    let inputData = [
-      { type: "text", name: "name", text: "姓名", value: ptcInfo.name, disabled: false },
-      { type: "text", name: "deptyear", text: "系級", value: ptcInfo.deptyear, disabled: false },
-      { type: "text", name: "id", text: "身分證字號", value: ptcInfo.id, disabled: false },
-      { type: "date", name: "birthday", text: "出生年月日", value: ptcInfo.birthday, disabled: false },
-      { type: "text", name: "size", text: "衣服尺寸", value: ptcInfo.size, disabled: false },
-      { type: "checkbox", name: "lodging", text: "住宿", value: ptcInfo.lodging, disabled: false },
-      { type: "checkbox", name: "bus", text: "搭乘遊覽車", value: ptcInfo.bus, disabled: false },
-      { type: "checkbox", name: "vegetarian", text: "素食", value: ptcInfo.vegetarian, disabled: false }
-    ];
+    let inputData = this.createInputData(ptcInfo);
     this.setState({ // need loading
       inputData: inputData,
       ptcInfo: ptcInfo
@@ -84,7 +88,11 @@ class ParticipantInfo extends Component {
 
   handleParticipantInfoUpdate = (d) => {
     this.setState(prevState => {
-      return {ptcInfo: Object.assign(prevState.ptcInfo, d)};
+      let curPtcInfo = Object.assign(prevState.ptcInfo, d);
+      return {
+        ptcInfo: curPtcInfo,
+        inputData: this.createInputData(curPtcInfo)
+      };
     });
     this.tmpUpload = Object.assign(this.tmpUpload, d);
     if(this.uploadTimer) clearTimeout(this.uploadTimer);

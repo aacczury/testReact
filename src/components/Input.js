@@ -7,7 +7,7 @@ class Input extends Component {
 
     this.state = {
       id: this.props.name + +new Date(),
-      value: this.props.value ? this.props.value : ''
+      value: typeof this.props.value === 'undefined' ? '' : this.props.value
     };
   }
 

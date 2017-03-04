@@ -31,6 +31,22 @@ class Sports extends Component {
     }
   }
 
+  handleAddSport = () => { // pop screen
+    let sportName = "boyBaseball"; // need check collision
+    let sportTitle = "男子籃球";
+    let sportArena = "自強XX";
+    let coachUid = window.firebase.database().ref(`/participant/ncku/${this.props.th}/coach`).push().key;
+    let managerUid = window.firebase.database().ref(`/participant/ncku/${this.props.th}/manager`).push().key;
+    let leaderUid = window.firebase.database().ref(`/participant/ncku/${this.props.th}/leader`).push().key;
+    window.firebase.database().ref().update({
+      [`/sports/${this.props.th}/${sportName}`]: {title: sportTitle, arena: sportArena},
+      [`/participants/ncku/${this.props.th}/${sportName}`]: {coach: coachUid, manager: managerUid, leader: leaderUid}
+    }, (err) => {
+      // will update by on
+      if(err) console.log(err);
+    });
+  }
+
   updateSports = (d) => {
     // need loading icon
     let data = d ? d : {};
@@ -52,7 +68,7 @@ class Sports extends Component {
           <ActionHome />
           <CardContainer cardData={this.state.cardData} router={this.props.router}
             cardHeight={170}
-            plus1Position="before" handlePlus1={this.handleAddParticipantInfo} />
+            plus1Position="before" handlePlus1={this.handleAddSport} />
         </div>
       </div>
     );
