@@ -102,7 +102,7 @@ class ParticipantInfo extends Component {
   render() {
     return (
       <div style={{width: "250px", margin: "0px auto", textAlign: "left"}}>
-        <InputContainer uid={this.props.uid} inputData={this.state.inputData} handleInputUpdate={this.handleParticipantInfoUpdate} />
+        <InputContainer inputData={this.state.inputData} handleInputUpdate={this.handleParticipantInfoUpdate} />
       </div>
     );
   }
