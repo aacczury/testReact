@@ -74,7 +74,7 @@ class Participants extends Component {
   handleAddParticipantInfo = () => {
     let uid = window.firebase.database().ref(`/participant/ncku/${this.props.th}/`).push().key;
     window.firebase.database().ref().update({
-      [`/participant/ncku/${this.props.th}/${uid}`]: {sport: this.props.sport},
+      [`/participant/ncku/${this.props.th}/${uid}`]: {status: "member", sport: this.props.sport},
       [`/participants/ncku/${this.props.th}/${this.props.sport}/member/${uid}`]: true
     }, (err) => {
       // will update by on

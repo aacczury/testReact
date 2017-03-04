@@ -13,7 +13,6 @@ class Sports extends Component {
       cardData: [],
       addSportData: [],
       addSportInfo: {
-        sportName: '',
         sportTitle: '',
         sportArena: ''
       },
@@ -44,8 +43,8 @@ class Sports extends Component {
     // need loading icon
     let data = d ? d : {};
     let cardData = [];
-    Object.keys(data).map(k => {
-      cardData.push({ title: data[k].title, subtitle: data[k].arena, url: `/${this.props.th}/${k}` });
+    Object.keys(data).map(sportUid => {
+      cardData.push({ title: data[sportUid].title, subtitle: data[sportUid].arena, url: `/${this.props.th}/${sportUid}` });
       return 0;
     });
 
@@ -56,7 +55,6 @@ class Sports extends Component {
 
   createAddSportData = (addSportInfo) => {
     return [
-      { type: "text", name: "sportName", text: "英文名稱(唯一)", value: addSportInfo.sportName, disabled: false },
       { type: "text", name: "sportTitle", text: "中文名稱", value: addSportInfo.sportTitle, disabled: false },
       { type: "text", name: "sportArena", text: "比賽地點", value: addSportInfo.sportArena, disabled: false },
     ]
@@ -73,23 +71,23 @@ class Sports extends Component {
   }
 
   handleAddSport = () => { // pop screen
-    let {sportName, sportTitle, sportArena} = this.state.addSportInfo; // need check collision
-    let coachUid = window.firebase.database().ref(`/participant/ncku/${this.props.th}/coach`).push().key;
-    let managerUid = window.firebase.database().ref(`/participant/ncku/${this.props.th}/manager`).push().key;
-    let leaderUid = window.firebase.database().ref(`/participant/ncku/${this.props.th}/leader`).push().key;
+    let {sportTitle, sportArena} = this.state.addSportInfo; // need check collision
+    let sportUid = window.firebase.database().ref(`/sports/${this.props.th}/`).push().key;
+    let coachUid = window.firebase.database().ref(`/participant/ncku/${this.props.th}`).push().key;
+    let managerUid = window.firebase.database().ref(`/participant/ncku/${this.props.th}`).push().key;
+    let leaderUid = window.firebase.database().ref(`/participant/ncku/${this.props.th}`).push().key;
     window.firebase.database().ref().update({
-      [`/sports/${this.props.th}/${sportName}`]: {title: sportTitle, arena: sportArena},
-      [`/participants/ncku/${this.props.th}/${sportName}`]: {coach: coachUid, manager: managerUid, leader: leaderUid},
-      [`/participant/ncku/${this.props.th}/${coachUid}`]: {status: "coach", sport: sportName},
-      [`/participant/ncku/${this.props.th}/${managerUid}`]: {status: "manager", sport: sportName},
-      [`/participant/ncku/${this.props.th}/${leaderUid}`]: {status: "leader", sport: sportName}
+      [`/sports/${this.props.th}/${sportUid}`]: {title: sportTitle, arena: sportArena},
+      [`/participants/ncku/${this.props.th}/${sportUid}`]: {coach: coachUid, manager: managerUid, leader: leaderUid},
+      [`/participant/ncku/${this.props.th}/${coachUid}`]: {status: "coach", sport: sportUid},
+      [`/participant/ncku/${this.props.th}/${managerUid}`]: {status: "manager", sport: sportUid},
+      [`/participant/ncku/${this.props.th}/${leaderUid}`]: {status: "leader", sport: sportUid}
     }, (err) => {
       // will update by on
       if(err) console.log(err);
       this.handleAddDialogClose();
       this.setState(prevState => {
         let curAddSportInfo = {
-          sportName: '',
           sportTitle: '',
           sportArena: ''
         };
@@ -134,7 +132,7 @@ class Sports extends Component {
         modal={false}
         open={this.state.addDialogOpen}
         onRequestClose={this.handleAddDialogClose}
-        contentStyle={{maxWidth: "410px"}}
+        contentStyle={{maxWidth: "300px"}}
       >
         <InputContainer inputData={this.state.addSportData} handleInputUpdate={this.handleAddSportInfoUpdate} />
       </Dialog>

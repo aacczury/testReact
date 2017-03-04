@@ -34,7 +34,7 @@ class CardItem extends Component {
     let cardComponent = null;
     if(this.props.url) {
       cardComponent = (
-        <Card style={{width: "280px", height: this.props.cardHeight, margin: "10px", display: "inline-block"}}>
+        <Card style={{width: "280px", height: this.props.cardHeight, margin: "10px", display: "inline-block", verticalAlign: "top"}}>
           {clearButton}
           <CardTitle title={this.props.title} subtitle={this.props.subtitle} style={{cursor: "pointer"}}
             onTouchTap={() => this.props.router.push(this.props.url)} />
@@ -44,7 +44,7 @@ class CardItem extends Component {
     }
     else {
       cardComponent = (
-        <Card style={{width: "280px", height: +this.props.cardHeight, margin: "10px", display: "inline-block"}}>
+        <Card style={{width: "280px", height: +this.props.cardHeight, margin: "10px", display: "inline-block", verticalAlign: "top"}}>
           {clearButton}
           <CardTitle title={this.props.title} subtitle={this.props.subtitle}  />
           {cardContent}
