@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import {ActionHome} from 'material-ui/svg-icons';
 
-import ParticipantInfo from './ParticipantInfo'
+import ParticipantInfo from '../components/ParticipantInfo'
 import CardContainer from '../containers/CardContainer';
 
 class Participants extends Component {

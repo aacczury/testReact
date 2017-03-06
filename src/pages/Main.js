@@ -1,11 +1,6 @@
 import React, { Component } from 'react';
 import {ActionHome} from 'material-ui/svg-icons';
 
-//import Header from './Header';
-//import UserInfo from './UserInfo';
-//import Register from './Register';
-
-
 class Main extends Component {
   render() {
     let content = (

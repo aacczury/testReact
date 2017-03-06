@@ -16,9 +16,6 @@ class Years extends Component {
     if(this.props.user){
       let self = this;
       this.dataRef = window.firebase.database().ref(`/years`);
-      this.dataRef.once('value').then(function(snapshot) {
-        self.updateYears(snapshot.val());
-      });
       this.dataRef.on('value', function(snapshot) {
         self.updateYears(snapshot.val());
       });

@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
 
-import Header from './Header';
+import Header from '../partials/Header';
 import Main from './Main';
 import Login from './Login';
 import Years from './Years';
 import Sports from './Sports';
 import Participants from './Participants'
+import Overview from './Overview'
 
 //import './App.css';
 
@@ -60,7 +61,12 @@ class App extends Component {
 
     if(this.state.user) {
       if(this.props.params.th) {
-        if(this.props.params.sport) {
+        console.log(this.props);
+        if(this.props.route.path === '/:th/overview') {
+          header = <Header route={this.props.route} title={`正興城灣盃-第${this.props.params.th}屆總覽`} user={this.state.user} handleHeaderButtonClick={this.handleHeaderButtonClick("logout")} handleRedirect={this.handleRedirect} th={this.props.params.th} />
+          content = <Overview user={this.state.user} th={this.props.params.th} />
+        }
+        else if(this.props.params.sport) {
           header = <Header route={this.props.route} title={`正興城灣盃-第${this.props.params.th}屆報名資料`} user={this.state.user} handleHeaderButtonClick={this.handleHeaderButtonClick("logout")} handleRedirect={this.handleRedirect} th={this.props.params.th} />
           content = <Participants user={this.state.user} th={this.props.params.th} sport={this.props.params.sport} />
         }
