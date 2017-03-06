@@ -27,10 +27,9 @@ class ParticipantInfo extends Component {
 
   componentWillReceiveProps = (nextProps) => {
     // You don't have to do this check first, but it can help prevent an unneeded render
-    if (nextProps.uid !== this.props.uid) {
-      console.log(`this: ${this.props.uid}, next: ${nextProps.uid}`);
-      this.dataRef = window.firebase.database().ref(`/participant/ncku/${this.props.th}/${nextProps.uid}`);
+    if (nextProps.th !== this.props.th || nextProps.uid !== this.props.uid) {
       this.dataRef.off('value', this.dataListener);
+      this.dataRef = window.firebase.database().ref(`/participant/ncku/${nextProps.th}/${nextProps.uid}`);
       let self = this;
       this.dataListener = this.dataRef.on('value', function(snapshot) {
         self.updateParticipantInfo(snapshot.val());

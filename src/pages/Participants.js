@@ -24,7 +24,20 @@ class Participants extends Component {
     window.addEventListener("beforeunload", this.beforeunload);
     if(this.props.user){ // need varify
       let self = this;
-      this.dataRef.on('value', function(snapshot) {
+      this.dataListener = this.dataRef.on('value', function(snapshot) {
+        self.updateParticipants(snapshot.val());
+      });
+    }
+  }
+
+  componentWillReceiveProps = (nextProps) => {
+    // You don't have to do this check first, but it can help prevent an unneeded render
+    if (nextProps.th !== this.props.th || nextProps.sport !== this.props.sport) {
+      this.dataRef.off('value', this.dataListener);
+      this.dataRef = window.firebase.database().ref(`/participants/ncku/${nextProps.th}/${nextProps.sport}`);
+      let self = this;
+      this.dataListener = this.dataRef.on('value', function(snapshot) {
+        console.log(snapshot.val());
         self.updateParticipants(snapshot.val());
       });
     }
