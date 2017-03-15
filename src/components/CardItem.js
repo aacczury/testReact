@@ -37,7 +37,7 @@ class CardItem extends Component {
         <Card style={{width: "280px", height: this.props.cardHeight, margin: "10px", display: "inline-block", verticalAlign: "top"}}>
           {clearButton}
           <CardTitle title={this.props.title} subtitle={this.props.subtitle} style={{cursor: "pointer"}}
-            onTouchTap={() => this.props.router.push(this.props.url)} />
+            onTouchTap={() => this.props.handleRedirect(this.props.url)} />
           {cardContent}
         </Card>
       )

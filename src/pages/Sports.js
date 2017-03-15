@@ -44,7 +44,7 @@ class Sports extends Component {
     let data = d ? d : {};
     let cardData = [];
     Object.keys(data).map(sportUid => {
-      cardData.push({ title: data[sportUid].title, subtitle: data[sportUid].arena, url: `/${this.props.th}/${sportUid}` });
+      cardData.push({ title: data[sportUid].title, subtitle: data[sportUid].arena, url: `/?th=${this.props.th}&sport=${sportUid}` });
       return 0;
     });
 
@@ -142,7 +142,7 @@ class Sports extends Component {
       <div style={{paddingTop: "64px"}}>
         <div style={{textAlign: "center"}}>
           <ActionHome />
-          <CardContainer cardData={this.state.cardData} router={this.props.router}
+          <CardContainer cardData={this.state.cardData} handleRedirect={this.props.handleRedirect}
             cardHeight={170}
             plus1Position="before" handlePlus1={this.handleAddDialogOpen} />
           {addDialog}

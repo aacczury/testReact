@@ -6,7 +6,7 @@ import AddCard from '../components/AddCard'
 class CardContainer extends Component {
   render() {
     let cardItems = this.props.cardData.map((d, index) => {
-      return <CardItem key={`${d.title}_${index}`} {...d} router={this.props.router}
+      return <CardItem key={`${d.title}_${index}`} {...d} handleRedirect={this.props.handleRedirect}
         cardHeight={this.props.cardHeight}
         handleCardTouch={this.props.handleCardTouch}
         handleRemoveParticipantInfo={this.props.handleRemoveParticipantInfo && d.uid && this.props.handleRemoveParticipantInfo(d.uid)} />;

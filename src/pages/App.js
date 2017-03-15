@@ -50,7 +50,7 @@ class App extends Component {
         });
       },
       login: () => {
-        this.handleRedirect('/login');
+        this.handleRedirect('/?login=true');
       }
     }[event]
   }
@@ -58,35 +58,40 @@ class App extends Component {
   render() {
     let header = null;
     let content = null;
-
+    let query = this.props.location.query;
+    console.log(query);
     if(this.state.user) {
-      if(this.props.params.th) {
-        console.log(this.props);
-        if(this.props.route.path === '/:th/overview') {
-          header = <Header route={this.props.route} title={`正興城灣盃-第${this.props.params.th}屆總覽`} user={this.state.user} handleHeaderButtonClick={this.handleHeaderButtonClick("logout")} handleRedirect={this.handleRedirect} th={this.props.params.th} />
-          content = <Overview user={this.state.user} th={this.props.params.th} />
+      if(query.th) {
+        if(query.overview) {
+          header = <Header title={`正興城灣盃-第${query.th}屆總覽`} user={this.state.user}
+            handleHeaderButtonClick={this.handleHeaderButtonClick("logout")} handleRedirect={this.handleRedirect} th={query.th} />
+          content = <Overview user={this.state.user} th={query.th} />
         }
-        else if(this.props.params.sport) {
-          header = <Header route={this.props.route} title={`正興城灣盃-第${this.props.params.th}屆報名資料`} user={this.state.user} handleHeaderButtonClick={this.handleHeaderButtonClick("logout")} handleRedirect={this.handleRedirect} th={this.props.params.th} />
-          content = <Participants user={this.state.user} th={this.props.params.th} sport={this.props.params.sport} />
+        else if(query.sport) {
+          header = <Header title={`正興城灣盃-第${query.th}屆報名資料`} user={this.state.user}
+            handleHeaderButtonClick={this.handleHeaderButtonClick("logout")} handleRedirect={this.handleRedirect} th={query.th} />
+          content = <Participants user={this.state.user} th={query.th} sport={query.sport} />
         }
         else {
-          header = <Header route={this.props.route} title={`正興城灣盃-第${this.props.params.th}屆報名資料`} user={this.state.user} handleHeaderButtonClick={this.handleHeaderButtonClick("logout")} handleRedirect={this.handleRedirect} th={this.props.params.th} />
-          content = <Sports user={this.state.user} router={this.props.router} th={this.props.params.th} />
+          header = <Header title={`正興城灣盃-第${query.th}屆比賽項目`} user={this.state.user}
+            handleHeaderButtonClick={this.handleHeaderButtonClick("logout")} handleRedirect={this.handleRedirect} th={query.th} />
+          content = <Sports user={this.state.user} handleRedirect={this.handleRedirect} th={query.th} />
         }
       }
       else {
-        header = <Header route={this.props.route} title="正興城灣盃-歷屆資料" user={this.state.user} handleHeaderButtonClick={this.handleHeaderButtonClick("logout")} handleRedirect={this.handleRedirect} />
-        content = <Years user={this.state.user} router={this.props.router} />;
+        header = <Header title="正興城灣盃-歷屆資料" user={this.state.user}
+          handleHeaderButtonClick={this.handleHeaderButtonClick("logout")} handleRedirect={this.handleRedirect} />
+        content = <Years user={this.state.user} handleRedirect={this.handleRedirect} />;
       }
     }
-    else if(this.props.route.path === '/login') {
-      header = <Header route={this.props.route} title="正興城灣盃-登入" />
-      content = <Login route={this.props.route} router={this.context.router} />
+    else if(query.login || query.mode) {
+      header = <Header login={query.login || query.mode} title="正興城灣盃-登入" />
+      content = <Login handleRedirect={this.handleRedirect} />
     }
     else {
-      header = <Header route={this.props.route} title="正興城灣盃" handleHeaderButtonClick={this.handleHeaderButtonClick("login")} />
-      content = <Main route={this.props.route} />;
+      header = <Header title="正興城灣盃"
+        handleHeaderButtonClick={this.handleHeaderButtonClick("login")} />
+      content = <Main />;
     }
 
     return (
@@ -97,9 +102,5 @@ class App extends Component {
     );
   }
 }
-
-App.contextTypes = {
-  router: React.PropTypes.object.isRequired
-};
 
 export default App;

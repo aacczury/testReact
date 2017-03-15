@@ -3,7 +3,6 @@ import React, { Component } from 'react';
 class Login extends Component {
   constructor(props) {
     super(props);
-    console.log(this.props.route);
     this.state = {};
   }
 
@@ -19,9 +18,9 @@ class Login extends Component {
             if(!snapshot.val()) {
               window.firebase.database().ref(`/users/${userId}`).set({
                 display_name: user.displayName
-              }).then(() => self.context.router.push("/"));
+              }).then(() => self.props.handleRedirect("/"));
             }else {
-              self.context.router.push("/");
+              self.props.handleRedirect("/");
             }
           });
           //if(!user.emailVerified){
@@ -58,9 +57,5 @@ class Login extends Component {
     );
   }
 }
-
-Login.contextTypes = {
-  router: React.PropTypes.object.isRequired
-};
 
 export default Login;

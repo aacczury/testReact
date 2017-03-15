@@ -33,7 +33,7 @@ class Years extends Component {
     let data = d ? d : {};
     let cardData = [];
     Object.keys(data).map(k => {
-      cardData.push({ title: data[k].title, subtitle: data[k].organizer, url: `/${data[k].th}` });
+      cardData.push({ title: data[k].title, subtitle: data[k].organizer, url: `/?th=${data[k].th}` });
       return 0;
     });
 
@@ -48,7 +48,7 @@ class Years extends Component {
       <div style={{paddingTop: "64px"}}>
         <div style={{textAlign: "center"}}>
           <ActionHome />
-          <CardContainer cardData={this.state.cardData} router={this.props.router}
+          <CardContainer cardData={this.state.cardData} handleRedirect={this.props.handleRedirect}
             cardHeight={160}
             plus1Position="before" handlePlus1={this.handleAddParticipantInfo} />
         </div>

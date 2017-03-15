@@ -136,11 +136,13 @@ class Participants extends Component {
                 </thead>
                 <tbody>
                   {this.state.tableData}
-                  <td colSpan="10">
-                    <IconButton>
-                      <ImageExposurePlus1 onTouchTap={this.handleAddParticipantInfo} />
-                    </IconButton>
-                  </td>
+                  <tr>
+                    <td colSpan="10">
+                      <IconButton>
+                        <ImageExposurePlus1 onTouchTap={this.handleAddParticipantInfo} />
+                      </IconButton>
+                    </td>
+                  </tr>
                 </tbody>
               </table>
             </CardText>

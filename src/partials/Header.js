@@ -29,7 +29,7 @@ class Header extends Component {
       );
       rightButton = <FlatButton onTouchTap={this.props.handleHeaderButtonClick} label="登出" />
     }
-    else if(this.props.route.path === '/login') {
+    else if(this.props.login) {
       leftButton = (<IconButton><ActionHome /></IconButton>);
       rightButton = null;
     }
