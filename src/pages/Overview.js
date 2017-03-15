@@ -4,6 +4,9 @@ import {blue200, indigo200, red200} from 'material-ui/styles/colors';
 import fileSaver from 'file-saver';
 import {FileFileDownload} from 'material-ui/svg-icons'
 
+import Input from '../components/Input.js';
+
+
 class Overview extends Component {
   constructor(props) {
     super(props);
@@ -214,6 +217,59 @@ class Overview extends Component {
             <CardTitle title={this.props.title} subtitle={this.props.subtitle}  />
             <CardText>
               {tableContainer}
+            </CardText>
+          </Card>
+          <Card style={{margin: "10px", display: "inline-block", verticalAlign: "top"}}>
+            <CardTitle title={this.props.title} subtitle={this.props.subtitle}  />
+            <CardText>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHeaderColumn>姓名</TableHeaderColumn>
+                    <TableHeaderColumn>系級</TableHeaderColumn>
+                    <TableHeaderColumn>生日</TableHeaderColumn>
+                    <TableHeaderColumn>素食</TableHeaderColumn>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  <TableRow>
+                    <TableRowColumn><Input type="text" name="name" text="姓名" value="test" disabled={false} /></TableRowColumn>
+                    <TableRowColumn><Input type="text" name="deptyear" text="系級" value="" disabled={false} /></TableRowColumn>
+                    <TableRowColumn><Input type="date" name="birthday" text="生日" value="" disabled={false} /></TableRowColumn>
+                    <TableRowColumn><Input type="checkbox" name="vegetarian" text="素食" value="" disabled={false} /></TableRowColumn>
+                  </TableRow>
+                    <TableRow>
+                      <TableRowColumn><Input type="text" name="name" text="姓名" value="test" disabled={false} /></TableRowColumn>
+                      <TableRowColumn><Input type="text" name="deptyear" text="系級" value="" disabled={false} /></TableRowColumn>
+                      <TableRowColumn><Input type="date" name="birthday" text="生日" value="" disabled={false} /></TableRowColumn>
+                      <TableRowColumn><Input type="checkbox" name="vegetarian" text="素食" value="" disabled={false} /></TableRowColumn>
+                    </TableRow>
+                </TableBody>
+              </Table>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Payment</th>
+                      <th>Issue Date</th>
+                      <th>Amount</th>
+                      <th>Period</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td data-label="Payment"><Input type="text" name="name" text="姓名" value="test" disabled={false} /></td>
+                      <td data-label="Issue Date"><Input type="text" name="deptyear" text="系級" value="" disabled={false} /></td>
+                      <td data-label="Amount"><Input type="date" name="birthday" text="生日" value="" disabled={false} /></td>
+                      <td data-label="Period"><Input type="checkbox" name="vegetarian" text="素食" value="" disabled={false} /></td>
+                    </tr>
+                    <tr>
+                      <td data-label="Payment">Payment #2</td>
+                      <td data-label="Issue Date">03/01/2015</td>
+                      <td data-label="Amount">$3,211</td>
+                      <td data-label="Period">02/01/2015 - 02/28/2015</td>
+                    </tr>
+                  </tbody>
+                </table>
             </CardText>
           </Card>
         </div>

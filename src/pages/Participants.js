@@ -1,15 +1,16 @@
 import React, { Component } from 'react';
-import {ActionHome} from 'material-ui/svg-icons';
+import {ActionHome, ImageExposurePlus1} from 'material-ui/svg-icons';
+import {Card, CardTitle, CardText, IconButton} from 'material-ui';
 
-import ParticipantInfo from '../components/ParticipantInfo'
-import CardContainer from '../containers/CardContainer';
+import ParticipantInfo from '../components/ParticipantInfo';
+import '../components/ResTable.css';
 
 class Participants extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      cardData: []
+      tableData: []
     };
 
     this.dataRef = window.firebase.database().ref(`/participants/ncku/${this.props.th}/${this.props.sport}`);
@@ -51,21 +52,22 @@ class Participants extends Component {
   updateParticipants = (d) => {
     // need loading icon
     let data = d ? d : {};
-    let cardData = [
-      { title: "教練", content: (<ParticipantInfo user={this.props.user} th={this.props.th} uid={data.coach} />) },
-      { title: "管理", content: (<ParticipantInfo user={this.props.user} th={this.props.th} uid={data.manager} />) },
-      { title: "隊長", content: (<ParticipantInfo user={this.props.user} th={this.props.th} uid={data.leader} />) }
-    ];
+    let tableData = [
+      <ParticipantInfo key={"ParticipantInfo_-3"} user={this.props.user} th={this.props.th} uid={data.coach} status="教練" />,
+      <ParticipantInfo key={"ParticipantInfo_-2"} user={this.props.user} th={this.props.th} uid={data.manager} status="管理" />,
+      <ParticipantInfo key={"ParticipantInfo_-1"} user={this.props.user} th={this.props.th} uid={data.leader} status="隊長" />
+    ]
 
     if(data.member){
-      Object.keys(data.member).map(uid => {
-        cardData.push({ title: "隊員", uid: uid, content: (<ParticipantInfo user={this.props.user} th={this.props.th} uid={uid} />) });
+      Object.keys(data.member).map((uid, index) => {
+        tableData.push(<ParticipantInfo key={`ParticipantInfo_${index}`} user={this.props.user} th={this.props.th} uid={uid} status="隊員"
+                            handleRemoveParticipantInfo={this.handleRemoveParticipantInfo(uid)} />);
         return 0;
       });
     }
 
     this.setState({ // need loading
-      cardData: cardData
+      tableData: tableData
     });
   }
 
@@ -106,14 +108,43 @@ class Participants extends Component {
   }
 
   render() {
+    let cancelHeadCell = null;
+    if(true) // need check author
+      cancelHeadCell = (<th></th>)
+
     let content = (
       <div style={{paddingTop: "64px"}}>
         <div style={{textAlign: "center"}}>
-          <ActionHome />
-          <CardContainer cardData={this.state.cardData} router={this.props.router}
-            handleRemoveParticipantInfo={this.handleRemoveParticipantInfo}
-            cardHeight={620}
-            plus1Position="after" handlePlus1={this.handleAddParticipantInfo} />
+          <div><ActionHome /></div>
+          <Card style={{margin: "10px", display: "inline-block", verticalAlign: "top"}}>
+            <CardTitle title={this.props.title} subtitle={this.props.subtitle}  />
+            <CardText>
+              <table>
+                <thead>
+                  <tr>
+                    {cancelHeadCell}
+                    <th>身分</th>
+                    <th>姓名</th>
+                    <th>系級</th>
+                    <th>身分證字號</th>
+                    <th>出生年月日</th>
+                    <th>衣服尺寸</th>
+                    <th>住宿</th>
+                    <th>搭乘遊覽車</th>
+                    <th>素食</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {this.state.tableData}
+                  <td colSpan="10">
+                    <IconButton>
+                      <ImageExposurePlus1 onTouchTap={this.handleAddParticipantInfo} />
+                    </IconButton>
+                  </td>
+                </tbody>
+              </table>
+            </CardText>
+          </Card>
         </div>
       </div>
     );

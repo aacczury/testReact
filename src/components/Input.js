@@ -34,8 +34,8 @@ class Input extends Component {
     if(this.props.type === "text" || this.props.type === "email") {
       inputComponent = (
         <TextField
+          fullWidth={true}
           value={this.state.value}
-          floatingLabelText={this.props.text}
           onChange={this.handleChange}
           disabled={this.props.disabled ? true : false}
           name={this.props.name}
@@ -46,10 +46,11 @@ class Input extends Component {
       inputComponent = (
         <Checkbox
           checked={this.state.value ? true : false}
-          label={this.props.text}
           onCheck={this.handleChange}
           disabled={this.props.disabled ? true : false}
           name={this.props.name}
+          style={{marginLeft:"10px"}}
+          iconStyle={{marginLeft:"-10px"}}
         />
       )
     }else if(this.props.type === "date") {
@@ -57,11 +58,10 @@ class Input extends Component {
         <DatePicker ref={(inputNode) => {this.inputNode = inputNode;}}
           container="inline"
           value={this.state.value ? new Date(this.state.value) : null}
-          floatingLabelText={this.props.text}
           onChange={this.handleChange}
           disabled={this.props.disabled ? true : false}
           name={this.props.name}
-          style={{display: "inline-block"}}
+          textFieldStyle={{width: "100%"}}
         />
       )
     }

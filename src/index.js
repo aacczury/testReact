@@ -11,7 +11,7 @@ import './index.css';
 
 injectTapEventPlugin();
 
-const browserHistory = useRouterHistory(createHistory)({ basename: "/" })
+const browserHistory = useRouterHistory(createHistory)({ basename: "/act/chcwcup/register" })
 
 const Index = () => (
   <MuiThemeProvider>

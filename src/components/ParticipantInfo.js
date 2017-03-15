@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import InputContainer from '../containers/InputContainer';
+import ResTR from './ResTR'
 
 class ParticipantInfo extends Component {
   constructor(props) {
@@ -99,11 +99,8 @@ class ParticipantInfo extends Component {
   }
 
   render() {
-    return (
-      <div style={{width: "250px", margin: "0px auto", textAlign: "left"}}>
-        <InputContainer inputData={this.state.inputData} handleInputUpdate={this.handleParticipantInfoUpdate} />
-      </div>
-    );
+    return <ResTR status={this.props.status} inputData={this.state.inputData}
+      handleInputUpdate={this.handleParticipantInfoUpdate} handleRemoveParticipantInfo={this.props.handleRemoveParticipantInfo} />
   }
 }
 
