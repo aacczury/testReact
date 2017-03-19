@@ -62,7 +62,7 @@ class Sports extends Component {
     let data = d ? d : {};
     let cardData = [];
     Object.keys(data).map(sportUid => {
-      if(!this.state.isNCKUHost)
+      if(!this.state.isNCKUHost || this.props.user.auth !== "admin")
         cardData.push({ title: data[sportUid].title, url: `/?th=${this.props.th}&university=ncku&sport=${sportUid}` });
       else {
         cardData.push({ title: data[sportUid].title, content: (

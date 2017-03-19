@@ -12,7 +12,7 @@ class Participants extends Component {
     this.state = {
       tableData: []
     };
-    
+
     this.dataRef = window.firebase.database().ref(`/participants/${this.props.university}/${this.props.th}/${this.props.sport}`);
     this.tmpRemove = {};
   }
@@ -40,6 +40,8 @@ class Participants extends Component {
       this.dataListener = this.dataRef.on('value', function(snapshot) {
         console.log(snapshot.val());
         self.updateParticipants(snapshot.val());
+      }, err => {
+        console.log(err);
       });
     }
   }
@@ -53,18 +55,18 @@ class Participants extends Component {
     // need loading icon
     let data = d ? d : {};
     let tableData = [
-      <ParticipantInfo key={"ParticipantInfo_-3"} user={this.props.user} th={this.props.th} uid={data.coach} status="教練" />,
-      <ParticipantInfo key={"ParticipantInfo_-2"} user={this.props.user} th={this.props.th} uid={data.manager} status="管理" />,
-      <ParticipantInfo key={"ParticipantInfo_-1"} user={this.props.user} th={this.props.th} uid={data.leader} status="隊長" />
+      <ParticipantInfo key={"ParticipantInfo_-3"} user={this.props.user} university={this.props.university} th={this.props.th} uid={data.coach} status="教練" />,
+      <ParticipantInfo key={"ParticipantInfo_-2"} user={this.props.user} university={this.props.university} th={this.props.th} uid={data.manager} status="管理" />,
+      <ParticipantInfo key={"ParticipantInfo_-1"} user={this.props.user} university={this.props.university} th={this.props.th} uid={data.leader} status="隊長" />
     ]
 
     if(data.member){
       Object.keys(data.member).map((uid, index) => {
         if(this.props.user.auth === "admin")
-          tableData.push(<ParticipantInfo key={`ParticipantInfo_${index}`} user={this.props.user} th={this.props.th} uid={uid}
+          tableData.push(<ParticipantInfo key={`ParticipantInfo_${index}`} user={this.props.user} university={this.props.university} th={this.props.th} uid={uid}
             status="隊員" handleRemoveParticipantInfo={this.handleRemoveParticipantInfo(uid)} />);
         else
-          tableData.push(<ParticipantInfo key={`ParticipantInfo_${index}`} user={this.props.user} th={this.props.th} uid={uid}
+          tableData.push(<ParticipantInfo key={`ParticipantInfo_${index}`} user={this.props.user} university={this.props.university} th={this.props.th} uid={uid}
             status="隊員" />);
         return 0;
       });

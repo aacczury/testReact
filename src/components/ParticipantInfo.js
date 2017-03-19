@@ -5,7 +5,7 @@ import ResTR from './ResTR'
 class ParticipantInfo extends Component {
   constructor(props) {
     super(props);
-
+    
     this.state = {
       inputData: [],
       ptcInfo: {}
@@ -21,6 +21,8 @@ class ParticipantInfo extends Component {
       let self = this;
       this.dataListener = this.dataRef.on('value', function(snapshot) {
         self.updateParticipantInfo(snapshot.val());
+      }, err => {
+        console.log(err);
       });
     }
   }
