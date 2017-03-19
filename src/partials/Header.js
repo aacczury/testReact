@@ -24,7 +24,7 @@ class Header extends Component {
         <IconButton
           onTouchTap={this.handleMenuToggle}>
           <NavigationMenu />
-          <LeftMenu menuOpen={this.state.menuOpen} handleMenuRequestChange={this.handleMenuRequestChange} handleRedirect={this.props.handleRedirect} />
+          <LeftMenu user={this.props.user} menuOpen={this.state.menuOpen} handleMenuRequestChange={this.handleMenuRequestChange} handleRedirect={this.props.handleRedirect} />
         </IconButton>
       );
       rightButton = <FlatButton onTouchTap={this.props.handleHeaderButtonClick} label="登出" />

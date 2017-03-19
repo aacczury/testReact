@@ -2,38 +2,55 @@ import React, { Component } from 'react';
 import {Drawer, Divider, List, ListItem} from 'material-ui';
 
 class LeftMenu extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      years: {},
+      sports: {}
+    };
+  }
+
+  componentDidMount() {
+    if(this.props.user){
+      let self = this;
+      window.firebase.database().ref(`/years`).on('value', years => {
+        self.setState({years: years.val() ? years.val() : {}});
+      });
+      window.firebase.database().ref(`/sports`).on('value', sports => {
+        self.setState({sports: sports.val() ? sports.val() : {}});
+      });
+    }
+  }
+
   render() {
     return (
-      <Drawer
-        docked={false}
-        open={this.props.menuOpen}
-        onRequestChange={this.props.handleMenuRequestChange}
-        style={{textAlign: "left"}}
-      >
+      <Drawer docked={false} open={this.props.menuOpen}
+        onRequestChange={this.props.handleMenuRequestChange} style={{textAlign: "left"}} >
         <List>
-          <ListItem
-              primaryText="11屆"
-              initiallyOpen={true}
-              primaryTogglesNestedList={true}
-              nestedItems={[
-                <ListItem
-                  key={1}
-                  primaryText="總覽"
-                  onTouchTap={() => this.props.handleRedirect('/?th=11&overview=true')}
-                />,
-                <ListItem
-                  key={2}
-                  primaryText="比賽項目"
-                  primaryTogglesNestedList={true}
-                  nestedItems={[
-                    <ListItem key={0} primaryText="所有比賽項目" onTouchTap={() => this.props.handleRedirect('/?th=11')} />,
-                    <Divider key={"d0"} />,
-                    <ListItem key={1} primaryText="教職員網球" onTouchTap={() => this.props.handleRedirect('/?th=11&sport=-KeO8sg5ry5SdyGk3rL-')} />,
-                    <ListItem key={2} primaryText="教職員羽球" onTouchTap={() => this.props.handleRedirect('/?th=11&sport=-KeO8ulXRtmdxw3-9lfR')} />
-                  ]}
-                />,
-              ]}
-            />
+          {
+            Object.keys(this.state.years).map((y, yIndex) => {
+              let years = this.state.years;
+              return <ListItem key={`th_${yIndex}`} primaryText={years[y].title} primaryTogglesNestedList={true} nestedItems={
+                    (this.props.user.auth === "admin" ?
+                      [<ListItem key={1} primaryText={`${years[y].title}總覽`}
+                        onTouchTap={() => this.props.handleRedirect(`/?th=${years[y].th}&overview=true`)} />] : []
+                    ).concat(
+                      <ListItem key={2} primaryText="比賽項目" primaryTogglesNestedList={true} nestedItems={
+                          [
+                            <ListItem key={0} primaryText="所有比賽項目" onTouchTap={() => this.props.handleRedirect(`/?th=${years[y].th}`)} />
+                          ].concat(
+                            years[y].th in this.state.sports ?
+                            Object.keys(this.state.sports[years[y].th]).map((s, sIndex) => {
+                              let sports = this.state.sports[years[y].th];
+                              return <ListItem key={`sportItem_${sIndex}`} primaryText={sports[s].title} onTouchTap={() => this.props.handleRedirect(`/?th=${years[y].th}&sport=${s}`)} />
+                            }) : []
+                          )
+                      } />)
+                  }
+                />
+            })
+          }
         </List>
         <Divider />
       </Drawer>
