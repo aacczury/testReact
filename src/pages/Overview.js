@@ -4,15 +4,13 @@ import {blue200, indigo200, red200} from 'material-ui/styles/colors';
 import fileSaver from 'file-saver';
 import {FileFileDownload} from 'material-ui/svg-icons'
 
-import Input from '../components/Input.js';
-
-
 class Overview extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
       tableData: [],
+      sportData: [],
       countDiffID: 0,
       countConflictPtc: 0,
       countVegetarian: 0,
@@ -25,10 +23,12 @@ class Overview extends Component {
       let self = this;
       this.dataRef = window.firebase.database().ref(`/participant/ncku/${this.props.th}`);
       window.firebase.database().ref(`/sports/${this.props.th}`).once('value').then(sportShot => {
-        this.dataRef.on('value', function(snapshot) {
-          self.updateOverview(snapshot.val(), sportShot.val());
+        window.firebase.database().ref(`/participants/ncku/${this.props.th}`).once('value').then(participantsShot => {
+          this.dataRef.on('value', participant => {
+            self.updateOverview(participant.val(), sportShot.val(), participantsShot.val());
+          });
         });
-      })
+      });
     }
   }
 
@@ -38,60 +38,93 @@ class Overview extends Component {
     }
   }
 
-  updateOverview = (d, s) => {
+  getParticipantData = (data, sports, uid) => {
+    const statusName = {coach: "教練", manager: "管理", leader: "隊長", member: "隊員"};
+    const keyList = ["id", "name", "sport", "status", "deptyear", "birthday", "size", "lodging", "bus", "vegetarian"];
+    let d = data[uid];
+
+    keyList.map(k => {
+      if(typeof d[k] === "undefined") {
+        if(k !== "lodging" && k !== "bus" && k !== "vegetarian") d[k] = "";
+        else d[k] = false;
+      }
+      return 0;
+    });
+
+    if(d.birthday !== "") {
+      d.birthday = new Date(d.birthday);
+      d.birthday = `${d.birthday.getFullYear()}-${d.birthday.getMonth()}-${d.birthday.getDate()}`;
+    }
+
+    return {
+      id: d.id,
+      name: d.name,
+      deptyear: d.deptyear,
+      birthday: d.birthday,
+      size: String(d.size).toUpperCase(),
+      lodging: d.lodging,
+      bus: d.bus,
+      vegetarian: d.vegetarian,
+      sport: sports[d.sport].title,
+      status: statusName[d.status]
+    }
+  }
+
+  updateOverview = (d, s, p) => {
     // need loading icon
     let data = d ? d : {};
     let sports = s ? s : {};
-    let tableData = [];
-    const statusName = {coach: "教練", manager: "管理", leader: "隊長", member: "隊員"};
+    let participants = p ? p : {};
+    let tableData = [], sportData = [];
+    const statusList = ["coach", "manager", "leader", "member"];
     let diffID = {}, conflictPtc = {};
-    let countVegetarian = 0, countSize = {XS: 0, S: 0, M: 0, L: 0, XL: 0};
+    let countVegetarian = 0, countSize = {};
+
+    Object.keys(sports).map(sportUid => {
+      let perSportData = [];
+      statusList.map(s => {
+        if(s !== "member") {
+          perSportData.push(this.getParticipantData(data, sports, participants[sportUid][s]));
+        } else {
+          if(participants[sportUid][s])
+            Object.keys(participants[sportUid][s]).map(participantUid => {
+              perSportData.push(this.getParticipantData(data, sports, participantUid));
+              return 0;
+            });
+        }
+        return 0;
+      });
+      sportData.push(perSportData);
+      return 0;
+    });
 
     Object.keys(data).map(participantUid => {
-      let {
-        id, name, sport, status,
-        deptyear, birthday, size, lodging, bus, vegetarian
-      } = data[participantUid];
+      let curParticipant = this.getParticipantData(data, sports, participantUid);
+      tableData.push(curParticipant);
 
-      if(!(id in diffID)) {
-        diffID[id] = {...data[participantUid]}
-        countVegetarian ++;
-        if(String(size).toUpperCase() in countSize)
-          countSize[String(size).toUpperCase()] ++;
-        else console.log(`Error Size: ${size}`);
+      if(!(curParticipant.id in diffID)) {
+        diffID[curParticipant.id] = {...curParticipant}
+        if(curParticipant.vegetarian)
+          countVegetarian ++;
+        if(curParticipant.size in countSize)
+          countSize[curParticipant.size] ++;
+        else if(typeof curParticipant.size !== "undefined")
+          countSize[curParticipant.size] = 1;
       }
       else{
-        let pBirthday = new Date(diffID[id].birthday);
-        let cBirthday = new Date(birthday);
-        pBirthday = `${pBirthday.getFullYear()}-${pBirthday.getMonth()}-${pBirthday.getDate()}`
-        cBirthday = `${cBirthday.getFullYear()}-${cBirthday.getMonth()}-${cBirthday.getDate()}`
-        if(diffID[id].id !== id ||
-          diffID[id].name !== name ||
-          diffID[id].deptyear !== deptyear ||
-          pBirthday !== cBirthday ||
-          diffID[id].size !== size ||
-          diffID[id].lodging !== lodging ||
-          diffID[id].bus !== bus ||
-          diffID[id].vegetarian !== vegetarian)
-          conflictPtc[id] = true;
+        Object.keys(curParticipant).map(k => {
+          if(k !== "status" && k !== "sport")
+            if(diffID[curParticipant.id][k] !== curParticipant[k])
+              conflictPtc[curParticipant.id] = true;
+          return 0;
+        });
       }
 
-      tableData.push({
-        id: id,
-        name: name,
-        deptyear: deptyear,
-        birthday: birthday,
-        size: size,
-        lodging: lodging,
-        bus: bus,
-        vegetarian: vegetarian,
-        sport: sports[sport].title,
-        status: statusName[status]
-      })
       return 0;
     });
 
     tableData.sort((a, b) => {return a.id < b.id ? -1 : 1});
+    console.log(tableData);
     let curColor = blue200, needChangeColor = false;
     for(let i = 0; i < tableData.length; ++i) {
       if(needChangeColor && i && tableData[i - 1].id !== tableData[i].id) {
@@ -112,6 +145,7 @@ class Overview extends Component {
 
     this.setState({ // need loading
       tableData: tableData,
+      sportData: sportData,
       countDiffID: Object.keys(diffID).length,
       countConflictPtc: Object.keys(conflictPtc).length,
       countVegetarian: countVegetarian,
@@ -120,22 +154,21 @@ class Overview extends Component {
   }
 
   handleExportData = () => {
-    let outputString = "身分證字號,姓名,系級,生日,衣服尺寸,住宿,遊覽車,素食,項目,身分\n";
-    this.state.tableData.map(d => {
-      let ymdBirthday = typeof d.birthday === "undefined" ? '' : new Date(d.birthday);
-      if(ymdBirthday !== "") ymdBirthday = `${ymdBirthday.getFullYear()}-${ymdBirthday.getMonth()}-${ymdBirthday.getDate()}`
-      outputString += [
-        typeof d.id === "undefined" ? '' : d.id,
-        typeof d.name === "undefined" ? '' : d.name,
-        typeof d.deptyear === "undefined" ? '' : d.deptyear,
-        ymdBirthday,
-        typeof d.size === "undefined" ? '' : String(d.size).toUpperCase(),
-        d.lodging ? 'V' : '',
-        d.bus ? 'V' : '',
-        d.vegetarian ? 'V' : '',
-        d.sport,
-        d.status
-      ].join(',') + "\n";
+    let outputString = "";
+    this.state.sportData.map(s => {
+      outputString += s[0].sport + "\n";
+      outputString += "身分,身分證字號,姓名,系級,生日,衣服尺寸,住宿,遊覽車,素食\n";
+      s.map(d => {
+        outputString += [
+          d.status, d.id, d.name,
+          d.deptyear, d.birthday, d.size,
+          d.lodging ? 'V' : '',
+          d.bus ? 'V' : '',
+          d.vegetarian ? 'V' : ''
+        ].join(',') + "\n";
+        return 0;
+      });
+      outputString += "\n";
       return 0;
     });
 
@@ -146,8 +179,12 @@ class Overview extends Component {
     );
   }
 
-  render() {
+  handleHoverRow = (n , e) => {
+    console.log(n);
+    console.log(e);
+  }
 
+  render() {
     let tableItems = this.state.tableData.map((d, index) => {
       return (
         <TableRow style={{color: d.color,backgroundColor: d.bgcolor}} key={`${d.id}_${index}`}>
@@ -160,7 +197,7 @@ class Overview extends Component {
     });
 
     let tableContainer = (
-      <Table>
+      <Table multiSelectable={true}>
         <TableHeader>
           <TableRow>
             <TableHeaderColumn>身分證字號</TableHeaderColumn>
@@ -175,6 +212,42 @@ class Overview extends Component {
       </Table>
     )
 
+    let sportContainer = (
+      <div>
+        {this.state.sportData.map((s, sIndex) => {
+          return (
+            <Card key={`Card_${sIndex}`} style={{margin: "10px", display: "inline-block", verticalAlign: "top"}}>
+              <CardTitle title={s[0].sport} subtitle={this.props.subtitle}  />
+              <CardText>
+                <Table multiSelectable={true}>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHeaderColumn>身分證字號</TableHeaderColumn>
+                      <TableHeaderColumn>姓名</TableHeaderColumn>
+                      <TableHeaderColumn>項目</TableHeaderColumn>
+                      <TableHeaderColumn>身分</TableHeaderColumn>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {s.map((d, pIndex) => {
+                      return (
+                        <TableRow key={`Row_${pIndex}`}>
+                          <TableRowColumn>{d.id}</TableRowColumn>
+                          <TableRowColumn>{d.name}</TableRowColumn>
+                          <TableRowColumn>{d.sport}</TableRowColumn>
+                          <TableRowColumn>{d.status}</TableRowColumn>
+                        </TableRow>
+                      )
+                    })}
+                  </TableBody>
+                </Table>
+              </CardText>
+            </Card>
+          );
+        })}
+      </div>
+    )
+
     return (
       <div className="content" style={{textAlign: "center"}}>
         <RaisedButton
@@ -184,6 +257,7 @@ class Overview extends Component {
           style={{margin: "12px"}}
           icon={<FileFileDownload />}
         />
+
         <div className="card-container" style={{maxWidth: "900px", margin: "auto"}}>
           <Card style={{width: "280px", margin: "10px", display: "inline-block", verticalAlign: "top"}}>
             <CardTitle title="人數(依身份證字號)"  />
@@ -213,63 +287,13 @@ class Overview extends Component {
               }
             </CardText>
           </Card>
+
+          {sportContainer}
+
           <Card style={{margin: "10px", display: "inline-block", verticalAlign: "top"}}>
-            <CardTitle title={this.props.title} subtitle={this.props.subtitle}  />
+            <CardTitle title="總覽" />
             <CardText>
               {tableContainer}
-            </CardText>
-          </Card>
-          <Card style={{margin: "10px", display: "inline-block", verticalAlign: "top"}}>
-            <CardTitle title={this.props.title} subtitle={this.props.subtitle}  />
-            <CardText>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHeaderColumn>姓名</TableHeaderColumn>
-                    <TableHeaderColumn>系級</TableHeaderColumn>
-                    <TableHeaderColumn>生日</TableHeaderColumn>
-                    <TableHeaderColumn>素食</TableHeaderColumn>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  <TableRow>
-                    <TableRowColumn><Input type="text" name="name" text="姓名" value="test" disabled={false} /></TableRowColumn>
-                    <TableRowColumn><Input type="text" name="deptyear" text="系級" value="" disabled={false} /></TableRowColumn>
-                    <TableRowColumn><Input type="date" name="birthday" text="生日" value="" disabled={false} /></TableRowColumn>
-                    <TableRowColumn><Input type="checkbox" name="vegetarian" text="素食" value="" disabled={false} /></TableRowColumn>
-                  </TableRow>
-                    <TableRow>
-                      <TableRowColumn><Input type="text" name="name" text="姓名" value="test" disabled={false} /></TableRowColumn>
-                      <TableRowColumn><Input type="text" name="deptyear" text="系級" value="" disabled={false} /></TableRowColumn>
-                      <TableRowColumn><Input type="date" name="birthday" text="生日" value="" disabled={false} /></TableRowColumn>
-                      <TableRowColumn><Input type="checkbox" name="vegetarian" text="素食" value="" disabled={false} /></TableRowColumn>
-                    </TableRow>
-                </TableBody>
-              </Table>
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Payment</th>
-                      <th>Issue Date</th>
-                      <th>Amount</th>
-                      <th>Period</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td data-label="Payment"><Input type="text" name="name" text="姓名" value="test" disabled={false} /></td>
-                      <td data-label="Issue Date"><Input type="text" name="deptyear" text="系級" value="" disabled={false} /></td>
-                      <td data-label="Amount"><Input type="date" name="birthday" text="生日" value="" disabled={false} /></td>
-                      <td data-label="Period"><Input type="checkbox" name="vegetarian" text="素食" value="" disabled={false} /></td>
-                    </tr>
-                    <tr>
-                      <td data-label="Payment">Payment #2</td>
-                      <td data-label="Issue Date">03/01/2015</td>
-                      <td data-label="Amount">$3,211</td>
-                      <td data-label="Period">02/01/2015 - 02/28/2015</td>
-                    </tr>
-                  </tbody>
-                </table>
             </CardText>
           </Card>
         </div>
