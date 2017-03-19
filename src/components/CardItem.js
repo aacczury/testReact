@@ -22,35 +22,26 @@ class CardItem extends Component {
     }
 
     let clearButton = null;
-    if(this.props.handleRemoveParticipantInfo)
+    if(this.props.handleRemoveCard)
       clearButton = (
         <div style={{textAlign: "right"}}>
           <IconButton>
-            <ContentClear onTouchTap={this.props.handleRemoveParticipantInfo} />
+            <ContentClear onTouchTap={this.props.handleRemoveCard} />
           </IconButton>
         </div>
       )
 
-    let cardComponent = null;
-    if(this.props.url) {
-      cardComponent = (
-        <Card style={{width: "280px", height: this.props.cardHeight, margin: "10px", display: "inline-block", verticalAlign: "top"}}>
+    let cardComponent = (
+        <Card style={{width: "280px", margin: "10px", display: "inline-block", verticalAlign: "top"}}>
           {clearButton}
-          <CardTitle title={this.props.title} subtitle={this.props.subtitle} style={{cursor: "pointer"}}
-            onTouchTap={() => this.props.handleRedirect(this.props.url)} />
+          { this.props.url ?
+            <CardTitle title={this.props.title} subtitle={this.props.subtitle} style={{cursor: "pointer"}}
+              onTouchTap={() => this.props.handleRedirect(this.props.url)} /> :
+            <CardTitle title={this.props.title} subtitle={this.props.subtitle}  />
+          }
           {cardContent}
         </Card>
       )
-    }
-    else {
-      cardComponent = (
-        <Card style={{width: "280px", height: +this.props.cardHeight, margin: "10px", display: "inline-block", verticalAlign: "top"}}>
-          {clearButton}
-          <CardTitle title={this.props.title} subtitle={this.props.subtitle}  />
-          {cardContent}
-        </Card>
-      )
-    }
 
     return cardComponent;
   }

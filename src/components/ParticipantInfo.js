@@ -13,7 +13,7 @@ class ParticipantInfo extends Component {
     this.tmpUpload = {};
     this.uploadTimer = null;
     if(this.props.th && this.props.uid)
-      this.dataRef = window.firebase.database().ref(`/participant/ncku/${this.props.th}/${this.props.uid}`);
+      this.dataRef = window.firebase.database().ref(`/participant/${this.props.university}/${this.props.th}/${this.props.uid}`);
   }
 
   componentDidMount() {
@@ -27,9 +27,9 @@ class ParticipantInfo extends Component {
 
   componentWillReceiveProps = (nextProps) => {
     // You don't have to do this check first, but it can help prevent an unneeded render
-    if (nextProps.th !== this.props.th || nextProps.uid !== this.props.uid) {
+    if (nextProps.th !== this.props.th || nextProps.uid !== this.props.uid || nextProps.university !== this.props.university) {
       this.dataRef.off('value', this.dataListener);
-      this.dataRef = window.firebase.database().ref(`/participant/ncku/${nextProps.th}/${nextProps.uid}`);
+      this.dataRef = window.firebase.database().ref(`/participant/${nextProps.university}/${nextProps.th}/${nextProps.uid}`);
       let self = this;
       this.dataListener = this.dataRef.on('value', function(snapshot) {
         self.updateParticipantInfo(snapshot.val());
@@ -45,14 +45,14 @@ class ParticipantInfo extends Component {
 
   createInputData = (ptcInfo) => {
     return [
-      { type: "text", name: "name", text: "姓名", value: ptcInfo.name, disabled: false },
-      { type: "text", name: "deptyear", text: "系級", value: ptcInfo.deptyear, disabled: false },
-      { type: "text", name: "id", text: "身分證字號", value: ptcInfo.id, disabled: false },
-      { type: "date", name: "birthday", text: "出生年月日", value: ptcInfo.birthday, disabled: false },
-      { type: "text", name: "size", text: "衣服尺寸", value: ptcInfo.size, disabled: false },
-      { type: "checkbox", name: "lodging", text: "住宿", value: ptcInfo.lodging, disabled: false },
-      { type: "checkbox", name: "bus", text: "搭乘遊覽車", value: ptcInfo.bus, disabled: false },
-      { type: "checkbox", name: "vegetarian", text: "素食", value: ptcInfo.vegetarian, disabled: false }
+      { type: "text", name: "name", label: "姓名", value: ptcInfo.name, disabled: false },
+      { type: "text", name: "deptyear", label: "系級", value: ptcInfo.deptyear, disabled: false },
+      { type: "text", name: "id", label: "身分證字號", value: ptcInfo.id, disabled: false },
+      { type: "date", name: "birthday", label: "生日", value: ptcInfo.birthday, disabled: false },
+      { type: "text", name: "size", label: "衣服尺寸", value: ptcInfo.size, disabled: false },
+      { type: "checkbox", name: "lodging", label: "住宿", value: ptcInfo.lodging, disabled: false },
+      { type: "checkbox", name: "bus", label: "搭乘遊覽車", value: ptcInfo.bus, disabled: false },
+      { type: "checkbox", name: "vegetarian", label: "素食", value: ptcInfo.vegetarian, disabled: false }
     ]
   }
 

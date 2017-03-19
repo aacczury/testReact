@@ -19,7 +19,6 @@ class Input extends Component {
   }
 
   handleChange = (e, v) => {
-    // need check input data
     let node = e ? e.target : this.inputNode.props;
     this.setState({value: v});
     if(node.name) {
@@ -31,21 +30,25 @@ class Input extends Component {
 
   render() {
     let inputComponent = null;
-    if(this.props.type === "text" || this.props.type === "email") {
+    if(this.props.type === "text" || this.props.type === "email" || this.props.type === "password") {
       inputComponent = (
         <TextField
           fullWidth={true}
           value={this.state.value}
+          floatingLabelText={this.props.text}
           onChange={this.handleChange}
           disabled={this.props.disabled ? true : false}
           name={this.props.name}
           type={this.props.type}
+          errorText={this.props.errorText}
+          style={{textAlign: "left"}}
         />
       )
     }else if(this.props.type === "checkbox") {
       inputComponent = (
         <Checkbox
           checked={this.state.value ? true : false}
+          label={this.props.text}
           onCheck={this.handleChange}
           disabled={this.props.disabled ? true : false}
           name={this.props.name}
@@ -58,6 +61,7 @@ class Input extends Component {
         <DatePicker ref={(inputNode) => {this.inputNode = inputNode;}}
           container="inline"
           value={this.state.value ? new Date(this.state.value) : null}
+          floatingLabelText={this.props.text}
           onChange={this.handleChange}
           disabled={this.props.disabled ? true : false}
           name={this.props.name}

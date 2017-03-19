@@ -8,7 +8,7 @@ class ResTR extends Component {
   render() {
     let tdItems = this.props.inputData.map((d, index) => {
       return (
-        <td data-label={d.text} key={`td_${index}`}>
+        <td data-label={d.label} key={`td_${index}`}>
           <Input {...d} handleInputUpdate={this.props.handleInputUpdate} />
         </td>
       );

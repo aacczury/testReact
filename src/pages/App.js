@@ -24,10 +24,16 @@ class App extends Component {
     console.log("app did mount");
     var self = this;
     window.firebase.auth().onAuthStateChanged(function(user) {
+      if(user && self.props.location.query.login)
+        self.handleRedirect('/');
       // need loading icon
-      self.setState({
-        user: user
-      });
+      if(user)
+        window.firebase.database().ref(`/users/${user.uid}`).once('value').then(snapshot => {
+          let userInfo = snapshot.val() ? snapshot.val() : {};
+          user.auth = userInfo.auth;
+          self.setState({user: user});
+        });
+      else self.setState({user: user});
     });
   }
 
@@ -36,7 +42,6 @@ class App extends Component {
   }
 
   handleRedirect = url => {
-    console.log(url);
     this.props.router.push(url);
   }
 
@@ -59,8 +64,23 @@ class App extends Component {
     let header = null;
     let content = null;
     let query = this.props.location.query;
-    console.log(query);
     if(this.state.user) {
+      let university = null;
+      if(this.state.user.auth !== "admin"){
+        let universityName = ["ncku"];
+        if(universityName.indexOf(this.state.user.auth) < 0) {
+          console.log("Error university"); // need handle
+          this.handleRedirect('/');
+        }
+        if(this.state.user.auth !== university){
+          console.log("Not your university");
+          this.handleRedirect('/');
+        }
+        university = this.state.user.auth;
+      } else {
+        university = query.university ? query.university : "ncku";
+      }
+
       if(query.th) {
         if(query.overview) {
           header = <Header title={`正興城灣盃-第${query.th}屆總覽`} user={this.state.user}
@@ -70,7 +90,7 @@ class App extends Component {
         else if(query.sport) {
           header = <Header title={`正興城灣盃-第${query.th}屆報名資料`} user={this.state.user}
             handleHeaderButtonClick={this.handleHeaderButtonClick("logout")} handleRedirect={this.handleRedirect} th={query.th} />
-          content = <Participants user={this.state.user} th={query.th} sport={query.sport} />
+          content = <Participants user={this.state.user} th={query.th} sport={query.sport} university={university} />
         }
         else {
           header = <Header title={`正興城灣盃-第${query.th}屆比賽項目`} user={this.state.user}
@@ -84,8 +104,8 @@ class App extends Component {
         content = <Years user={this.state.user} handleRedirect={this.handleRedirect} />;
       }
     }
-    else if(query.login || query.mode) {
-      header = <Header login={query.login || query.mode} title="正興城灣盃-登入" />
+    else if(query.login) {
+      header = <Header login={query.login} title="正興城灣盃-登入" />
       content = <Login handleRedirect={this.handleRedirect} />
     }
     else {

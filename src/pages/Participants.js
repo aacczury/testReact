@@ -12,8 +12,8 @@ class Participants extends Component {
     this.state = {
       tableData: []
     };
-
-    this.dataRef = window.firebase.database().ref(`/participants/ncku/${this.props.th}/${this.props.sport}`);
+    
+    this.dataRef = window.firebase.database().ref(`/participants/${this.props.university}/${this.props.th}/${this.props.sport}`);
     this.tmpRemove = {};
   }
 
@@ -33,9 +33,9 @@ class Participants extends Component {
 
   componentWillReceiveProps = (nextProps) => {
     // You don't have to do this check first, but it can help prevent an unneeded render
-    if (nextProps.th !== this.props.th || nextProps.sport !== this.props.sport) {
+    if (nextProps.th !== this.props.th || nextProps.sport !== this.props.sport || nextProps.university !== this.props.university) {
       this.dataRef.off('value', this.dataListener);
-      this.dataRef = window.firebase.database().ref(`/participants/ncku/${nextProps.th}/${nextProps.sport}`);
+      this.dataRef = window.firebase.database().ref(`/participants/${nextProps.university}/${nextProps.th}/${nextProps.sport}`);
       let self = this;
       this.dataListener = this.dataRef.on('value', function(snapshot) {
         console.log(snapshot.val());
@@ -60,8 +60,12 @@ class Participants extends Component {
 
     if(data.member){
       Object.keys(data.member).map((uid, index) => {
-        tableData.push(<ParticipantInfo key={`ParticipantInfo_${index}`} user={this.props.user} th={this.props.th} uid={uid} status="隊員"
-                            handleRemoveParticipantInfo={this.handleRemoveParticipantInfo(uid)} />);
+        if(this.props.user.auth === "admin")
+          tableData.push(<ParticipantInfo key={`ParticipantInfo_${index}`} user={this.props.user} th={this.props.th} uid={uid}
+            status="隊員" handleRemoveParticipantInfo={this.handleRemoveParticipantInfo(uid)} />);
+        else
+          tableData.push(<ParticipantInfo key={`ParticipantInfo_${index}`} user={this.props.user} th={this.props.th} uid={uid}
+            status="隊員" />);
         return 0;
       });
     }
@@ -76,7 +80,7 @@ class Participants extends Component {
       window.firebase.database().ref().update(
         Object.keys(this.tmpRemove).reduce((p, c) => {
           if(this.tmpRemove[c])
-            p[`/participant/ncku/${this.props.th}/${c}`] = null;
+            p[`/participant/${this.props.university}/${this.props.th}/${c}`] = null;
           return p;
         }, {}), (err) => {
         if(err) console.log(err);
@@ -87,10 +91,10 @@ class Participants extends Component {
   }
 
   handleAddParticipantInfo = () => {
-    let uid = window.firebase.database().ref(`/participant/ncku/${this.props.th}/`).push().key;
+    let uid = window.firebase.database().ref(`/participant/${this.props.university}/${this.props.th}/`).push().key;
     window.firebase.database().ref().update({
-      [`/participant/ncku/${this.props.th}/${uid}`]: {status: "member", sport: this.props.sport},
-      [`/participants/ncku/${this.props.th}/${this.props.sport}/member/${uid}`]: true
+      [`/participant/${this.props.university}/${this.props.th}/${uid}`]: {status: "member", sport: this.props.sport},
+      [`/participants/${this.props.university}/${this.props.th}/${this.props.sport}/member/${uid}`]: true
     }, (err) => {
       // will update by on
       if(err) console.log(err);
@@ -100,7 +104,7 @@ class Participants extends Component {
   handleRemoveParticipantInfo = (uid, isRemove = true) => {
     return () => {
       window.firebase.database().ref().update({
-        [`/participants/ncku/${this.props.th}/${this.props.sport}/member/${uid}`] : isRemove ? null : true
+        [`/participants/${this.props.university}/${this.props.th}/${this.props.sport}/member/${uid}`] : isRemove ? null : true
       }, (err) => { // can add redo
         this.tmpRemove = Object.assign(this.tmpRemove, {[uid]: isRemove});
       });
@@ -108,9 +112,19 @@ class Participants extends Component {
   }
 
   render() {
-    let cancelHeadCell = null;
-    if(true) // need check author
-      cancelHeadCell = (<th></th>)
+    let cancelHeadCell = (<th></th>);
+
+    let plus1 = null;
+    if(this.props.user.auth === "admin")
+      plus1 = (
+        <tr>
+          <td colSpan="10">
+            {<IconButton>
+              <ImageExposurePlus1 onTouchTap={this.handleAddParticipantInfo} />
+            </IconButton>}
+          </td>
+        </tr>
+      );
 
     let content = (
       <div style={{paddingTop: "64px"}}>
@@ -136,13 +150,7 @@ class Participants extends Component {
                 </thead>
                 <tbody>
                   {this.state.tableData}
-                  <tr>
-                    <td colSpan="10">
-                      <IconButton>
-                        <ImageExposurePlus1 onTouchTap={this.handleAddParticipantInfo} />
-                      </IconButton>
-                    </td>
-                  </tr>
+                  {plus1}
                 </tbody>
               </table>
             </CardText>
