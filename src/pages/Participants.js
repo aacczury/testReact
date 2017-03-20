@@ -3,6 +3,7 @@ import {ActionHome, ImageExposurePlus1} from 'material-ui/svg-icons';
 import {Card, CardTitle, CardText, IconButton} from 'material-ui';
 
 import ParticipantInfo from '../components/ParticipantInfo';
+import Input from '../components/Input';
 import '../components/ResTable.css';
 
 class Participants extends Component {
@@ -10,8 +11,14 @@ class Participants extends Component {
     super(props);
 
     this.state = {
-      tableData: []
+      tableData: [],
+      contact: {
+        name: "",
+        phone: ""
+      }
     };
+    this.tmpUpload = {};
+    this.uploadTimer = null;
 
     this.dataRef = window.firebase.database().ref(`/participants/${this.props.university}/${this.props.th}/${this.props.sport}`);
     this.tmpRemove = {};
@@ -60,7 +67,7 @@ class Participants extends Component {
       <ParticipantInfo key={"ParticipantInfo_-1"} user={this.props.user} university={this.props.university} th={this.props.th} uid={data.leader} status="隊長" />
     ]
 
-    if(data.member){
+    if(data.member) {
       Object.keys(data.member).map((uid, index) => {
         if(this.props.user.auth === "admin")
           tableData.push(<ParticipantInfo key={`ParticipantInfo_${index}`} user={this.props.user} university={this.props.university} th={this.props.th} uid={uid}
@@ -73,7 +80,8 @@ class Participants extends Component {
     }
 
     this.setState({ // need loading
-      tableData: tableData
+      tableData: tableData,
+      contact: data.contact
     });
   }
 
@@ -113,6 +121,29 @@ class Participants extends Component {
     }
   }
 
+  uploadContact = (d) => {
+    if(this.props.user && this.props.th && this.props.university && this.props.sport && this.dataRef){ // need varify
+      let self = this;
+      this.dataRef.child('contact').update(this.tmpUpload, (err) => {
+        self.tmpUpload = {};
+      });
+    }
+  }
+
+  handleContactUpdate = d => {
+    this.setState(prevState => {
+      let curContact = Object.assign(prevState.contact, d);
+      return {
+        contact: curContact
+      };
+    });
+    this.tmpUpload = Object.assign(this.tmpUpload, d);
+    if(this.uploadTimer) clearTimeout(this.uploadTimer);
+    this.uploadTimer = setTimeout(() => this.uploadContact(this.tmpUpload), 3000);
+  }
+
+
+
   render() {
     let cancelHeadCell = (<th></th>);
 
@@ -132,6 +163,35 @@ class Participants extends Component {
       <div style={{paddingTop: "64px"}}>
         <div style={{textAlign: "center"}}>
           <div><ActionHome /></div>
+          <div>
+            <Card style={{margin: "10px", display: "inline-block", verticalAlign: "top"}}>
+              <CardText>
+                <table>
+                  <thead>
+                    <tr>
+                      <th></th>
+                      <th></th>
+                      <th>姓名</th>
+                      <th>電話</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td></td>
+                      <td style={{fontWeight: "900", fontSize: "16px"}}>聯絡人</td>
+                      <td data-label="姓名">
+                        <Input type="text" name="name" value={this.state.contact.name} handleInputUpdate={this.handleContactUpdate} />
+                      </td>
+                      <td data-label="電話">
+                        <Input type="text" name="phone" value={this.state.contact.phone} handleInputUpdate={this.handleContactUpdate} />
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </CardText>
+            </Card>
+          </div>
+
           <Card style={{margin: "10px", display: "inline-block", verticalAlign: "top"}}>
             <CardTitle title={this.props.title} subtitle={this.props.subtitle}  />
             <CardText>

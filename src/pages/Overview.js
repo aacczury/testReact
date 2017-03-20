@@ -81,19 +81,23 @@ class Overview extends Component {
     let countVegetarian = 0, countSize = {};
 
     Object.keys(sports).map(sportUid => {
-      let perSportData = [];
+      let perSportData = {sport: "", contact: {}, data: []};
+      perSportData.contact = participants[sportUid].contact ? participants[sportUid].contact : {};
+      if(typeof perSportData.contact.name === "undefined") perSportData.contact.name = "";
+      if(typeof perSportData.contact.phone === "undefined") perSportData.contact.phone = "";
       statusList.map(s => {
         if(s !== "member") {
-          perSportData.push(this.getParticipantData(data, sports, participants[sportUid][s]));
+          perSportData.data.push(this.getParticipantData(data, sports, participants[sportUid][s]));
         } else {
           if(participants[sportUid][s])
             Object.keys(participants[sportUid][s]).map(participantUid => {
-              perSportData.push(this.getParticipantData(data, sports, participantUid));
+              perSportData.data.push(this.getParticipantData(data, sports, participantUid));
               return 0;
             });
         }
         return 0;
       });
+      perSportData.sport = perSportData.data[0].sport;
       sportData.push(perSportData);
       return 0;
     });
@@ -156,9 +160,11 @@ class Overview extends Component {
   handleExportData = () => {
     let outputString = "";
     this.state.sportData.map(s => {
-      outputString += s[0].sport + "\n";
+      outputString += s.sport + "\n";
+      outputString += "身分,姓名,電話\n";
+      outputString += `聯絡人,${s.contact.name},${s.contact.phone}\n`;
       outputString += "身分,身分證字號,姓名,系級,生日,衣服尺寸,住宿,遊覽車,素食\n";
-      s.map(d => {
+      s.data.map(d => {
         outputString += [
           d.status, d.id, d.name,
           d.deptyear, d.birthday, d.size,
@@ -217,9 +223,25 @@ class Overview extends Component {
         {this.state.sportData.map((s, sIndex) => {
           return (
             <Card key={`Card_${sIndex}`} style={{margin: "10px", display: "inline-block", verticalAlign: "top"}}>
-              <CardTitle title={s[0].sport} subtitle={this.props.subtitle}  />
+              <CardTitle title={s.sport} subtitle={this.props.subtitle}  />
               <CardText>
                 <Table multiSelectable={true}>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHeaderColumn>身分</TableHeaderColumn>
+                      <TableHeaderColumn>姓名</TableHeaderColumn>
+                      <TableHeaderColumn>電話</TableHeaderColumn>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    <TableRow>
+                      <TableRowColumn>聯絡人</TableRowColumn>
+                      <TableRowColumn>{s.contact.name}</TableRowColumn>
+                      <TableRowColumn>{s.contact.phone}</TableRowColumn>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+                <Table multiSelectable={true} style={{marginTop: "10px"}}>
                   <TableHeader>
                     <TableRow>
                       <TableHeaderColumn>身分證字號</TableHeaderColumn>
@@ -229,7 +251,7 @@ class Overview extends Component {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {s.map((d, pIndex) => {
+                    {s.data.map((d, pIndex) => {
                       return (
                         <TableRow key={`Row_${pIndex}`}>
                           <TableRowColumn>{d.id}</TableRowColumn>

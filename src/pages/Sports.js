@@ -116,7 +116,7 @@ class Sports extends Component {
         let coachUid = window.firebase.database().ref(`/participant/${university}/${th}`).push().key;
         let managerUid = window.firebase.database().ref(`/participant/${university}/${th}`).push().key;
         let leaderUid = window.firebase.database().ref(`/participant/${university}/${th}`).push().key;
-        updates[`/participants/${university}/${th}/${sportUid}`] = {coach: coachUid, manager: managerUid, leader: leaderUid};
+        updates[`/participants/${university}/${th}/${sportUid}`] = {contact: {name: '', phone: ''} ,coach: coachUid, manager: managerUid, leader: leaderUid};
         updates[`/participant/${university}/${th}/${coachUid}`] = {status: "coach", sport: sportUid};
         updates[`/participant/${university}/${th}/${managerUid}`] = {status: "manager", sport: sportUid};
         updates[`/participant/${university}/${th}/${leaderUid}`] = {status: "leader", sport: sportUid};
