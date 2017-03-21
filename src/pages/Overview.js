@@ -38,8 +38,8 @@ class Overview extends Component {
     }
   }
 
-  getParticipantData = (data, sports, uid) => {
-    const statusName = {coach: "教練", manager: "管理", leader: "隊長", member: "隊員"};
+  getParticipantData = (data, sports, uid, memberName = "隊員") => {
+    const statusName = {coach: "教練", captain: "領隊", manager: "管理", leader: "隊長", member: memberName};
     const keyList = ["id", "name", "sport", "status", "deptyear", "birthday", "size", "lodging", "bus", "vegetarian"];
     let d = data[uid];
 
@@ -76,7 +76,7 @@ class Overview extends Component {
     let sports = s ? s : {};
     let participants = p ? p : {};
     let tableData = [], sportData = [];
-    const statusList = ["coach", "manager", "leader", "member"];
+    const statusList = ["coach", "captain", "manager", "leader", "member"];
     let diffID = {}, conflictPtc = {};
     let countVegetarian = 0, countSize = {};
 
@@ -85,15 +85,18 @@ class Overview extends Component {
       perSportData.contact = participants[sportUid].contact ? participants[sportUid].contact : {};
       if(typeof perSportData.contact.name === "undefined") perSportData.contact.name = "";
       if(typeof perSportData.contact.phone === "undefined") perSportData.contact.phone = "";
+      if(typeof perSportData.contact.email === "undefined") perSportData.contact.email = "";
+      let memberName = Object.keys(participants[sportUid]).length === 2 ? "成員" : "隊員";
       statusList.map(s => {
-        if(s !== "member") {
-          perSportData.data.push(this.getParticipantData(data, sports, participants[sportUid][s]));
-        } else {
-          if(participants[sportUid][s])
+        if(s in participants[sportUid]) {
+          if(s === "member") {
             Object.keys(participants[sportUid][s]).map(participantUid => {
-              perSportData.data.push(this.getParticipantData(data, sports, participantUid));
+              perSportData.data.push(this.getParticipantData(data, sports, participantUid, memberName));
               return 0;
             });
+          } else {
+            perSportData.data.push(this.getParticipantData(data, sports, participants[sportUid][s]));
+          }
         }
         return 0;
       });
@@ -128,7 +131,6 @@ class Overview extends Component {
     });
 
     tableData.sort((a, b) => {return a.id < b.id ? -1 : 1});
-    console.log(tableData);
     let curColor = blue200, needChangeColor = false;
     for(let i = 0; i < tableData.length; ++i) {
       if(needChangeColor && i && tableData[i - 1].id !== tableData[i].id) {
@@ -161,8 +163,8 @@ class Overview extends Component {
     let outputString = "";
     this.state.sportData.map(s => {
       outputString += s.sport + "\n";
-      outputString += "身分,姓名,電話\n";
-      outputString += `聯絡人,${s.contact.name},${s.contact.phone}\n`;
+      outputString += ",姓名,電話,信箱\n";
+      outputString += `聯絡人,${s.contact.name},${s.contact.phone},${s.contact.email}\n`;
       outputString += "身分,身分證字號,姓名,系級,生日,衣服尺寸,住宿,遊覽車,素食\n";
       s.data.map(d => {
         outputString += [
@@ -183,11 +185,6 @@ class Overview extends Component {
       new Blob([outputString], {type: "text/plain;charset=utf-8"}),
       `${this.props.th}-${curTime.getFullYear()}_${curTime.getMonth()}_${curTime.getDate()}-${curTime.getHours()}_${curTime.getMinutes()}_${curTime.getSeconds()}.csv`
     );
-  }
-
-  handleHoverRow = (n , e) => {
-    console.log(n);
-    console.log(e);
   }
 
   render() {
@@ -228,9 +225,10 @@ class Overview extends Component {
                 <Table multiSelectable={true}>
                   <TableHeader>
                     <TableRow>
-                      <TableHeaderColumn>身分</TableHeaderColumn>
+                      <TableHeaderColumn></TableHeaderColumn>
                       <TableHeaderColumn>姓名</TableHeaderColumn>
                       <TableHeaderColumn>電話</TableHeaderColumn>
+                      <TableHeaderColumn>信箱</TableHeaderColumn>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -238,6 +236,7 @@ class Overview extends Component {
                       <TableRowColumn>聯絡人</TableRowColumn>
                       <TableRowColumn>{s.contact.name}</TableRowColumn>
                       <TableRowColumn>{s.contact.phone}</TableRowColumn>
+                      <TableRowColumn>{s.contact.email}</TableRowColumn>
                     </TableRow>
                   </TableBody>
                 </Table>

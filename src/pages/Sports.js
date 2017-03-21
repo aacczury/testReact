@@ -15,7 +15,12 @@ class Sports extends Component {
       cardData: [],
       addSportData: [],
       addSportInfo: {
-        sportTitle: ''
+        title: '',
+        coach: true,
+        captain: true,
+        manager: true,
+        leader: true,
+        member: true
       },
       addDialogOpen: false,
       isNCKUHost: false,
@@ -84,7 +89,12 @@ class Sports extends Component {
 
   createAddSportData = (addSportInfo) => {
     return [
-      { type: "text", name: "sportTitle", text: "中文全稱 ex:教職員網球", value: addSportInfo.sportTitle, disabled: false }
+      { type: "text", name: "title", text: "中文全稱 ex:教職員網球", value: addSportInfo.title, disabled: false },
+      { type: "checkbox", name: "coach", text: "教練", value: addSportInfo.coach, disabled: false },
+      { type: "checkbox", name: "captain", text: "領隊", value: addSportInfo.captain, disabled: false },
+      { type: "checkbox", name: "manager", text: "管理", value: addSportInfo.manager, disabled: false },
+      { type: "checkbox", name: "leader", text: "隊長", value: addSportInfo.leader, disabled: false },
+      { type: "checkbox", name: "member", text: "隊員/成員", value: addSportInfo.member, disabled: true }
     ]
   }
 
@@ -99,6 +109,7 @@ class Sports extends Component {
   }
 
   handleAddSport = () => { // pop screen
+    console.log(this.state.addSportInfo);
     if(this.props.user.auth === "admin") {
       if(!this.state.isLoadingHost) {
         console.log("Not loading host");
@@ -106,20 +117,22 @@ class Sports extends Component {
       }
 
       let th = this.props.th;
-      let {sportTitle} = this.state.addSportInfo; // need check collision
+      let {title} = this.state.addSportInfo;
       let universityName = this.state.isNCKUHost ? ["ncku", "ccu", "nsysu", "nchu"] : ["ncku"];
       let sportUid = window.firebase.database().ref(`/sports/${th}/`).push().key;
       let updates = {
-        [`/sports/${th}/${sportUid}`]: {title: sportTitle}
+        [`/sports/${th}/${sportUid}`]: {title: title}
       }
       universityName.map(university => {
-        let coachUid = window.firebase.database().ref(`/participant/${university}/${th}`).push().key;
-        let managerUid = window.firebase.database().ref(`/participant/${university}/${th}`).push().key;
-        let leaderUid = window.firebase.database().ref(`/participant/${university}/${th}`).push().key;
-        updates[`/participants/${university}/${th}/${sportUid}`] = {contact: {name: '', phone: ''} ,coach: coachUid, manager: managerUid, leader: leaderUid};
-        updates[`/participant/${university}/${th}/${coachUid}`] = {status: "coach", sport: sportUid};
-        updates[`/participant/${university}/${th}/${managerUid}`] = {status: "manager", sport: sportUid};
-        updates[`/participant/${university}/${th}/${leaderUid}`] = {status: "leader", sport: sportUid};
+        updates[`/participants/${university}/${th}/${sportUid}`] = {contact: {name: '', phone: '', email: ''}};
+        Object.keys(this.state.addSportInfo).map(status => {
+          if(status !== "title" && status !== "member" && this.state.addSportInfo[status]) {
+            let uid = window.firebase.database().ref(`/participant/${university}/${th}`).push().key;
+            updates[`/participants/${university}/${th}/${sportUid}`][status] = uid;
+            updates[`/participant/${university}/${th}/${uid}`] = {status: status, sport: sportUid};
+          }
+          return 0;
+        })
         return 0;
       });
 
@@ -128,7 +141,14 @@ class Sports extends Component {
         if(err) console.log(err);
         this.handleAddDialogClose();
         this.setState(prevState => {
-          let curAddSportInfo = {sportTitle: ''};
+          let curAddSportInfo = {
+            title: '',
+            coach: true,
+            captain: true,
+            manager: true,
+            leader: true,
+            member: true
+          }
           return {addSportInfo: curAddSportInfo, addSportData: this.createAddSportData(curAddSportInfo)};
         });
       });

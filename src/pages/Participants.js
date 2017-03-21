@@ -14,7 +14,8 @@ class Participants extends Component {
       tableData: [],
       contact: {
         name: "",
-        phone: ""
+        phone: "",
+        email: ""
       }
     };
     this.tmpUpload = {};
@@ -59,22 +60,29 @@ class Participants extends Component {
   }
 
   updateParticipants = (d) => {
+    const statusName = {captain: "領隊", coach: "教練", leader: "隊長", manager:"管理", member: "隊員"};
+    const statusList = ["coach", "captain", "manager", "leader", "member"];
     // need loading icon
     let data = d ? d : {};
-    let tableData = [
-      <ParticipantInfo key={"ParticipantInfo_-3"} user={this.props.user} university={this.props.university} th={this.props.th} uid={data.coach} status="教練" />,
-      <ParticipantInfo key={"ParticipantInfo_-2"} user={this.props.user} university={this.props.university} th={this.props.th} uid={data.manager} status="管理" />,
-      <ParticipantInfo key={"ParticipantInfo_-1"} user={this.props.user} university={this.props.university} th={this.props.th} uid={data.leader} status="隊長" />
-    ]
+    let tableData = [];
+    statusList.map((status, index) => {
+      if(status !== "member" && status in data && data[status]) {
+        tableData.push(<ParticipantInfo key={`ptc_high_${index}`} user={this.props.user}
+          university={this.props.university} th={this.props.th} uid={data[status]} status={statusName[status]} />)
+      }
+      return 0;
+    });
+
+    let memberName = tableData.length === 0 ? "成員" : "隊員";
 
     if(data.member) {
       Object.keys(data.member).map((uid, index) => {
         if(this.props.user.auth === "admin")
-          tableData.push(<ParticipantInfo key={`ParticipantInfo_${index}`} user={this.props.user} university={this.props.university} th={this.props.th} uid={uid}
-            status="隊員" handleRemoveParticipantInfo={this.handleRemoveParticipantInfo(uid)} />);
+          tableData.push(<ParticipantInfo key={`ptc_member_${index}`} user={this.props.user} university={this.props.university} th={this.props.th} uid={uid}
+            status={memberName} handleRemoveParticipantInfo={this.handleRemoveParticipantInfo(uid)} />);
         else
-          tableData.push(<ParticipantInfo key={`ParticipantInfo_${index}`} user={this.props.user} university={this.props.university} th={this.props.th} uid={uid}
-            status="隊員" />);
+          tableData.push(<ParticipantInfo key={`ptc_member_${index}`} user={this.props.user} university={this.props.university} th={this.props.th} uid={uid}
+            status={memberName} />);
         return 0;
       });
     }
@@ -173,6 +181,7 @@ class Participants extends Component {
                       <th></th>
                       <th>姓名</th>
                       <th>電話</th>
+                      <th>信箱</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -184,6 +193,9 @@ class Participants extends Component {
                       </td>
                       <td data-label="電話">
                         <Input type="text" name="phone" value={this.state.contact.phone} handleInputUpdate={this.handleContactUpdate} />
+                      </td>
+                      <td data-label="信箱">
+                        <Input type="text" name="email" value={this.state.contact.email} handleInputUpdate={this.handleContactUpdate} />
                       </td>
                     </tr>
                   </tbody>
