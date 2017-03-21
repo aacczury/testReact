@@ -26,6 +26,9 @@ class Participants extends Component {
   }
 
   beforeunload = () => {
+    if(this.dataRef && this.dataRef.off){
+      this.dataRef.off();
+    }
     this.removeParticipant();
   }
 
@@ -46,7 +49,6 @@ class Participants extends Component {
       this.dataRef = window.firebase.database().ref(`/participants/${nextProps.university}/${nextProps.th}/${nextProps.sport}`);
       let self = this;
       this.dataListener = this.dataRef.on('value', function(snapshot) {
-        console.log(snapshot.val());
         self.updateParticipants(snapshot.val());
       }, err => {
         console.log(err);
@@ -56,7 +58,7 @@ class Participants extends Component {
 
   componentWillUnmount() {
     window.removeEventListener("beforeunload", this.beforeunload);
-    this.removeParticipant();
+    this.beforeunload();
   }
 
   updateParticipants = (d) => {
@@ -102,9 +104,6 @@ class Participants extends Component {
           return p;
         }, {}), (err) => {
         if(err) console.log(err);
-        if(this.dataRef && this.dataRef.off){
-          this.dataRef.off();
-        }
       });
   }
 

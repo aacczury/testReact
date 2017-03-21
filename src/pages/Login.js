@@ -55,7 +55,6 @@ class Login extends Component {
   }
 
   handleLogin = () => {
-    console.log("QQ");
     this.updateErrorText({email: '', password: ''});
     if (window.firebase.auth().currentUser) {
       alert("你已經登入惹")
@@ -74,17 +73,20 @@ class Login extends Component {
 
       this.setState({isLoginButtonDisabled: true});
       let self = this;
-      window.firebase.auth().signInWithEmailAndPassword(email, password).catch(function(error) {
-        var errorCode = error.code;
-        var errorMessage = error.message;
+      window.firebase.auth().signInWithEmailAndPassword(email, password).catch(err => {
+        var errorCode = err.code;
+        var errorMessage = err.message;
         if(errorCode === 'auth/invalid-email'){
           self.updateErrorText({email: '信箱格式錯誤'});
         } else if (errorCode === 'auth/user-not-found' || errorCode === 'auth/wrong-password') {
           self.updateErrorText({email: '帳號或密碼錯誤', password: '帳號或密碼錯誤'});
         } else {
-          self.updateErrorText({email: errorMessage});
+          if (err) {
+            console.log(err);
+            self.updateErrorText({email: errorMessage});
+          }
         }
-        console.log(error);
+
         self.setState({isLoginButtonDisabled: false});
       });
     }

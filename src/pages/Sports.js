@@ -13,6 +13,7 @@ class Sports extends Component {
 
     this.state = {
       cardData: [],
+      sportData: {},
       addSportData: [],
       addSportInfo: {
         title: '',
@@ -26,9 +27,20 @@ class Sports extends Component {
       isNCKUHost: false,
       isLoadingHost: false
     };
+
+    this.tmpSave = {};
+    this.tmpRemove = {};
+  }
+
+  beforeunload = () => {
+    if(this.dataRef && this.dataRef.off){
+      this.dataRef.off();
+    }
+    this.removeSport();
   }
 
   componentDidMount() {
+    window.addEventListener("beforeunload", this.beforeunload);
     if(this.props.user){ // need varify
       let self = this;
       window.firebase.database().ref(`/years`).once('value').then(function(snapshot){
@@ -52,9 +64,8 @@ class Sports extends Component {
   }
 
   componentWillUnmount() {
-    if(this.dataRef && this.dataRef.off){
-      this.dataRef.off();
-    }
+    window.removeEventListener("beforeunload", this.beforeunload);
+    this.beforeunload();
   }
 
   updateSports = (d) => {
@@ -68,9 +79,9 @@ class Sports extends Component {
     let cardData = [];
     Object.keys(data).map(sportUid => {
       if(!this.state.isNCKUHost || this.props.user.auth !== "admin")
-        cardData.push({ title: data[sportUid].title, url: `/?th=${this.props.th}&university=ncku&sport=${sportUid}` });
+        cardData.push({ title: data[sportUid].title, uid: sportUid, url: `/?th=${this.props.th}&university=ncku&sport=${sportUid}` });
       else {
-        cardData.push({ title: data[sportUid].title, content: (
+        cardData.push({ title: data[sportUid].title, uid: sportUid, content: (
           <div>
             <FlatButton primary={true} label="NCKU" onTouchTap={() => this.props.handleRedirect(`/?th=${this.props.th}&university=ncku&sport=${sportUid}`)} />
             <FlatButton primary={true} label="CCU" onTouchTap={() => this.props.handleRedirect(`/?th=${this.props.th}&university=ccu&sport=${sportUid}`)} />
@@ -83,7 +94,8 @@ class Sports extends Component {
     });
 
     this.setState({ // need loading
-      cardData: cardData
+      cardData: cardData,
+      sportData: data
     });
   }
 
@@ -109,7 +121,6 @@ class Sports extends Component {
   }
 
   handleAddSport = () => { // pop screen
-    console.log(this.state.addSportInfo);
     if(this.props.user.auth === "admin") {
       if(!this.state.isLoadingHost) {
         console.log("Not loading host");
@@ -163,6 +174,54 @@ class Sports extends Component {
     this.setState({addDialogOpen: false})
   }
 
+  removeSport = () => {
+    if(Object.keys(this.tmpRemove).length > 0) {
+      const statusName = ["coach", "captain", "manager", "leader", "member"]
+      const universityName = this.state.isNCKUHost ? ["ncku", "ccu", "nchu", "nsysu"] : ["ncku"];
+      let updates = {};
+      let sportUids = Object.keys(this.tmpRemove);
+      for(let i = 0; i < sportUids.length; ++i) {
+        for(let j = 0; j < universityName.length; ++j) {
+          let university = universityName[j];
+          window.firebase.database().ref(`/participants/${university}/${this.props.th}/${sportUids[i]}`)
+                  .once('value').then(participantsSnapshot => {
+            let participants = participantsSnapshot.val() ? participantsSnapshot.val() : {};
+            statusName.map(status => {
+              if(status in participants)
+                if(status !== "member")
+                  updates[`/participant/${university}/${this.props.th}/${participants[status]}`] = null;
+                else
+                  Object.keys(participants[status]).map(memberUid => {
+                    updates[`/participant/${university}/${this.props.th}/${memberUid}`] = null;
+                    return 0;
+                  })
+              return 0;
+            })
+            updates[`/participants/${university}/${this.props.th}/${sportUids[i]}`] = null;
+            if(i === sportUids.length - 1 && j === universityName.length - 1){
+              window.firebase.database().ref().update(updates, err => {
+                if(err) console.log(err);
+              })
+            }
+          }, err => {
+            if(err) console.log(err);
+          })
+        }
+      }
+    }
+  }
+
+  handleRemoveSport = (uid, isRemove = true) => {
+    return () => {
+      if(isRemove) this.tmpSave[uid] = this.state.sportData[uid];
+      window.firebase.database().ref().update({
+        [`/sports/${this.props.th}/${uid}`] : isRemove ? null : this.tmpSave[uid]
+      }, (err) => { // can add redo
+        this.tmpRemove = Object.assign(this.tmpRemove, {[uid]: isRemove});
+      });
+    }
+  }
+
   render() {
     let addCard = null;
     if(this.props.user.auth === "admin")
@@ -180,7 +239,7 @@ class Sports extends Component {
         <div style={{textAlign: "center"}}>
           <ActionHome />
           {addCard}
-          <CardContainer cardData={this.state.cardData} handleRedirect={this.props.handleRedirect} />
+          <CardContainer cardData={this.state.cardData} handleRedirect={this.props.handleRedirect} handleRemoveCard={this.handleRemoveSport} />
           {addDialog}
         </div>
       </div>

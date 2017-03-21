@@ -13,7 +13,6 @@ import Overview from './Overview'
 class App extends Component {
   constructor(props) {
     super(props);
-    console.log("app construct");
 
     this.state = {
       user: null,
@@ -21,7 +20,6 @@ class App extends Component {
   }
 
   componentDidMount(){
-    console.log("app did mount");
     var self = this;
     window.firebase.auth().onAuthStateChanged(function(user) {
       if(user && self.props.location.query.login)
@@ -29,7 +27,6 @@ class App extends Component {
       // need loading icon
       if(user)
         window.firebase.database().ref(`/users/${user.uid}`).once('value').then(snapshot => {
-          console.log("get user");
           let userInfo = snapshot.val() ? snapshot.val() : {};
           Object.defineProperty(user, "auth", {
             value: userInfo.auth,
@@ -41,10 +38,6 @@ class App extends Component {
         });
       else self.setState({user: user});
     });
-  }
-
-  componentDidUpdate = () => {
-    console.log("App Update!!");
   }
 
   handleRedirect = url => {
@@ -67,8 +60,6 @@ class App extends Component {
   }
 
   render() {
-
-    console.log(this.state.user);
     let header = null;
     let content = null;
     let query = this.props.location.query;
@@ -106,7 +97,7 @@ class App extends Component {
         }
         else {
           header = <Header title={`正興城灣盃-第${query.th}屆比賽項目`} />
-          content = <div>有些出錯</div>
+          content = <h1>有些出錯</h1>
         }
       }
       else {
