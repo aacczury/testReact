@@ -1,10 +1,12 @@
 import React, { Component } from 'react';
 import {ActionHome, ImageExposurePlus1} from 'material-ui/svg-icons';
-import {Card, CardTitle, CardText, IconButton} from 'material-ui';
+import {Card, CardTitle, CardText, IconButton, RaisedButton} from 'material-ui';
 
 import ParticipantInfo from '../components/ParticipantInfo';
 import Input from '../components/Input';
 import '../components/ResTable.css';
+
+import iconv from 'iconv-lite';
 
 class Participants extends Component {
   constructor(props) {
@@ -12,11 +14,13 @@ class Participants extends Component {
 
     this.state = {
       tableData: [],
+      participantsData: {},
       contact: {
         name: "",
         phone: "",
         email: ""
-      }
+      },
+      sportData: {}
     };
     this.tmpUpload = {};
     this.uploadTimer = null;
@@ -36,8 +40,10 @@ class Participants extends Component {
     window.addEventListener("beforeunload", this.beforeunload);
     if(this.props.user){ // need varify
       let self = this;
-      this.dataListener = this.dataRef.on('value', function(snapshot) {
-        self.updateParticipants(snapshot.val());
+      window.firebase.database().ref(`/sports/${this.props.th}/${this.props.sport}`).once('value').then(sportShot => {
+        self.dataListener = self.dataRef.on('value', function(snapshot) {
+          self.updateParticipants(snapshot.val(), sportShot.val());
+        });
       });
     }
   }
@@ -61,11 +67,12 @@ class Participants extends Component {
     this.beforeunload();
   }
 
-  updateParticipants = (d) => {
+  updateParticipants = (d, s) => {
     const statusName = {captain: "領隊", coach: "教練", leader: "隊長", manager:"管理", member: "隊員"};
     const statusList = ["coach", "captain", "manager", "leader", "member"];
     // need loading icon
     let data = d ? d : {};
+    let sportData = s ? s : {};
     let tableData = [];
     statusList.map((status, index) => {
       if(status !== "member" && status in data && data[status]) {
@@ -91,7 +98,8 @@ class Participants extends Component {
 
     this.setState({ // need loading
       tableData: tableData,
-      contact: data.contact
+      contact: data.contact,
+      sportData: sportData
     });
   }
 
@@ -149,7 +157,15 @@ class Participants extends Component {
     this.uploadTimer = setTimeout(() => this.uploadContact(this.tmpUpload), 3000);
   }
 
-
+  handleSendEmail = () => {
+    let xhr = new XMLHttpRequest();
+    xhr.open("POST", "http://stud.adm.ncku.edu.tw/act/chcwcup/register/mail.asp", true);
+    xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    let title = iconv.encode(`[第${this.props.th}屆正興城灣盃] ${this.state.sportData.title} 報名資料`, "big5");
+    let body = iconv.encode(`<table><tr><td></td><td>姓名</td><td>電話</td><td>信箱</td></tr>${this.state.contact.name}`, "big5")
+    xhr.send(`uid=${this.props.user.uid}&email=${this.state.contact.email}&title=${title}&body=${body}`);
+    //xhr.send();
+  }
 
   render() {
     let cancelHeadCell = (<th></th>);
@@ -199,6 +215,12 @@ class Participants extends Component {
                     </tr>
                   </tbody>
                 </table>
+                <RaisedButton
+                  onTouchTap={this.handleSendEmail}
+                  label="寄出"
+                  secondary={true}
+                  style={{margin: "12px"}}
+                />
               </CardText>
             </Card>
           </div>

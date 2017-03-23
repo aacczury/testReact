@@ -21,7 +21,8 @@ class Sports extends Component {
         captain: true,
         manager: true,
         leader: true,
-        member: true
+        member: true,
+        member_num: 0
       },
       addDialogOpen: false,
       isNCKUHost: false,
@@ -106,7 +107,8 @@ class Sports extends Component {
       { type: "checkbox", name: "captain", text: "領隊", value: addSportInfo.captain, disabled: false },
       { type: "checkbox", name: "manager", text: "管理", value: addSportInfo.manager, disabled: false },
       { type: "checkbox", name: "leader", text: "隊長", value: addSportInfo.leader, disabled: false },
-      { type: "checkbox", name: "member", text: "隊員/成員", value: addSportInfo.member, disabled: true }
+      { type: "checkbox", name: "member", text: "隊員/成員", value: addSportInfo.member, disabled: true },
+      { type: "text", name: "member_num", text: "隊員/成員人數", value: addSportInfo.member_num, disabled: false },
     ]
   }
 
@@ -137,10 +139,18 @@ class Sports extends Component {
       universityName.map(university => {
         updates[`/participants/${university}/${th}/${sportUid}`] = {contact: {name: '', phone: '', email: ''}};
         Object.keys(this.state.addSportInfo).map(status => {
-          if(status !== "title" && status !== "member" && this.state.addSportInfo[status]) {
+          if(status !== "title" && status !== "member" && status !=="member_num" && this.state.addSportInfo[status]) {
             let uid = window.firebase.database().ref(`/participant/${university}/${th}`).push().key;
             updates[`/participants/${university}/${th}/${sportUid}`][status] = uid;
             updates[`/participant/${university}/${th}/${uid}`] = {status: status, sport: sportUid};
+          } else if(status === "member" && !isNaN(+this.state.addSportInfo["member_num"]) && +this.state.addSportInfo["member_num"] > 0) {
+            for(let i = 0; i < +this.state.addSportInfo["member_num"]; ++i){
+              let uid = window.firebase.database().ref(`/participant/${university}/${th}`).push().key;
+              if(!(status in updates[`/participants/${university}/${th}/${sportUid}`]))
+                updates[`/participants/${university}/${th}/${sportUid}`][status] = {}
+              Object.assign(updates[`/participants/${university}/${th}/${sportUid}`][status], {[uid]: true});
+              updates[`/participant/${university}/${th}/${uid}`] = {status: status, sport: sportUid};
+            }
           }
           return 0;
         })
@@ -158,7 +168,8 @@ class Sports extends Component {
             captain: true,
             manager: true,
             leader: true,
-            member: true
+            member: true,
+            member_num: 0
           }
           return {addSportInfo: curAddSportInfo, addSportData: this.createAddSportData(curAddSportInfo)};
         });
