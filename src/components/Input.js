@@ -65,6 +65,7 @@ class Input extends Component {
           onChange={this.handleChange}
           disabled={this.props.disabled ? true : false}
           name={this.props.name}
+          errorText={this.props.errorText}
           textFieldStyle={{width: "100%"}}
         />
       )

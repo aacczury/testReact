@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import {FlatButton} from 'material-ui';
-import {ActionHome} from 'material-ui/svg-icons';
+import {FlatButton, Avatar, Chip} from 'material-ui';
+import {ActionHome, ActionDone, ContentClear} from 'material-ui/svg-icons';
 
 import AddCard from '../components/AddCard';
 import AddDialog from '../components/AddDialog';
@@ -78,16 +78,47 @@ class Sports extends Component {
     // need loading icon
     let data = d ? d : {};
     let cardData = [];
+    const universityName = ["ncku", "cuu", "nsysu", "nchu"];
     Object.keys(data).map(sportUid => {
-      if(!this.state.isNCKUHost || this.props.user.auth !== "admin")
-        cardData.push({ title: data[sportUid].title, uid: sportUid, url: `/?th=${this.props.th}&university=ncku&sport=${sportUid}` });
+      let sport = data[sportUid];
+      if(!this.state.isNCKUHost || this.props.user.auth !== "admin") {
+        let university = "ncku";
+        if(this.props.user.auth in universityName) university = this.props.user.auth;
+        if(sport.is_finish && university in sport.is_finish && sport.is_finish[university]) {
+          if(this.props.user.auth !== "admin") {
+            cardData.push({ title: sport.title, uid: sportUid, content: (
+                <div style={{display: "inline-block"}}>
+                  <Chip backgroundColor="#c8e6c9" color="#222"><Avatar color="#fff" backgroundColor="#4caf50" icon={<ActionDone  />} />已報名完成</Chip>
+                </div>
+              )});
+          } else {
+            cardData.push({ title: sport.title, uid: sportUid, content: (
+                <div style={{display: "inline-block"}}>
+                  <Chip backgroundColor="#c8e6c9" color="#222"><Avatar color="#fff" backgroundColor="#4caf50" icon={<ActionDone  />} />已報名完成</Chip>
+                </div>
+              ), url: `/?th=${this.props.th}&university=${university}&sport=${sportUid}`});
+          }
+        } else {
+          cardData.push({ title: sport.title, uid: sportUid, content: (
+              <div style={{display: "inline-block"}}>
+                <Chip backgroundColor="#ffcdd2" color="#222"><Avatar color="#fff" backgroundColor="#f44336" icon={<ContentClear  />} />尚未報名完成</Chip>
+              </div>
+            ), url: `/?th=${this.props.th}&university=${university}&sport=${sportUid}`});
+        }
+      }
       else {
-        cardData.push({ title: data[sportUid].title, uid: sportUid, content: (
+        cardData.push({ title: sport.title, uid: sportUid, content: (
           <div>
-            <FlatButton primary={true} label="NCKU" onTouchTap={() => this.props.handleRedirect(`/?th=${this.props.th}&university=ncku&sport=${sportUid}`)} />
-            <FlatButton primary={true} label="CCU" onTouchTap={() => this.props.handleRedirect(`/?th=${this.props.th}&university=ccu&sport=${sportUid}`)} />
-            <FlatButton primary={true} label="NSYSU" onTouchTap={() => this.props.handleRedirect(`/?th=${this.props.th}&university=nsysu&sport=${sportUid}`)} />
-            <FlatButton primary={true} label="NCHU" onTouchTap={() => this.props.handleRedirect(`/?th=${this.props.th}&university=nchu&sport=${sportUid}`)} />
+            {universityName.map(university => {
+              let bgcolor = null;
+              let primary = true;
+              if(sport.is_finish && university in sport.is_finish && sport.is_finish[university]){
+                bgcolor = "#c8e6c9";
+                primary = false;
+              }
+              return <FlatButton key={`btn_${university}`} backgroundColor={bgcolor} primary={primary} label={university.toUpperCase()}
+                onTouchTap={() => this.props.handleRedirect(`/?th=${this.props.th}&university=${university}&sport=${sportUid}`)} />
+            })}
           </div>
         )});
       }
@@ -250,7 +281,8 @@ class Sports extends Component {
         <div style={{textAlign: "center"}}>
           <ActionHome />
           {addCard}
-          <CardContainer cardData={this.state.cardData} handleRedirect={this.props.handleRedirect} handleRemoveCard={this.handleRemoveSport} />
+          <CardContainer cardData={this.state.cardData} handleRedirect={this.props.handleRedirect}
+            handleRemoveCard={this.props.user.auth === "admin" && this.handleRemoveSport} />
           {addDialog}
         </div>
       </div>

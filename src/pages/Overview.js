@@ -51,16 +51,19 @@ class Overview extends Component {
       return 0;
     });
 
+    let birthday = "";
     if(d.birthday !== "") {
-      d.birthday = new Date(d.birthday);
-      d.birthday = `${d.birthday.getFullYear()}-${d.birthday.getMonth()}-${d.birthday.getDate()}`;
+      birthday = new Date(d.birthday);
+      let monthZero = +birthday.getMonth() + 1 > 9 ? '' : '0';
+      let dateZero = +birthday.getDate() > 9 ? '' : '0';
+      birthday = `${birthday.getFullYear()}-${monthZero}${+birthday.getMonth() + 1}-${dateZero}${birthday.getDate()}`;
     }
 
     return {
       id: d.id,
       name: d.name,
       deptyear: d.deptyear,
-      birthday: d.birthday,
+      birthday: birthday,
       size: String(d.size).toUpperCase(),
       lodging: d.lodging,
       bus: d.bus,
@@ -106,6 +109,10 @@ class Overview extends Component {
     });
 
     Object.keys(data).map(participantUid => {
+      if(!(data[participantUid].sport in sports)) {
+        console.error(participantUid + "'s sport not in sport");
+        return 0
+      };
       let curParticipant = this.getParticipantData(data, sports, participantUid);
       tableData.push(curParticipant);
 
@@ -181,9 +188,11 @@ class Overview extends Component {
     });
 
     let curTime = new Date();
+    let montZero = +curTime.getMonth() + 1 > 9 ? '' : '0';
+    let dateZero = +curTime.getDate() > 9 ? '' : '0';
     fileSaver.saveAs(
       new Blob([outputString], {type: "text/plain;charset=utf-8"}),
-      `${this.props.th}-${curTime.getFullYear()}_${curTime.getMonth()}_${curTime.getDate()}-${curTime.getHours()}_${curTime.getMinutes()}_${curTime.getSeconds()}.csv`
+      `${this.props.th}-${curTime.getFullYear()}_${montZero}${+curTime.getMonth() + 1}_${dateZero}${curTime.getDate()}-${curTime.getHours()}_${curTime.getMinutes()}_${curTime.getSeconds()}.csv`
     );
   }
 

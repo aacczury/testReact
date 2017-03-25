@@ -42,8 +42,18 @@ class LeftMenu extends Component {
                           ].concat(
                             years[y].th in this.state.sports ?
                             Object.keys(this.state.sports[years[y].th]).map((s, sIndex) => {
-                              let sports = this.state.sports[years[y].th];
-                              return <ListItem key={`sportItem_${sIndex}`} primaryText={sports[s].title} onTouchTap={() => this.props.handleRedirect(`/?th=${years[y].th}&sport=${s}`)} />
+                              const universityName = ["ncku", "cuu", "nsysu", "nchu"];
+                              let sport = this.state.sports[years[y].th][s];
+                              let university = "ncku"
+                              if(this.props.user.auth in universityName) university = this.props.user.auth;
+                              let handleOnTouchTap = null;
+                              let handleDisabled = true;
+                              if(!sport.is_finish || !(university in sport.is_finish) || !sport.is_finish[university]) {
+                                handleOnTouchTap = () => this.props.handleRedirect(`/?th=${years[y].th}&university=${university}&sport=${s}`);
+                                handleDisabled = false;
+                              }
+                              return <ListItem key={`sportItem_${sIndex}`} primaryText={sport.title}
+                                onTouchTap={handleOnTouchTap} disabled={handleDisabled} />
                             }) : []
                           )
                       } />)

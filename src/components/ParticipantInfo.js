@@ -5,60 +5,55 @@ import ResTR from './ResTR'
 class ParticipantInfo extends Component {
   constructor(props) {
     super(props);
-    
+
     this.state = {
       inputData: [],
       ptcInfo: {}
     };
-    this.tmpUpload = {};
-    this.uploadTimer = null;
-    if(this.props.th && this.props.uid)
-      this.dataRef = window.firebase.database().ref(`/participant/${this.props.university}/${this.props.th}/${this.props.uid}`);
+
+    this.dataRef = window.firebase.database().ref(`/participant/${this.props.university}/${this.props.th}/${this.props.uid}`);
   }
 
-  componentDidMount() {
+  componentDidMount = () => {
     if(this.props.user && this.props.th && this.props.uid && this.dataRef){ // need varify
       let self = this;
-      this.dataListener = this.dataRef.on('value', function(snapshot) {
+      this.dataRef.once('value').then(snapshot => {
         self.updateParticipantInfo(snapshot.val());
-      }, err => {
-        console.log(err);
-      });
+      }, err => err && console.log(err));
     }
   }
 
   componentWillReceiveProps = (nextProps) => {
     // You don't have to do this check first, but it can help prevent an unneeded render
     if (nextProps.th !== this.props.th || nextProps.uid !== this.props.uid || nextProps.university !== this.props.university) {
-      this.dataRef.off('value', this.dataListener);
       this.dataRef = window.firebase.database().ref(`/participant/${nextProps.university}/${nextProps.th}/${nextProps.uid}`);
       let self = this;
-      this.dataListener = this.dataRef.on('value', function(snapshot) {
+      this.dataRef.once('value').then(snapshot => {
         self.updateParticipantInfo(snapshot.val());
-      });
+      }, err => err && console.log(err));
+    }
+    else if(nextProps.errorPtc || this.props.errorPtc) {
+      this.updateParticipantInfo(this.state.ptcInfo, nextProps.errorPtc ? nextProps.errorPtc : {});
     }
   }
 
-  componentWillUnmount() {
-    if(this.dataRef && this.dataRef.off){
-      this.dataRef.off('value', this.dataListener);
-    }
+  componentWillUnmount = () => {
   }
 
-  createInputData = (ptcInfo) => {
+  createInputData = (ptcInfo, errorText = {}) => {
     return [
-      { type: "text", name: "name", label: "姓名", value: ptcInfo.name, disabled: false },
-      { type: "text", name: "deptyear", label: "系級", value: ptcInfo.deptyear, disabled: false },
-      { type: "text", name: "id", label: "身分證字號", value: ptcInfo.id, disabled: false },
-      { type: "date", name: "birthday", label: "生日", value: ptcInfo.birthday, disabled: false },
-      { type: "text", name: "size", label: "衣服尺寸", value: ptcInfo.size, disabled: false },
+      { type: "text", name: "name", label: "姓名", value: ptcInfo.name, disabled: false, errorText: errorText.name },
+      { type: "text", name: "deptyear", label: "系級", value: ptcInfo.deptyear, disabled: false, errorText: errorText.deptyear },
+      { type: "text", name: "id", label: "身分證字號", value: ptcInfo.id, disabled: false, errorText: errorText.id },
+      { type: "date", name: "birthday", label: "生日", value: ptcInfo.birthday, disabled: false, errorText: errorText.birthday },
+      { type: "text", name: "size", label: "衣服尺寸", value: ptcInfo.size, disabled: false, errorText: errorText.size },
       { type: "checkbox", name: "lodging", label: "住宿", value: ptcInfo.lodging, disabled: false },
       { type: "checkbox", name: "bus", label: "搭乘遊覽車", value: ptcInfo.bus, disabled: false },
       { type: "checkbox", name: "vegetarian", label: "素食", value: ptcInfo.vegetarian, disabled: false }
     ]
   }
 
-  updateParticipantInfo = (d) => {
+  updateParticipantInfo = (d, e = {}) => {
     // need loading icon
     let data = d ? d : {};
     let ptcInfo = {
@@ -71,33 +66,23 @@ class ParticipantInfo extends Component {
       bus: typeof data.bus === 'undefined' ? false : data.bus,
       vegetarian: typeof data.vegetarian === 'undefined' ? false : data.vegetarian
     }
-    let inputData = this.createInputData(ptcInfo);
+    let inputData = this.createInputData(ptcInfo, e);
     this.setState({ // need loading
       inputData: inputData,
       ptcInfo: ptcInfo
     });
-  }
-
-  uploadParticipantInfo = (d) => {
-    if(this.props.user && this.props.th && this.props.uid && this.dataRef){ // need varify
-      let self = this;
-      this.dataRef.update(this.tmpUpload, (err) => {
-        self.tmpUpload = {};
-      });
-    }
+    this.props.handleUpdatePtcInfo({[this.props.uid]: ptcInfo});
   }
 
   handleParticipantInfoUpdate = (d) => {
     this.setState(prevState => {
       let curPtcInfo = Object.assign(prevState.ptcInfo, d);
+      this.props.handleUpdatePtcInfo({[this.props.uid]: curPtcInfo});
       return {
         ptcInfo: curPtcInfo,
         inputData: this.createInputData(curPtcInfo)
       };
     });
-    this.tmpUpload = Object.assign(this.tmpUpload, d);
-    if(this.uploadTimer) clearTimeout(this.uploadTimer);
-    this.uploadTimer = setTimeout(() => this.uploadParticipantInfo(this.tmpUpload), 3000);
   }
 
   render() {

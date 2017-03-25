@@ -14,12 +14,15 @@ class Participants extends Component {
 
     this.state = {
       tableData: [],
-      participantsData: [],
+      ptcsData: {},
       contact: {
         name: "",
         phone: "",
         email: ""
       },
+      errorPtc : {},
+      errorContact: {},
+      participantsData: {},
       sportData: {},
       sendEmailDialogOpen: false
     };
@@ -30,15 +33,7 @@ class Participants extends Component {
     this.tmpRemove = {};
   }
 
-  beforeunload = () => {
-    if(this.dataRef && this.dataRef.off){
-      this.dataRef.off();
-    }
-    this.removeParticipant();
-  }
-
-  componentDidMount() {
-    window.addEventListener("beforeunload", this.beforeunload);
+  componentDidMount = () => {
     if(this.props.user){ // need varify
       let self = this;
       window.firebase.database().ref(`/sports/${this.props.th}/${this.props.sport}`).once('value').then(sportShot => {
@@ -63,66 +58,48 @@ class Participants extends Component {
     }
   }
 
-  componentWillUnmount() {
-    window.removeEventListener("beforeunload", this.beforeunload);
-    this.beforeunload();
+  componentWillUnmount = () => {
   }
 
-  updateParticipants = (d, s) => {
-    const statusName = {captain: "領隊", coach: "教練", leader: "隊長", manager:"管理", member: "隊員"};
-    const statusList = ["coach", "captain", "manager", "leader", "member"];
-    // need loading icon
+  updateParticipants = (d, s, e = {}) => {
+    const statusName = {captain: "領隊", coach: "教練", leader: "隊長", manager:"管理"};
+    const statusList = ["coach", "captain", "manager", "leader"];
     let data = d ? d : {};
     let sportData = s ? s : {};
-    let tableData = [], participantsData = [];
+    let errorPtc = e;
+    let tableData = [];
     statusList.map((status, index) => {
-      if(status !== "member" && status in data && data[status]) {
+      if(status in data && data[status]) {
         tableData.push(<ParticipantInfo key={`ptc_high_${index}`} user={this.props.user}
-          university={this.props.university} th={this.props.th} uid={data[status]} status={statusName[status]} />)
-        participantsData.push({
-          uid: data[status],
-          status: statusName[status]
-        })
+          university={this.props.university} th={this.props.th} uid={data[status]} status={statusName[status]}
+          handleUpdatePtcInfo={this.handleUpdatePtcInfo} errorPtc={errorPtc[data[status]]} />)
       }
       return 0;
     });
 
     let memberName = tableData.length === 0 ? "成員" : "隊員";
-
     if(data.member) {
       Object.keys(data.member).map((uid, index) => {
         if(this.props.user.auth === "admin")
-          tableData.push(<ParticipantInfo key={`ptc_member_${index}`} user={this.props.user} university={this.props.university} th={this.props.th} uid={uid}
-            status={memberName} handleRemoveParticipantInfo={this.handleRemoveParticipantInfo(uid)} />);
+          tableData.push(<ParticipantInfo key={`ptc_member_${index}`} user={this.props.user} university={this.props.university}
+            th={this.props.th} uid={uid} status={memberName}
+            handleUpdatePtcInfo={this.handleUpdatePtcInfo} errorPtc={errorPtc[uid]}
+            handleRemoveParticipantInfo={this.handleRemoveParticipantInfo(uid)} />);
         else
-          tableData.push(<ParticipantInfo key={`ptc_member_${index}`} user={this.props.user} university={this.props.university} th={this.props.th} uid={uid}
-            status={memberName} />);
-        participantsData.push({
-          uid: uid,
-          status: memberName
-        })
+          tableData.push(<ParticipantInfo key={`ptc_member_${index}`} user={this.props.user} university={this.props.university}
+            th={this.props.th} uid={uid} status={memberName}
+            handleUpdatePtcInfo={this.handleUpdatePtcInfo} errorPtc={errorPtc[uid]} />);
         return 0;
       });
     }
 
     this.setState({ // need loading
       tableData: tableData,
-      participantsData: participantsData,
       contact: data.contact,
-      sportData: sportData
+      participantsData: data,
+      sportData: sportData,
+      errorPtc: errorPtc
     });
-  }
-
-  removeParticipant = () => {
-    if(Object.keys(this.tmpRemove).length > 0)
-      window.firebase.database().ref().update(
-        Object.keys(this.tmpRemove).reduce((p, c) => {
-          if(this.tmpRemove[c])
-            p[`/participant/${this.props.university}/${this.props.th}/${c}`] = null;
-          return p;
-        }, {}), (err) => {
-        if(err) console.log(err);
-      });
   }
 
   handleAddParticipantInfo = () => {
@@ -130,41 +107,164 @@ class Participants extends Component {
     window.firebase.database().ref().update({
       [`/participant/${this.props.university}/${this.props.th}/${uid}`]: {status: "member", sport: this.props.sport},
       [`/participants/${this.props.university}/${this.props.th}/${this.props.sport}/member/${uid}`]: true
-    }, (err) => {
-      // will update by on
-      if(err) console.log(err);
-    });
+    }, err => err && console.error(err));
   }
 
-  handleRemoveParticipantInfo = (uid, isRemove = true) => {
+  handleRemoveParticipantInfo = (uid) => {
     return () => {
       window.firebase.database().ref().update({
-        [`/participants/${this.props.university}/${this.props.th}/${this.props.sport}/member/${uid}`] : isRemove ? null : true
-      }, (err) => { // can add redo
-        this.tmpRemove = Object.assign(this.tmpRemove, {[uid]: isRemove});
+        [`/participants/${this.props.university}/${this.props.th}/${this.props.sport}/member/${uid}`] : null,
+        [`/participant/${this.props.university}/${this.props.th}/${uid}`] : null
+      }, err => {
+        if(err) console.error(err);
+        else this.setState(prevState => {
+          if(uid in prevState.ptcsData) {
+            delete prevState.ptcsData[uid];
+            return {ptcsData: prevState.ptcsData};
+          } else console.error(uid + " not in delete ptcsData!!!");
+        })
       });
     }
   }
 
-  uploadContact = (d) => {
-    if(this.props.user && this.props.th && this.props.university && this.props.sport && this.dataRef){ // need varify
-      let self = this;
-      this.dataRef.child('contact').update(this.tmpUpload, (err) => {
-        self.tmpUpload = {};
+  uploadData = (callback) => {
+    let updates = {};
+    Object.keys(this.state.contact).map(attr => {
+      updates[`/participants/${this.props.university}/${this.props.th}/${this.props.sport}/contact/${attr}`] = this.state.contact[attr];
+      return 0;
+    });
+    console.log(this.state.ptcsData);
+    Object.keys(this.state.ptcsData).map(uid => {
+      let ptcInfo = this.state.ptcsData[uid];
+      Object.keys(ptcInfo).map(attr => {
+        if(attr === "birthday")
+        updates[`/participant/${this.props.university}/${this.props.th}/${uid}/${attr}`] = ptcInfo[attr];
+        return 0;
       });
-    }
+      return 0;
+    });
+
+    updates[`/sports//${this.props.th}/${this.props.sport}/is_finish/${this.props.university}`] = true;
+
+    window.firebase.database().ref().update(updates, err => {
+      if (err) console.error(err);
+      else callback && callback();
+    });
   }
 
   handleContactUpdate = d => {
     this.setState(prevState => {
       let curContact = Object.assign(prevState.contact, d);
       return {
-        contact: curContact
+        contact: curContact,
+        errorContact: {}
       };
     });
-    this.tmpUpload = Object.assign(this.tmpUpload, d);
-    if(this.uploadTimer) clearTimeout(this.uploadTimer);
-    this.uploadTimer = setTimeout(() => this.uploadContact(this.tmpUpload), 3000);
+  }
+
+  handleUpdatePtcInfo = (d) => {
+    this.setState(prevState => {
+      return {
+        ptcsData: Object.assign(prevState.ptcsData, d)
+      };
+    });
+  }
+
+  checkData = () => {
+    /* check contact */
+    const checkContactAttrList = ["name", "phone", "email"];
+    let errorContact = {};
+    let contact = this.state.contact;
+    for(let i = 0; i < checkContactAttrList.length; ++i) {
+      let attr = checkContactAttrList[i];
+      if(attr in contact) {
+        if(contact[attr] === "") {
+          errorContact[attr] = "不可為空";
+          break;
+        }
+        if(attr === "phone") {
+          let match = contact[attr].match(/09\d{8}/);
+          if(!match || match[0] !== contact[attr]) {
+            errorContact[attr] = "號碼格式錯誤，請輸入十位數字手機號碼";
+            break;
+          }
+        }
+        if(attr === "email") {
+          /* ref: http://emailregex.com/ */
+          let match = contact[attr].match(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/);
+          if(!match || match[0] !== contact[attr]) {
+            errorContact[attr] = "信箱格式錯誤";
+            break;
+          }
+        }
+      } else {
+        console.error(attr + " not in contact!!!");
+      }
+    }
+    if(Object.keys(errorContact).length > 0) {
+      this.setState({errorContact: errorContact});
+      if(Object.keys(this.state.errorPtc).length > 0)
+        this.updateParticipants(this.state.participantsData, this.state.sportData, {});
+      this.handleSendEmailDialogClose();
+      return 1;
+    }
+
+    /* check participants */
+    const checkAttrList = ["name", "deptyear", "id", "birthday", "size"];
+    let ptcsUids = Object.keys(this.state.ptcsData);
+    let errorPtc = {};
+    for(let i = 0; i < ptcsUids.length; ++i) {
+      let uid = ptcsUids[i];
+      let ptc = this.state.ptcsData[uid];
+      errorPtc[uid] = {};
+
+      for(let j = 0; j < checkAttrList.length; ++j) {
+        let attr = checkAttrList[j];
+        if(ptc[attr] === "") {
+          errorPtc[uid][attr] = "不可為空";
+          break;
+        }
+        if(attr === "id") {
+          let id = ptc[attr];
+          if(id.length !== 10) {
+            errorPtc[uid][attr] = "身分證字號錯誤";
+            break;
+          }
+          const abMap = {A: "10", B: "11",
+            C: "12", D: "13", E: "14", F: "15", G: "16", H: "17",
+            I: "34", J: "18", K: "19", L: "20", M: "21", N: "22",
+            O: "35", P: "23", Q: "24", R: "25", S: "26", T: "27",
+            U: "28", V: "29", W: "32", X: "30", Y: "31", Z: "33"}
+          if(!(id.charAt(0) in abMap)) {
+            errorPtc[uid][attr] = "身分證字號錯誤";
+            break;
+          }
+          let ab = abMap[id.charAt(0)];
+          let value = +ab.charAt(0) * 1 + +ab.charAt(1) * 9 +
+            +id.charAt(1) * 8 + +id.charAt(2) * 7 + +id.charAt(3) * 6 +
+            +id.charAt(4) * 5 + +id.charAt(5) * 4 + +id.charAt(6) * 3 +
+            +id.charAt(7) * 2 + +id.charAt(8) * 1 + +id.charAt(9) * 1
+          if(value % 10 !== 0) {
+            errorPtc[uid][attr] = "身分證字號錯誤";
+            break;
+          }
+        }
+        if(attr === "birthday") {
+          if(isNaN(+new Date(ptc[attr]))) {
+            errorPtc[uid][attr] = "出生年月日錯誤";
+            break;
+          }
+        }
+      }
+
+      if(Object.keys(errorPtc[uid]).length > 0) {
+        this.updateParticipants(this.state.participantsData, this.state.sportData, errorPtc);
+        this.handleSendEmailDialogClose();
+        return 1;
+      }
+      else delete errorPtc[uid]
+    }
+    return 0;
   }
 
   getParticipantData = (data) => {
@@ -179,16 +279,19 @@ class Participants extends Component {
       return 0;
     });
 
+    let birthday = ""
     if(d.birthday !== "") {
-      d.birthday = new Date(d.birthday);
-      d.birthday = `${d.birthday.getFullYear()}-${d.birthday.getMonth()}-${d.birthday.getDate()}`;
+      birthday = new Date(d.birthday);
+      let monthZero = +birthday.getMonth() + 1 > 9 ? '' : '0';
+      let dateZero = +birthday.getDate() > 9 ? '' : '0';
+      birthday = `${birthday.getFullYear()}-${monthZero}${+birthday.getMonth() + 1}-${dateZero}${birthday.getDate()}`;
     }
 
     return {
       id: d.id,
       name: d.name,
       deptyear: d.deptyear,
-      birthday: d.birthday,
+      birthday: birthday,
       size: String(d.size).toUpperCase(),
       lodging: d.lodging ? 'V' : '',
       bus: d.bus ? 'V' : '',
@@ -196,7 +299,7 @@ class Participants extends Component {
     }
   }
 
-  handleSendEmail = () => {
+  sendEmail = () => {
     let xhr = new XMLHttpRequest();
     xhr.open("POST", "http://stud.adm.ncku.edu.tw/act/chcwcup/register/mail.asp", true);
     xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
@@ -226,7 +329,8 @@ class Participants extends Component {
     const attrList = ["status", "name", "deptyear", "id", "birthday", "size", "lodging", "bus", "vegetarian"];
     const attrName = {
       status: "身分", name: "姓名", deptyear: "系級", id: "身分證字號",
-      birthday: "出生年月日", size: "衣服尺寸", lodging: "住宿", bus: "搭乘遊覽車", vegetarian: "素食"}
+      birthday: "出生年月日", size: "衣服尺寸", lodging: "住宿", bus: "搭乘遊覽車", vegetarian: "素食"
+    }
 
     body += `
       <table style='font-family:sans-serif,微軟正黑體;border-collapse:collapse;border:1px solid #888;'>
@@ -237,39 +341,72 @@ class Participants extends Component {
     })
     body += `</tr>`;
 
-    for(let i = 0; i < this.state.participantsData.length; ++i) {
-      let ptc = this.state.participantsData[i];
-      let self = this;
-      window.firebase.database().ref(`/participant/${this.props.university}/${this.props.th}/${ptc.uid}`).once('value').then(ptcInfoShot => {
-        let ptcInfo = self.getParticipantData(ptcInfoShot.val() ? ptcInfoShot.val() : {});
+    const statusList = ["captain", "coach", "leader", "manager"];
+    const statusName = {captain: "領隊", coach: "教練", leader: "隊長", manager:"管理"};
+
+    let isHighLevel = false;
+    statusList.map(status => {
+      if(status in this.state.participantsData) {
+        isHighLevel = true;
+        let uid = this.state.participantsData[status];
+        if(uid in this.state.ptcsData) {
+          let ptcInfo = this.getParticipantData(this.state.ptcsData[uid]);
+          body += `<tr style='border:1px solid #888;'>
+                    <td style='font-family:sans-serif,微軟正黑體;padding:5px;'>${statusName[status]}</td>`;
+          attrList.map(attr => {
+            if(attr !== "status") {
+              body += `<td style='font-family:sans-serif,微軟正黑體;padding:5px;'>${ptcInfo[attr]}</td>`;
+            }
+            return 0;
+          });
+          body += `</tr>`;
+        } else {
+          console.error(uid + " not in high ptcsData!!!");
+        }
+      }
+      return 0;
+    });
+
+    let memberName = isHighLevel ? "隊員" : "成員";
+    let memberUids = Object.keys(this.state.participantsData["member"]);
+    memberUids.map(uid => {
+      if(uid in this.state.ptcsData) {
+        let ptcInfo = this.getParticipantData(this.state.ptcsData[uid]);
         body += `<tr style='border:1px solid #888;'>
-                  <td style='font-family:sans-serif,微軟正黑體;padding:5px;'>${ptc.status}</td>`;
+                  <td style='font-family:sans-serif,微軟正黑體;padding:5px;'>${memberName}</td>`;
         attrList.map(attr => {
           if(attr !== "status") {
             body += `<td style='font-family:sans-serif,微軟正黑體;padding:5px;'>${ptcInfo[attr]}</td>`;
           }
           return 0;
-        })
+        });
         body += `</tr>`;
-        if(i === this.state.participantsData.length - 1) {
-          body += `</table><br />`;
-          body += `因資料已送出，無法再於系統修改，<br />
-                    如仍有需修改的資料或任何報名上的疑問，<br />
-                    煩請聯絡本屆正興城灣盃負責人：<br />
-                    惠姿，09XXXXXXXX，XXX@XXX.XXX<br />
-                    <br />
-                    謝謝，<br />
-                    正興城灣盃籌備團隊敬上<br />
-                    </div>
-                    `
+      } else {
+        console.error(uid + " not in member ptcsData!!!");
+      }
+      return 0;
+    });
 
-          body = encodeURI(body);
-          xhr.send(`uid=${this.props.user.uid}&email=${this.state.contact.email}&title=${title}&body=${body}`);
+    body += `</table><br />`;
+    body += `因資料已送出，無法再於系統修改，<br />
+              如仍有需修改的資料或任何報名上的疑問，<br />
+              煩請聯絡本屆正興城灣盃負責人：<br />
+              惠姿，09XXXXXXXX，XXX@XXX.XXX<br />
+              <br />
+              謝謝，<br />
+              正興城灣盃籌備團隊敬上<br />
+              </div>
+              `
+    body = encodeURI(body);
+    xhr.send(`uid=${this.props.user.uid}&email=${this.state.contact.email}&title=${title}&body=${body}`);
+  }
 
-          self.handleSendEmailDialogClose();
-        }
-      }, err => err && console.log(err));
-    }
+  handleSubmit = () => {
+    if(this.checkData()) return;
+    /* send email */
+    this.sendEmail();
+    /* upload */
+    this.uploadData(() => this.handleSendEmailDialogClose());
   }
 
   handleSendEmailDialogOpen = () => {
@@ -279,7 +416,6 @@ class Participants extends Component {
   handleSendEmailDialogClose = () => {
     this.setState({sendEmailDialogOpen: false})
   }
-
 
   render() {
     let cancelHeadCell = (<th></th>);
@@ -296,68 +432,79 @@ class Participants extends Component {
         </tr>
       );
 
+    let contactDOM = (
+      <div>
+        <Card style={{display: "inline-block"}}>
+          <CardText>
+            <table>
+              <thead>
+                <tr>
+                  <th></th>
+                  <th></th>
+                  <th>姓名</th>
+                  <th>電話</th>
+                  <th>信箱</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td></td>
+                  <td style={{fontWeight: "900", fontSize: "16px"}}>聯絡人</td>
+                  <td data-label="姓名">
+                    <Input type="text" name="name" value={this.state.contact.name} handleInputUpdate={this.handleContactUpdate}
+                      errorText={this.state.errorContact.name} />
+                  </td>
+                  <td data-label="電話">
+                    <Input type="text" name="phone" value={this.state.contact.phone} handleInputUpdate={this.handleContactUpdate}
+                      errorText={this.state.errorContact.phone} />
+                  </td>
+                  <td data-label="信箱">
+                    <Input type="email" name="email" value={this.state.contact.email} handleInputUpdate={this.handleContactUpdate}
+                      errorText={this.state.errorContact.email} />
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </CardText>
+        </Card>
+      </div>
+    )
+
+    let ptcInfoDOM = (
+      <Card style={{margin: "10px", display: "inline-block", verticalAlign: "top"}}>
+        <CardTitle title={this.props.title} subtitle={this.props.subtitle}  />
+        <CardText>
+          <table>
+            <thead>
+              <tr>
+                {cancelHeadCell}
+                <th>身分</th>
+                <th>姓名</th>
+                <th>系級</th>
+                <th>身分證字號</th>
+                <th>出生年月日</th>
+                <th>衣服尺寸</th>
+                <th>住宿</th>
+                <th>搭乘遊覽車</th>
+                <th>素食</th>
+              </tr>
+            </thead>
+            <tbody>
+              {this.state.tableData}
+              {plus1}
+            </tbody>
+          </table>
+        </CardText>
+      </Card>
+    )
+
     let content = (
       <div style={{paddingTop: "64px"}}>
         <div style={{textAlign: "center"}}>
           <div><ActionHome /></div>
-          <div>
-            <Card style={{display: "inline-block"}}>
-              <CardText>
-                <table>
-                  <thead>
-                    <tr>
-                      <th></th>
-                      <th></th>
-                      <th>姓名</th>
-                      <th>電話</th>
-                      <th>信箱</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td></td>
-                      <td style={{fontWeight: "900", fontSize: "16px"}}>聯絡人</td>
-                      <td data-label="姓名">
-                        <Input type="text" name="name" value={this.state.contact.name} handleInputUpdate={this.handleContactUpdate} />
-                      </td>
-                      <td data-label="電話">
-                        <Input type="text" name="phone" value={this.state.contact.phone} handleInputUpdate={this.handleContactUpdate} />
-                      </td>
-                      <td data-label="信箱">
-                        <Input type="text" name="email" value={this.state.contact.email} handleInputUpdate={this.handleContactUpdate} />
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </CardText>
-            </Card>
-          </div>
 
-          <Card style={{margin: "10px", display: "inline-block", verticalAlign: "top"}}>
-            <CardTitle title={this.props.title} subtitle={this.props.subtitle}  />
-            <CardText>
-              <table>
-                <thead>
-                  <tr>
-                    {cancelHeadCell}
-                    <th>身分</th>
-                    <th>姓名</th>
-                    <th>系級</th>
-                    <th>身分證字號</th>
-                    <th>出生年月日</th>
-                    <th>衣服尺寸</th>
-                    <th>住宿</th>
-                    <th>搭乘遊覽車</th>
-                    <th>素食</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {this.state.tableData}
-                  {plus1}
-                </tbody>
-              </table>
-            </CardText>
-          </Card>
+          {contactDOM}
+          {ptcInfoDOM}
 
           <div>
             <RaisedButton
@@ -369,7 +516,7 @@ class Participants extends Component {
           </div>
         </div>
 
-        <AddDialog title="確認送出" addDialogOpen={this.state.sendEmailDialogOpen} handleAddSubmit={this.handleSendEmail}
+        <AddDialog title="確認送出" addDialogOpen={this.state.sendEmailDialogOpen} handleAddSubmit={this.handleSubmit}
           handleAddDialogOpen={this.handleSendEmailDialogOpen} handleAddDialogClose={this.handleSendEmailDialogClose}
           content={<div>送出後將無法再做修改，<br />並會將此報名資料寄送給聯絡人。</div>} />
 
