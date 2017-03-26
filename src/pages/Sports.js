@@ -70,27 +70,27 @@ class Sports extends Component {
     let data = d ? d : {};
     let cardData = [];
     const universityName = ["ncku", "ccu", "nsysu", "nchu"];
-    Object.keys(data).map(sportUid => {
+    Object.keys(data).map((sportUid, index) => {
       let sport = data[sportUid];
       if(!this.state.isNCKUHost || this.props.user.auth !== "admin") {
         let university = "ncku";
         if(this.props.user.auth in universityName) university = this.props.user.auth;
         if(sport.is_finish && university in sport.is_finish && sport.is_finish[university]) {
           if(this.props.user.auth !== "admin") {
-            cardData.push({ title: sport.title, uid: sportUid, content: (
+            cardData.push({ order: 'order' in sport ? sport.order : +index + 1, title: sport.title, uid: sportUid, content: (
                 <div style={{display: "inline-block"}}>
                   <Chip backgroundColor="#c8e6c9" color="#222"><Avatar color="#fff" backgroundColor="#4caf50" icon={<ActionDone  />} />已報名完成</Chip>
                 </div>
               )});
           } else {
-            cardData.push({ title: sport.title, uid: sportUid, content: (
+            cardData.push({ order: 'order' in sport ? sport.order : +index + 1, title: sport.title, uid: sportUid, content: (
                 <div style={{display: "inline-block"}}>
                   <Chip backgroundColor="#c8e6c9" color="#222"><Avatar color="#fff" backgroundColor="#4caf50" icon={<ActionDone  />} />已報名完成</Chip>
                 </div>
               ), url: `/?th=${this.props.th}&university=${university}&sport=${sportUid}`});
           }
         } else {
-          cardData.push({ title: sport.title, uid: sportUid, content: (
+          cardData.push({ order: 'order' in sport ? sport.order : +index + 1, title: sport.title, uid: sportUid, content: (
               <div style={{display: "inline-block"}}>
                 <Chip>尚未報名完成</Chip>
               </div>
@@ -98,7 +98,7 @@ class Sports extends Component {
         }
       }
       else {
-        cardData.push({ title: sport.title, uid: sportUid, content: (
+        cardData.push({ order: 'order' in sport ? sport.order : +index + 1, title: sport.title, uid: sportUid, content: (
           <div>
             {universityName.map(university => {
               let bgcolor = null;
@@ -115,6 +115,10 @@ class Sports extends Component {
       }
       return 0;
     });
+
+    cardData.sort((a, b) => {
+      return a.order - b.order;
+    })
 
     this.setState({ // need loading
       cardData: cardData,
