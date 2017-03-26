@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 
+import {attrList, attrName, attrType} from '../config';
 import ResTR from './ResTR'
 
 class ParticipantInfo extends Component {
@@ -41,31 +42,20 @@ class ParticipantInfo extends Component {
   }
 
   createInputData = (ptcInfo, errorText = {}) => {
-    return [
-      { type: "text", name: "name", label: "姓名", value: ptcInfo.name, disabled: false, errorText: errorText.name },
-      { type: "text", name: "deptyear", label: "系級", value: ptcInfo.deptyear, disabled: false, errorText: errorText.deptyear },
-      { type: "text", name: "id", label: "身分證字號", value: ptcInfo.id, disabled: false, errorText: errorText.id },
-      { type: "date", name: "birthday", label: "生日", value: ptcInfo.birthday, disabled: false, errorText: errorText.birthday },
-      { type: "text", name: "size", label: "衣服尺寸", value: ptcInfo.size, disabled: false, errorText: errorText.size },
-      { type: "checkbox", name: "lodging", label: "住宿", value: ptcInfo.lodging, disabled: false },
-      { type: "checkbox", name: "bus", label: "搭乘遊覽車", value: ptcInfo.bus, disabled: false },
-      { type: "checkbox", name: "vegetarian", label: "素食", value: ptcInfo.vegetarian, disabled: false }
-    ]
+    return attrList.map(attr => {
+      return {type: attrType[attr], name: attr, label: attrName[attr], value: ptcInfo[attr], errorText: errorText[attr]};
+    })
   }
 
   updateParticipantInfo = (d, e = {}) => {
     // need loading icon
     let data = d ? d : {};
-    let ptcInfo = {
-      name: typeof data.name === 'undefined' ? '' : data.name,
-      deptyear: typeof data.deptyear === 'undefined' ? '' : data.deptyear,
-      id: typeof data.id === 'undefined' ? '' : data.id,
-      birthday: typeof data.birthday === 'undefined' ? '' : data.birthday,
-      size: typeof data.size === 'undefined' ? '' : data.size,
-      lodging: typeof data.lodging === 'undefined' ? false : data.lodging,
-      bus: typeof data.bus === 'undefined' ? false : data.bus,
-      vegetarian: typeof data.vegetarian === 'undefined' ? false : data.vegetarian
-    }
+    let ptcInfo = {};
+    attrList.map(attr => {
+      ptcInfo[attr] = typeof data[attr] === 'undefined' ? (attrType[attr] !== 'checkbox' ? '' : false) : data[attr];
+      return 0;
+    });
+
     let inputData = this.createInputData(ptcInfo, e);
     this.setState({ // need loading
       inputData: inputData,

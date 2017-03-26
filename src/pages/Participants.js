@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import {ActionHome, ImageExposurePlus1} from 'material-ui/svg-icons';
 import {Card, CardTitle, CardText, IconButton, RaisedButton} from 'material-ui';
 
+import {highStatusList, statusName, attrList, attrType, attrName} from '../config';
 import ParticipantInfo from '../components/ParticipantInfo';
 import Input from '../components/Input';
 import AddDialog from '../components/AddDialog';
@@ -26,11 +27,8 @@ class Participants extends Component {
       sportData: {},
       sendEmailDialogOpen: false
     };
-    this.tmpUpload = {};
-    this.uploadTimer = null;
 
     this.dataRef = window.firebase.database().ref(`/participants/${this.props.university}/${this.props.th}/${this.props.sport}`);
-    this.tmpRemove = {};
   }
 
   componentDidMount = () => {
@@ -39,8 +37,8 @@ class Participants extends Component {
       window.firebase.database().ref(`/sports/${this.props.th}/${this.props.sport}`).once('value').then(sportShot => {
         self.dataListener = self.dataRef.on('value', function(snapshot) {
           self.updateParticipants(snapshot.val(), sportShot.val());
-        });
-      });
+        }, err => err && console.error(err));
+      }, err => err && console.error(err));
     }
   }
 
@@ -50,11 +48,11 @@ class Participants extends Component {
       this.dataRef.off('value', this.dataListener);
       this.dataRef = window.firebase.database().ref(`/participants/${nextProps.university}/${nextProps.th}/${nextProps.sport}`);
       let self = this;
-      this.dataListener = this.dataRef.on('value', function(snapshot) {
-        self.updateParticipants(snapshot.val());
-      }, err => {
-        console.log(err);
-      });
+      window.firebase.database().ref(`/sports/${nextProps.th}/${nextProps.sport}`).once('value').then(sportShot => {
+        self.dataListener = self.dataRef.on('value', function(snapshot) {
+          self.updateParticipants(snapshot.val(), sportShot.val());
+        }, err => err && console.error(err));
+      }, err => err && console.error(err));
     }
   }
 
@@ -62,13 +60,11 @@ class Participants extends Component {
   }
 
   updateParticipants = (d, s, e = {}) => {
-    const statusName = {captain: "領隊", coach: "教練", leader: "隊長", manager:"管理"};
-    const statusList = ["coach", "captain", "manager", "leader"];
     let data = d ? d : {};
     let sportData = s ? s : {};
     let errorPtc = e;
     let tableData = [];
-    statusList.map((status, index) => {
+    highStatusList.map((status, index) => {
       if(status in data && data[status]) {
         tableData.push(<ParticipantInfo key={`ptc_high_${index}`} user={this.props.user}
           university={this.props.university} th={this.props.th} uid={data[status]} status={statusName[status]}
@@ -78,7 +74,7 @@ class Participants extends Component {
     });
 
     let memberName = tableData.length === 0 ? "成員" : "隊員";
-    if(data.member) {
+    if('member' in data) {
       Object.keys(data.member).map((uid, index) => {
         if(this.props.user.auth === "admin")
           tableData.push(<ParticipantInfo key={`ptc_member_${index}`} user={this.props.user} university={this.props.university}
@@ -133,18 +129,17 @@ class Participants extends Component {
       updates[`/participants/${this.props.university}/${this.props.th}/${this.props.sport}/contact/${attr}`] = this.state.contact[attr];
       return 0;
     });
-    console.log(this.state.ptcsData);
+
     Object.keys(this.state.ptcsData).map(uid => {
       let ptcInfo = this.state.ptcsData[uid];
       Object.keys(ptcInfo).map(attr => {
-        if(attr === "birthday")
         updates[`/participant/${this.props.university}/${this.props.th}/${uid}/${attr}`] = ptcInfo[attr];
         return 0;
       });
       return 0;
     });
 
-    updates[`/sports//${this.props.th}/${this.props.sport}/is_finish/${this.props.university}`] = true;
+    updates[`/sports/${this.props.th}/${this.props.sport}/is_finish/${this.props.university}`] = true;
 
     window.firebase.database().ref().update(updates, err => {
       if (err) console.error(err);
@@ -155,18 +150,13 @@ class Participants extends Component {
   handleContactUpdate = d => {
     this.setState(prevState => {
       let curContact = Object.assign(prevState.contact, d);
-      return {
-        contact: curContact,
-        errorContact: {}
-      };
+      return { contact: curContact, errorContact: {} };
     });
   }
 
   handleUpdatePtcInfo = (d) => {
     this.setState(prevState => {
-      return {
-        ptcsData: Object.assign(prevState.ptcsData, d)
-      };
+      return { ptcsData: Object.assign(prevState.ptcsData, d) };
     });
   }
 
@@ -268,42 +258,44 @@ class Participants extends Component {
   }
 
   getParticipantData = (data) => {
-    const keyList = ["name", "deptyear", "id", "birthday", "size", "lodging", "bus", "vegetarian"];
     let d = data ? data : {};
 
-    keyList.map(k => {
-      if(typeof d[k] === "undefined") {
-        if(k === "lodging" || k === "bus" || k === "vegetarian") d[k] = false;
-        else d[k] = "";
+    let ptcData = {};
+    attrList.map(attr => {
+      if(typeof d[attr] === 'undefined') {
+        ptcData[attr] = attrType[attr] === 'checkbox' ? false : '';
+      } else ptcData[attr] = d[attr];
+
+      if (attrType[attr] === 'checkbox') ptcData[attr] = ptcData[attr] ? 'V' : '';
+      if (attr === 'size') ptcData[attr] = ptcData[attr].toUpperCase();
+      if (attr === 'birthday' && ptcData[attr] !== '') {
+        let birthday = new Date(ptcData[attr]);
+        if(isNaN(+birthday)) {
+          console.error(birthday + " is not birthday!!!");
+          return 1;
+        }
+        let monthZero = +birthday.getMonth() + 1 > 9 ? '' : '0';
+        let dateZero = +birthday.getDate() > 9 ? '' : '0';
+        ptcData[attr] = `${birthday.getFullYear()}-${monthZero}${+birthday.getMonth() + 1}-${dateZero}${birthday.getDate()}`;
       }
       return 0;
     });
 
-    let birthday = ""
-    if(d.birthday !== "") {
-      birthday = new Date(d.birthday);
-      let monthZero = +birthday.getMonth() + 1 > 9 ? '' : '0';
-      let dateZero = +birthday.getDate() > 9 ? '' : '0';
-      birthday = `${birthday.getFullYear()}-${monthZero}${+birthday.getMonth() + 1}-${dateZero}${birthday.getDate()}`;
-    }
-
-    return {
-      id: d.id,
-      name: d.name,
-      deptyear: d.deptyear,
-      birthday: birthday,
-      size: String(d.size).toUpperCase(),
-      lodging: d.lodging ? 'V' : '',
-      bus: d.bus ? 'V' : '',
-      vegetarian: d.vegetarian ? 'V' : ''
-    }
+    return ptcData;
   }
 
   sendEmail = () => {
     let xhr = new XMLHttpRequest();
     xhr.open("POST", "http://stud.adm.ncku.edu.tw/act/chcwcup/register/mail.asp", true);
     xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
     let title = encodeURI(`[第${this.props.th}屆正興城灣盃]+${this.state.sportData.title}+報名資料`);
+
+    let tableStyle = `'font-family:sans-serif,微軟正黑體;border-collapse:collapse;border:1px solid #888;'`;
+    let trStyle = `'border:1px solid #888;'`;
+    let thStyle = `'font-family:sans-serif,微軟正黑體;padding:5px;color:#fff;background-color:#00bcd4;font-weight:900'`;
+    let tdStyle = `'font-family:sans-serif,微軟正黑體;padding:5px;'`;
+
     let body = `
     <div style="font-family:sans-serif,微軟正黑體;">
       ${this.state.contact.name} 您好：<br /><br />
@@ -311,51 +303,44 @@ class Participants extends Component {
       您被設定為<span style="color:#2196f3">${this.state.sportData.title}</span>的聯絡人，<br />
       <span style="color:#2196f3">${this.state.sportData.title}</span>的報名資料如下：<br /><br />`;
     body += `
-      <table style='font-family:sans-serif,微軟正黑體;border-collapse:collapse;border:1px solid #888;'>
-        <tr style='border:1px solid #888;font-weight:900px;'>
-          <th style='font-family:sans-serif,微軟正黑體;padding:5px;color:#fff;background-color:#00bcd4;'></th>
-          <th style='font-family:sans-serif,微軟正黑體;padding:5px;color:#fff;background-color:#00bcd4;'>姓名</th>
-          <th style='font-family:sans-serif,微軟正黑體;padding:5px;color:#fff;background-color:#00bcd4;'>電話</th>
-          <th style='font-family:sans-serif,微軟正黑體;padding:5px;color:#fff;background-color:#00bcd4;'>信箱</th>
+      <table style=${tableStyle}>
+        <tr style=${trStyle}>
+          <th style=${thStyle}></th>
+          <th style=${thStyle}>姓名</th>
+          <th style=${thStyle}>電話</th>
+          <th style=${thStyle}>信箱</th>
         </tr>
-        <tr style='border:1px solid #888;'>
-          <td style='font-family:sans-serif,微軟正黑體;padding:5px;'>聯絡人</td>
-          <td style='font-family:sans-serif,微軟正黑體;padding:5px;'>${this.state.contact.name}</td>
-          <td style='font-family:sans-serif,微軟正黑體;padding:5px;'>${this.state.contact.phone}</td>
-          <td style='font-family:sans-serif,微軟正黑體;padding:5px;'>${this.state.contact.email}</td>
+        <tr style=${trStyle}>
+          <td style=${tdStyle}>聯絡人</td>
+          <td style=${tdStyle}>${this.state.contact.name}</td>
+          <td style=${tdStyle}>${this.state.contact.phone}</td>
+          <td style=${tdStyle}>${this.state.contact.email}</td>
         </tr>
       </table><br /><br />`;
 
-    const attrList = ["status", "name", "deptyear", "id", "birthday", "size", "lodging", "bus", "vegetarian"];
-    const attrName = {
-      status: "身分", name: "姓名", deptyear: "系級", id: "身分證字號",
-      birthday: "出生年月日", size: "衣服尺寸", lodging: "住宿", bus: "搭乘遊覽車", vegetarian: "素食"
-    }
+    const mailAttrList = ['status'].concat(attrList);
 
     body += `
-      <table style='font-family:sans-serif,微軟正黑體;border-collapse:collapse;border:1px solid #888;'>
-        <tr style='border:1px solid #888;font-weight:900px;'>`;
-    attrList.map(attr => {
-      body += `<th style='font-family:sans-serif,微軟正黑體;padding:5px;color:#fff;background-color:#00bcd4;'>${attrName[attr]}</th>`;
+      <table style=${tableStyle}>
+        <tr style=${trStyle}>`;
+    mailAttrList.map(attr => {
+      body += `<th style=${thStyle}>${attrName[attr]}</th>`;
       return 0;
     })
     body += `</tr>`;
 
-    const statusList = ["captain", "coach", "leader", "manager"];
-    const statusName = {captain: "領隊", coach: "教練", leader: "隊長", manager:"管理"};
-
     let isHighLevel = false;
-    statusList.map(status => {
+    highStatusList.map(status => {
       if(status in this.state.participantsData) {
         isHighLevel = true;
         let uid = this.state.participantsData[status];
         if(uid in this.state.ptcsData) {
           let ptcInfo = this.getParticipantData(this.state.ptcsData[uid]);
-          body += `<tr style='border:1px solid #888;'>
-                    <td style='font-family:sans-serif,微軟正黑體;padding:5px;'>${statusName[status]}</td>`;
+          body += `<tr style=${trStyle}>
+                    <td style=${tdStyle}>${statusName[status]}</td>`;
           attrList.map(attr => {
             if(attr !== "status") {
-              body += `<td style='font-family:sans-serif,微軟正黑體;padding:5px;'>${ptcInfo[attr]}</td>`;
+              body += `<td style=${tdStyle}>${ptcInfo[attr]}</td>`;
             }
             return 0;
           });
@@ -368,15 +353,17 @@ class Participants extends Component {
     });
 
     let memberName = isHighLevel ? "隊員" : "成員";
-    let memberUids = Object.keys(this.state.participantsData["member"]);
+    let memberUids = 'member' in this.state.participantsData ?
+                        Object.keys(this.state.participantsData["member"]) :
+                        [];
     memberUids.map(uid => {
       if(uid in this.state.ptcsData) {
         let ptcInfo = this.getParticipantData(this.state.ptcsData[uid]);
-        body += `<tr style='border:1px solid #888;'>
-                  <td style='font-family:sans-serif,微軟正黑體;padding:5px;'>${memberName}</td>`;
+        body += `<tr style=${trStyle}>
+                  <td style=${tdStyle}>${memberName}</td>`;
         attrList.map(attr => {
           if(attr !== "status") {
-            body += `<td style='font-family:sans-serif,微軟正黑體;padding:5px;'>${ptcInfo[attr]}</td>`;
+            body += `<td style=${tdStyle}>${ptcInfo[attr]}</td>`;
           }
           return 0;
         });
@@ -388,6 +375,7 @@ class Participants extends Component {
     });
 
     body += `</table><br />`;
+
     body += `因資料已送出，無法再於系統修改，<br />
               如仍有需修改的資料或任何報名上的疑問，<br />
               煩請聯絡本屆正興城灣盃負責人：<br />

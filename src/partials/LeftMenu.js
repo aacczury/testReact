@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import {Drawer, Divider, List, ListItem} from 'material-ui';
+import {ActionDone} from 'material-ui/svg-icons';
 
 class LeftMenu extends Component {
   constructor(props) {
@@ -46,14 +47,20 @@ class LeftMenu extends Component {
                               let sport = this.state.sports[years[y].th][s];
                               let university = "ncku"
                               if(this.props.user.auth in universityName) university = this.props.user.auth;
-                              let handleOnTouchTap = null;
-                              let handleDisabled = true;
-                              if(!sport.is_finish || !(university in sport.is_finish) || !sport.is_finish[university]) {
-                                handleOnTouchTap = () => this.props.handleRedirect(`/?th=${years[y].th}&university=${university}&sport=${s}`);
-                                handleDisabled = false;
+                              let handleOnTouchTap = () => this.props.handleRedirect(`/?th=${years[y].th}&university=${university}&sport=${s}`);
+                              let handleDisabled = false;
+                              let rightIcon = null;
+                              let style = {};
+                              if(this.props.user.auth !== "admin" &&
+                                  sport.is_finish && university in sport.is_finish && sport.is_finish[university]) {
+                                handleOnTouchTap = null;
+                                handleDisabled = true;
+                                rightIcon = <ActionDone color="#4caf50" />;
+                                style = {cursor: "default"};
                               }
                               return <ListItem key={`sportItem_${sIndex}`} primaryText={sport.title}
-                                onTouchTap={handleOnTouchTap} disabled={handleDisabled} />
+                                onTouchTap={handleOnTouchTap} disabled={handleDisabled}
+                                rightIcon={rightIcon} style={style} />
                             }) : []
                           )
                       } />)

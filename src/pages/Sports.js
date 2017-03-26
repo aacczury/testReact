@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import {FlatButton, Avatar, Chip} from 'material-ui';
-import {ActionHome, ActionDone, ContentClear} from 'material-ui/svg-icons';
+import {ActionHome, ActionDone} from 'material-ui/svg-icons';
 
 import AddCard from '../components/AddCard';
 import AddDialog from '../components/AddDialog';
@@ -33,14 +33,7 @@ class Sports extends Component {
     this.tmpRemove = {};
   }
 
-  beforeunload = () => {
-    if(this.dataRef && this.dataRef.off){
-      this.dataRef.off();
-    }
-    this.removeSport();
-  }
-
-  componentDidMount() {
+  componentDidMount = () => {
     window.addEventListener("beforeunload", this.beforeunload);
     if(this.props.user){ // need varify
       let self = this;
@@ -64,9 +57,7 @@ class Sports extends Component {
     }
   }
 
-  componentWillUnmount() {
-    window.removeEventListener("beforeunload", this.beforeunload);
-    this.beforeunload();
+  componentWillUnmount = () => {
   }
 
   updateSports = (d) => {
@@ -78,7 +69,7 @@ class Sports extends Component {
     // need loading icon
     let data = d ? d : {};
     let cardData = [];
-    const universityName = ["ncku", "cuu", "nsysu", "nchu"];
+    const universityName = ["ncku", "ccu", "nsysu", "nchu"];
     Object.keys(data).map(sportUid => {
       let sport = data[sportUid];
       if(!this.state.isNCKUHost || this.props.user.auth !== "admin") {
@@ -101,7 +92,7 @@ class Sports extends Component {
         } else {
           cardData.push({ title: sport.title, uid: sportUid, content: (
               <div style={{display: "inline-block"}}>
-                <Chip backgroundColor="#ffcdd2" color="#222"><Avatar color="#fff" backgroundColor="#f44336" icon={<ContentClear  />} />尚未報名完成</Chip>
+                <Chip>尚未報名完成</Chip>
               </div>
             ), url: `/?th=${this.props.th}&university=${university}&sport=${sportUid}`});
         }
@@ -216,52 +207,36 @@ class Sports extends Component {
     this.setState({addDialogOpen: false})
   }
 
-  removeSport = () => {
-    if(Object.keys(this.tmpRemove).length > 0) {
+  handleRemoveSport = (uid) => {
+    return () => {
+      if (this.props.user.auth !== "admin") return;
+      let updates = {};
+      updates[`/sports/${this.props.th}/${uid}`] = null;
+
       const statusName = ["coach", "captain", "manager", "leader", "member"]
       const universityName = this.state.isNCKUHost ? ["ncku", "ccu", "nchu", "nsysu"] : ["ncku"];
-      let updates = {};
-      let sportUids = Object.keys(this.tmpRemove);
-      for(let i = 0; i < sportUids.length; ++i) {
-        for(let j = 0; j < universityName.length; ++j) {
-          let university = universityName[j];
-          window.firebase.database().ref(`/participants/${university}/${this.props.th}/${sportUids[i]}`)
-                  .once('value').then(participantsSnapshot => {
-            let participants = participantsSnapshot.val() ? participantsSnapshot.val() : {};
-            statusName.map(status => {
-              if(status in participants)
-                if(status !== "member")
-                  updates[`/participant/${university}/${this.props.th}/${participants[status]}`] = null;
-                else
-                  Object.keys(participants[status]).map(memberUid => {
-                    updates[`/participant/${university}/${this.props.th}/${memberUid}`] = null;
-                    return 0;
-                  })
-              return 0;
-            })
-            updates[`/participants/${university}/${this.props.th}/${sportUids[i]}`] = null;
-            if(i === sportUids.length - 1 && j === universityName.length - 1){
-              window.firebase.database().ref().update(updates, err => {
-                if(err) console.log(err);
+      for(let i = 0; i < universityName.length; ++i) {
+        let university = universityName[i];
+        window.firebase.database().ref(`/participants/${university}/${this.props.th}/${uid}`)
+                .once('value').then(ptcShot => {
+          let ptcs = ptcShot.val() ? ptcShot.val() : {};
+          statusName.map(status => {
+            if(!(status in ptcs)) return 1;
+            if(status !== "member")
+              updates[`/participant/${university}/${this.props.th}/${ptcs[status]}`] = null;
+            else
+              Object.keys(ptcs[status]).map(memberUid => {
+                updates[`/participant/${university}/${this.props.th}/${memberUid}`] = null;
+                return 0;
               })
-            }
-          }, err => {
-            if(err) console.log(err);
+            return 0;
           })
-        }
-      }
-    }
-  }
-
-  handleRemoveSport = (uid, isRemove = true) => {
-    return () => {
-      if(isRemove) this.tmpSave[uid] = this.state.sportData[uid];
-      window.firebase.database().ref().update({
-        [`/sports/${this.props.th}/${uid}`] : isRemove ? null : this.tmpSave[uid]
-      }, (err) => { // can add redo
-        this.tmpRemove = Object.assign(this.tmpRemove, {[uid]: isRemove});
-      });
-    }
+          updates[`/participants/${university}/${this.props.th}/${uid}`] = null;
+          if(i === universityName.length - 1) // update at last
+            window.firebase.database().ref().update(updates, (err) => err && console.error(err));
+        }, err => err && console.error(err)) // end once ptcs
+      } // end universityName for loop
+    } // end return closure
   }
 
   render() {
