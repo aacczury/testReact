@@ -37,6 +37,7 @@ class AddDialog extends Component {
         open={this.state.addDialogOpen}
         onRequestClose={this.props.handleAddDialogClose}
         contentStyle={{maxWidth: "300px"}}
+        autoScrollBodyContent={true}
       >
         {this.props.content}
       </Dialog>

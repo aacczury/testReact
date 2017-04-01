@@ -1,3 +1,4 @@
+const fontFamily = "Consolas, 微軟正黑體";
 
 const universityList = ["ncku", "ccu", "nsysu", "nchu"];
 const universityName = {ncku: "成功大學", ccu: "中正大學", nsysu: "中山大學" , nchu: "中興大學"};
@@ -13,6 +14,8 @@ const attrType = {name: "text", deptyear: "text", id: "text", birthday: "date",
                     size: "text", lodging: "checkbox", bus: "checkbox", vegetarian: "checkbox"}
 
 export {
+  fontFamily,
+
   universityList,
   universityName,
   statusList,

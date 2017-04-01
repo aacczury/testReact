@@ -5,6 +5,7 @@ import AddCard from '../components/AddCard';
 import AddDialog from '../components/AddDialog';
 import CardContainer from '../containers/CardContainer';
 import InputContainer from '../containers/InputContainer';
+import LoadDialog from '../components/LoadDialog';
 
 class Years extends Component {
   constructor(props) {
@@ -18,9 +19,15 @@ class Years extends Component {
         yearTh: '',
         yearTitle: '',
         yearOrganizer: '',
+        yearDate: '',
+        yearVenue: '',
+        yearContactName: '',
+        yearContactPhone: '',
+        yearContactEmail: '',
         yearNCKUHost: false
       },
-      addDialogOpen: false
+      addDialogOpen: false,
+      loadDialogOpen: true
     };
   }
 
@@ -48,12 +55,20 @@ class Years extends Component {
     let data = d ? d : {};
     let cardData = [];
     Object.keys(data).map(k => {
-      cardData.push({ title: data[k].title, subtitle: data[k].organizer, url: `/?th=${data[k].th}` });
+      cardData.push({
+        title: data[k].title,
+        url: `/?th=${data[k].th}`, content: (
+        <div>
+          {`活動地點: ${data[k].venue ? data[k].venue : ''}`}<br />
+          {`活動日期: ${data[k].date ? data[k].date : ''}`}<br />
+        </div>
+      )});
       return 0;
     });
 
     this.setState({ // need loading
-      cardData: cardData
+      cardData: cardData,
+      loadDialogOpen: false
     });
   }
 
@@ -63,6 +78,11 @@ class Years extends Component {
       { type: "text", name: "yearTh", text: "屆數 ex:12", value: addYearInfo.yearTh, disabled: false },
       { type: "text", name: "yearOrganizer", text: "主辦單位 ex:中山大學", value: addYearInfo.yearOrganizer, disabled: false },
       { type: "text", name: "yearTitle", text: "顯示名稱 ex:第12屆", value: addYearInfo.yearTitle, disabled: false },
+      { type: "text", name: "yearDate", text: "活動日期 ex:106年5月20-21日", value: addYearInfo.yearDate, disabled: false },
+      { type: "text", name: "yearVenue", text: "活動地點 ex:中山大學", value: addYearInfo.yearVenue, disabled: false },
+      { type: "text", name: "yearContactName", text: "本屆負責人", value: addYearInfo.yearContactName, disabled: false },
+      { type: "text", name: "yearContactPhone", text: "負責人電話", value: addYearInfo.yearContactPhone, disabled: false },
+      { type: "text", name: "yearContactEmail", text: "負責人信箱", value: addYearInfo.yearContactEmail, disabled: false },
       { type: "checkbox", name: "yearNCKUHost", text: "成大主辦", value: addYearInfo.yearNCKUHost, disabled: false }
     ]
   }
@@ -79,16 +99,40 @@ class Years extends Component {
 
   handleAddYear = () => { // pop screen
     if(this.props.user.auth === "admin") {
-      let {yearYear, yearTh, yearOrganizer, yearTitle, yearNCKUHost} = this.state.addYearInfo; // need check collision
+      let {yearYear, yearTh, yearOrganizer, yearTitle, yearDate, yearVenue,
+            yearContactName, yearContactPhone, yearContactEmail, yearNCKUHost} = this.state.addYearInfo; // need check collision
       let yearUid = window.firebase.database().ref(`/years`).push().key;
       window.firebase.database().ref().update({
-        [`/years/${yearUid}`]: {year: yearYear, th: yearTh, organizer: yearOrganizer, title: yearTitle, ncku_host: yearNCKUHost}
+        [`/years/${yearUid}`]: {
+          year: yearYear,
+          th: yearTh,
+          organizer:
+          yearOrganizer,
+          title: yearTitle,
+          date: yearDate,
+          venue: yearVenue,
+          contact_name: yearContactName,
+          contact_phone: yearContactPhone,
+          contact_email: yearContactEmail,
+          ncku_host: yearNCKUHost
+        }
       }, (err) => {
         // will update by on
         if(err) console.log(err);
         this.handleAddDialogClose();
         this.setState(prevState => {
-          let curAddYearInfo = {yearYear: '', yearTh: '', yearOrganizer: '', yearTitle: '', yearNCKUHost: false};
+          let curAddYearInfo = {
+                yearYear: '',
+                yearTh: '',
+                yearOrganizer: '',
+                yearTitle: '',
+                yearDate: '',
+                yearVenue: '',
+                yearContactName: '',
+                yearContactPhone: '',
+                yearContactEmail: '',
+                yearNCKUHost: false
+              };
           return {addYearInfo: curAddYearInfo, addYearData: this.createAddYearData(curAddYearInfo)};
         });
       });
@@ -123,6 +167,7 @@ class Years extends Component {
           <CardContainer cardData={this.state.cardData} handleRedirect={this.props.handleRedirect} />
           {addDialog}
         </div>
+        <LoadDialog />
       </div>
     );
 

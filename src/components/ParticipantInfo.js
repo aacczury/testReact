@@ -55,6 +55,7 @@ class ParticipantInfo extends Component {
       ptcInfo[attr] = typeof data[attr] === 'undefined' ? (attrType[attr] !== 'checkbox' ? '' : false) : data[attr];
       return 0;
     });
+    ptcInfo.status = "status" in data ? data.status : "";
 
     let inputData = this.createInputData(ptcInfo, e);
     this.setState({ // need loading

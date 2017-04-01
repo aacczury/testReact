@@ -19,6 +19,14 @@ const Index = () => (
   </MuiThemeProvider>
 )
 
+// Initialize Firebase
+const firebaseConfig = {
+  apiKey: "AIzaSyAjdarRIsUshhdQOwaFLxlBneFWz12JrTU",
+  authDomain: "chcwcup.firebaseapp.com",
+  databaseURL: "https://chcwcup.firebaseio.com",
+};
+window.firebase.initializeApp(firebaseConfig);
+
 ReactDOM.render(
   <Index />,
   document.getElementById('root')

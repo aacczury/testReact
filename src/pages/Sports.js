@@ -6,6 +6,7 @@ import AddCard from '../components/AddCard';
 import AddDialog from '../components/AddDialog';
 import CardContainer from '../containers/CardContainer';
 import InputContainer from '../containers/InputContainer';
+import LoadDialog from '../components/LoadDialog';
 
 class Sports extends Component {
   constructor(props) {
@@ -26,7 +27,8 @@ class Sports extends Component {
       },
       addDialogOpen: false,
       isNCKUHost: false,
-      isLoadingHost: false
+      isLoadingHost: false,
+      loadDialogOpen: true
     };
 
     this.tmpSave = {};
@@ -122,7 +124,8 @@ class Sports extends Component {
 
     this.setState({ // need loading
       cardData: cardData,
-      sportData: data
+      sportData: data,
+      loadDialogOpen: false
     });
   }
 
@@ -264,6 +267,8 @@ class Sports extends Component {
             handleRemoveCard={this.props.user.auth === "admin" && this.handleRemoveSport} />
           {addDialog}
         </div>
+
+        <LoadDialog loadDialogOpen={this.state.loadDialogOpen}/>
       </div>
     );
 

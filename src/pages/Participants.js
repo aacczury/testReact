@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
 import {ActionHome, ImageExposurePlus1} from 'material-ui/svg-icons';
-import {Card, CardTitle, CardText, IconButton, RaisedButton} from 'material-ui';
+import {Card, CardTitle, CardText, IconButton, RaisedButton, Snackbar} from 'material-ui';
 
 import {highStatusList, statusName, attrList, attrType, attrName} from '../config';
 import ParticipantInfo from '../components/ParticipantInfo';
 import Input from '../components/Input';
 import AddDialog from '../components/AddDialog';
+import LoadDialog from '../components/LoadDialog';
 
 import '../components/ResTable.css';
 
@@ -24,8 +25,11 @@ class Participants extends Component {
       errorPtc : {},
       errorContact: {},
       participantsData: {},
+      yearData: {},
       sportData: {},
-      sendEmailDialogOpen: false
+      sendEmailDialogOpen: false,
+      errorAlertOpen: false,
+      loadDialogOpen: true
     };
 
     this.dataRef = window.firebase.database().ref(`/participants/${this.props.university}/${this.props.th}/${this.props.sport}`);
@@ -34,9 +38,11 @@ class Participants extends Component {
   componentDidMount = () => {
     if(this.props.user){ // need varify
       let self = this;
-      window.firebase.database().ref(`/sports/${this.props.th}/${this.props.sport}`).once('value').then(sportShot => {
-        self.dataListener = self.dataRef.on('value', function(snapshot) {
-          self.updateParticipants(snapshot.val(), sportShot.val());
+      window.firebase.database().ref(`/years`).once('value').then(yearShort => {
+        window.firebase.database().ref(`/sports/${this.props.th}/${this.props.sport}`).once('value').then(sportShot => {
+          self.dataListener = self.dataRef.on('value', function(snapshot) {
+            self.updateParticipants(snapshot.val(), sportShot.val(), yearShort.val());
+          }, err => err && console.error(err));
         }, err => err && console.error(err));
       }, err => err && console.error(err));
     }
@@ -48,9 +54,11 @@ class Participants extends Component {
       this.dataRef.off('value', this.dataListener);
       this.dataRef = window.firebase.database().ref(`/participants/${nextProps.university}/${nextProps.th}/${nextProps.sport}`);
       let self = this;
-      window.firebase.database().ref(`/sports/${nextProps.th}/${nextProps.sport}`).once('value').then(sportShot => {
-        self.dataListener = self.dataRef.on('value', function(snapshot) {
-          self.updateParticipants(snapshot.val(), sportShot.val());
+      window.firebase.database().ref(`/years`).once('value').then(yearShort => {
+        window.firebase.database().ref(`/sports/${nextProps.th}/${nextProps.sport}`).once('value').then(sportShot => {
+          self.dataListener = self.dataRef.on('value', function(snapshot) {
+            self.updateParticipants(snapshot.val(), sportShot.val(), yearShort.val());
+          }, err => err && console.error(err));
         }, err => err && console.error(err));
       }, err => err && console.error(err));
     }
@@ -59,9 +67,10 @@ class Participants extends Component {
   componentWillUnmount = () => {
   }
 
-  updateParticipants = (d, s, e = {}) => {
+  updateParticipants = (d, s, y, e = {}) => {
     let data = d ? d : {};
     let sportData = s ? s : {};
+    let yearData = y ? y : {};
     let errorPtc = e;
     let tableData = [];
     highStatusList.map((status, index) => {
@@ -94,7 +103,9 @@ class Participants extends Component {
       contact: data.contact,
       participantsData: data,
       sportData: sportData,
-      errorPtc: errorPtc
+      yearData: yearData,
+      errorPtc: errorPtc,
+      loadDialogOpen: false
     });
   }
 
@@ -175,7 +186,7 @@ class Participants extends Component {
         if(attr === "phone") {
           let match = contact[attr].match(/09\d{8}/);
           if(!match || match[0] !== contact[attr]) {
-            errorContact[attr] = "號碼格式錯誤，請輸入十位數字手機號碼";
+            errorContact[attr] = "格式錯誤，請輸入十位數字手機號碼";
             break;
           }
         }
@@ -194,7 +205,7 @@ class Participants extends Component {
     if(Object.keys(errorContact).length > 0) {
       this.setState({errorContact: errorContact});
       if(Object.keys(this.state.errorPtc).length > 0)
-        this.updateParticipants(this.state.participantsData, this.state.sportData, {});
+        this.updateParticipants(this.state.participantsData, this.state.sportData, this.state.yearData, {});
       this.handleSendEmailDialogClose();
       return 1;
     }
@@ -206,6 +217,8 @@ class Participants extends Component {
     for(let i = 0; i < ptcsUids.length; ++i) {
       let uid = ptcsUids[i];
       let ptc = this.state.ptcsData[uid];
+      console.log(ptc);
+      if(ptc.status === "member") continue;
       errorPtc[uid] = {};
 
       for(let j = 0; j < checkAttrList.length; ++j) {
@@ -248,7 +261,7 @@ class Participants extends Component {
       }
 
       if(Object.keys(errorPtc[uid]).length > 0) {
-        this.updateParticipants(this.state.participantsData, this.state.sportData, errorPtc);
+        this.updateParticipants(this.state.participantsData, this.state.sportData, this.state.yearData, errorPtc);
         this.handleSendEmailDialogClose();
         return 1;
       }
@@ -291,8 +304,8 @@ class Participants extends Component {
 
     let title = encodeURI(`[第${this.props.th}屆正興城灣盃]+${this.state.sportData.title}+報名資料`);
 
-    let tableStyle = `'font-family:sans-serif,微軟正黑體;border-collapse:collapse;border:1px solid #888;'`;
-    let trStyle = `'border:1px solid #888;'`;
+    let tableStyle = `'font-family:sans-serif,微軟正黑體;border-collapse:collapse;border:1px solid #aaa;'`;
+    let trStyle = `'border:1px solid #aaa;'`;
     let thStyle = `'font-family:sans-serif,微軟正黑體;padding:5px;color:#fff;background-color:#00bcd4;font-weight:900'`;
     let tdStyle = `'font-family:sans-serif,微軟正黑體;padding:5px;'`;
 
@@ -376,10 +389,21 @@ class Participants extends Component {
 
     body += `</table><br />`;
 
+    let yearUids = Object.keys(this.state.yearData);
+    let year = {};
+    yearUids.map(uid => {
+        if("th" in this.state.yearData[uid] && this.state.yearData[uid].th === this.props.th)
+          year = this.state.yearData[uid];
+        return 0;
+    });
     body += `因資料已送出，無法再於系統修改，<br />
               如仍有需修改的資料或任何報名上的疑問，<br />
-              煩請聯絡本屆正興城灣盃負責人：<br />
-              惠姿，09XXXXXXXX，XXX@XXX.XXX<br />
+              煩請聯絡本屆正興城灣盃負責人：
+              <div style="color:#2196F3">
+                ${year.contact_name ? year.contact_name : ""}<br />
+                ${year.contact_phone ? year.contact_phone : ""}<br />
+                ${year.contact_email ? year.contact_email : ""}<br />
+              </div>
               <br />
               謝謝，<br />
               正興城灣盃籌備團隊敬上<br />
@@ -390,11 +414,20 @@ class Participants extends Component {
   }
 
   handleSubmit = () => {
-    if(this.checkData()) return;
+    this.handleLoadDialogOpen();
+    if(this.checkData()){
+      this.handleErrorAlertOpen();
+      this.handleLoadDialogClose();
+      return;
+    }
     /* send email */
     this.sendEmail();
     /* upload */
-    this.uploadData(() => this.handleSendEmailDialogClose());
+    this.uploadData(() => {
+      this.handleSendEmailDialogClose();
+      this.handleLoadDialogClose();
+      this.props.handleRedirect(`/?th=${this.props.th}`);
+    });
   }
 
   handleSendEmailDialogOpen = () => {
@@ -403,6 +436,22 @@ class Participants extends Component {
 
   handleSendEmailDialogClose = () => {
     this.setState({sendEmailDialogOpen: false})
+  }
+
+  handleErrorAlertOpen = () => {
+    this.setState({errorAlertOpen: true})
+  }
+
+  handleErrorAlertClose = () => {
+    this.setState({errorAlertOpen: false})
+  }
+
+  handleLoadDialogOpen = () => {
+    this.setState({loadDialogOpen: true});
+  }
+
+  handleLoadDialogClose = () => {
+    this.setState({loadDialogOpen: false});
   }
 
   render() {
@@ -490,6 +539,7 @@ class Participants extends Component {
       <div style={{paddingTop: "64px"}}>
         <div style={{textAlign: "center"}}>
           <div><ActionHome /></div>
+          <h3 style={{textAlign: "center"}}>{this.state.sportData.title ? this.state.sportData.title : ''}</h3>
 
           {contactDOM}
           {ptcInfoDOM}
@@ -508,6 +558,15 @@ class Participants extends Component {
           handleAddDialogOpen={this.handleSendEmailDialogOpen} handleAddDialogClose={this.handleSendEmailDialogClose}
           content={<div>送出後將無法再做修改，<br />並會將此報名資料寄送給聯絡人。</div>} />
 
+        <Snackbar
+          open={this.state.errorAlertOpen}
+          message="資料有錯誤或缺漏"
+          autoHideDuration={4000}
+          onRequestClose={this.handleErrorAlertClose}
+          bodyStyle={{backgroundColor: "#F44336"}}
+        />
+
+        <LoadDialog loadDialogOpen={this.state.loadDialogOpen}/>
       </div>
     );
 

@@ -72,6 +72,7 @@ class Login extends Component {
       }
 
       this.setState({isLoginButtonDisabled: true});
+      this.props.handleLoadDialogOpen();
       let self = this;
       window.firebase.auth().signInWithEmailAndPassword(email, password).catch(err => {
         var errorCode = err.code;
@@ -80,12 +81,11 @@ class Login extends Component {
           self.updateErrorText({email: '信箱格式錯誤'});
         } else if (errorCode === 'auth/user-not-found' || errorCode === 'auth/wrong-password') {
           self.updateErrorText({email: '帳號或密碼錯誤', password: '帳號或密碼錯誤'});
-        } else {
-          if (err) {
-            console.log(err);
-            self.updateErrorText({email: errorMessage});
-          }
+        } else if (err) {
+          console.error(err);
+          self.updateErrorText({email: errorMessage});
         }
+        if(err) this.props.handleLoadDialogClose();
 
         self.setState({isLoginButtonDisabled: false});
       });

@@ -29,6 +29,8 @@ class LeftMenu extends Component {
       <Drawer docked={false} open={this.props.menuOpen}
         onRequestChange={this.props.handleMenuRequestChange} style={{textAlign: "left"}} >
         <List>
+          <ListItem primaryText="首頁" onTouchTap={() => this.props.handleRedirect(`/`)}/>
+          <Divider />
           {
             Object.keys(this.state.years).map((y, yIndex) => {
               let years = this.state.years;

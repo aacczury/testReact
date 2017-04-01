@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 
+import LoadDialog from '../components/LoadDialog';
 import Header from '../partials/Header';
 import Main from './Main';
 import Login from './Login';
@@ -16,6 +17,7 @@ class App extends Component {
 
     this.state = {
       user: null,
+      loadDialogOpen: true
     };
   }
 
@@ -34,10 +36,19 @@ class App extends Component {
             enumerable: false,
             configurable: false
           });
-          self.setState({user: user});
+          self.setState({
+            user: user,
+            loadDialogOpen: false
+          });
         });
-      else self.setState({user: user});
+      else self.setState({
+        user: user,
+        loadDialogOpen: false
+      });
     });
+  }
+
+  componentWillReceiveProps = (nextProps) => {
   }
 
   handleRedirect = url => {
@@ -57,6 +68,14 @@ class App extends Component {
         this.handleRedirect('/?login=true');
       }
     }[event]
+  }
+
+  handleLoadDialogOpen = () => {
+    this.setState({loadDialogOpen: true});
+  }
+
+  handleLoadDialogClose = () => {
+    this.setState({loadDialogOpen: false});
   }
 
   render() {
@@ -88,7 +107,7 @@ class App extends Component {
         else if(query.sport && university) {
           header = <Header title={`正興城灣盃-第${query.th}屆報名資料`} user={this.state.user}
             handleHeaderButtonClick={this.handleHeaderButtonClick("logout")} handleRedirect={this.handleRedirect} th={query.th} />
-          content = <Participants user={this.state.user} th={query.th} sport={query.sport} university={university} />
+          content = <Participants user={this.state.user} th={query.th} sport={query.sport} university={university} handleRedirect={this.handleRedirect} />
         }
         else if(!query.sport){
           header = <Header title={`正興城灣盃-第${query.th}屆比賽項目`} user={this.state.user}
@@ -108,7 +127,8 @@ class App extends Component {
     }
     else if(query.login) {
       header = <Header login={query.login} title="正興城灣盃-登入" />
-      content = <Login handleRedirect={this.handleRedirect} />
+      content = <Login handleRedirect={this.handleRedirect}
+                  handleLoadDialogOpen={this.handleLoadDialogOpen} handleLoadDialogClose={this.handleLoadDialogClose} />
     }
     else {
       header = <Header title="正興城灣盃"
@@ -120,6 +140,7 @@ class App extends Component {
       <div className="App">
         {header}
         {content}
+        <LoadDialog loadDialogOpen={this.state.loadDialogOpen} />
       </div>
     );
   }
