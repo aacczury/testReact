@@ -2,7 +2,9 @@ import React, { Component } from 'react';
 import {Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn, Card, CardTitle, CardText, RaisedButton} from 'material-ui';
 import {blue200, indigo200, red200} from 'material-ui/styles/colors';
 import fileSaver from 'file-saver';
-import {FileFileDownload} from 'material-ui/svg-icons'
+import {FileFileDownload} from 'material-ui/svg-icons';
+
+import LoadDialog from '../components/LoadDialog';
 
 class Overview extends Component {
   constructor(props) {
@@ -13,8 +15,11 @@ class Overview extends Component {
       sportData: [],
       countDiffID: 0,
       countConflictPtc: 0,
+      countSize: 0,
+      countLodging: 0,
+      countBus: 0,
       countVegetarian: 0,
-      countSize: 0
+      loadDialogOpen: true
     };
   }
 
@@ -23,8 +28,8 @@ class Overview extends Component {
       let self = this;
       this.dataRef = window.firebase.database().ref(`/participant/ncku/${this.props.th}`);
       window.firebase.database().ref(`/sports/${this.props.th}`).once('value').then(sportShot => {
-        window.firebase.database().ref(`/participants/ncku/${this.props.th}`).once('value').then(participantsShot => {
-          this.dataRef.on('value', participant => {
+        this.dataRef.on('value', participant => {
+          window.firebase.database().ref(`/participants/ncku/${this.props.th}`).once('value').then(participantsShot => {
             self.updateOverview(participant.val(), sportShot.val(), participantsShot.val());
           });
         });
@@ -81,7 +86,7 @@ class Overview extends Component {
     let tableData = [], sportData = [];
     const statusList = ["coach", "captain", "manager", "leader", "member"];
     let diffID = {}, conflictPtc = {};
-    let countVegetarian = 0, countSize = {};
+    let countSize = {}, countLodging = 0, countBus = 0, countVegetarian = 0;
 
     Object.keys(sports).map(sportUid => {
       let perSportData = {sport: "", contact: {}, data: []};
@@ -113,23 +118,25 @@ class Overview extends Component {
         console.error(participantUid + "'s sport not in sport");
         return 0
       };
-      let curParticipant = this.getParticipantData(data, sports, participantUid);
+      let curParticipant = this.getParticipantData(data, sports, participantUid); // will not contain undefined
+      if(curParticipant.name + curParticipant.id === '') return 1;
       tableData.push(curParticipant);
 
-      if(!(curParticipant.id in diffID)) {
-        diffID[curParticipant.id] = {...curParticipant}
-        if(curParticipant.vegetarian)
-          countVegetarian ++;
+      if(!(curParticipant.name + curParticipant.id in diffID)) {
+        diffID[curParticipant.name + curParticipant.id] = {...curParticipant}
         if(curParticipant.size in countSize)
           countSize[curParticipant.size] ++;
         else if(typeof curParticipant.size !== "undefined")
           countSize[curParticipant.size] = 1;
+        if(curParticipant.lodging) countLodging ++;
+        if(curParticipant.bus) countBus ++;
+        if(curParticipant.vegetarian) countVegetarian ++;
       }
       else{
         Object.keys(curParticipant).map(k => {
           if(k !== "status" && k !== "sport")
-            if(diffID[curParticipant.id][k] !== curParticipant[k])
-              conflictPtc[curParticipant.id] = true;
+            if(diffID[curParticipant.name + curParticipant.id][k] !== curParticipant[k])
+              conflictPtc[curParticipant.name + curParticipant.id] = true;
           return 0;
         });
       }
@@ -137,18 +144,22 @@ class Overview extends Component {
       return 0;
     });
 
-    tableData.sort((a, b) => {return a.id < b.id ? -1 : 1});
+    tableData.sort((a, b) => {
+      if(a.id === '' && b.id ==='')
+        return a.name + a.id < b.name + b.id ? -1 : 1;
+      return a.id < b.id ? -1 : 1;
+    });
     let curColor = blue200, needChangeColor = false;
     for(let i = 0; i < tableData.length; ++i) {
-      if(needChangeColor && i && tableData[i - 1].id !== tableData[i].id) {
+      if(needChangeColor && i && tableData[i - 1].name + tableData[i - 1].id !== tableData[i].name + tableData[i].id) {
         curColor = curColor === blue200 ? indigo200 : blue200;
         needChangeColor = false;
       }
-      if((!i && tableData[i].id === tableData[i + 1].id) ||
-        (i && tableData[i - 1].id === tableData[i].id) ||
-        (i !== tableData.length - 1  && tableData[i].id === tableData[i + 1].id)) {
+      if((!i && tableData[i].name + tableData[i].id === tableData[i + 1].name + tableData[i + 1].id) ||
+        (i && tableData[i - 1].name + tableData[i - 1].id === tableData[i].name + tableData[i].id) ||
+        (i !== tableData.length - 1  && tableData[i].name + tableData[i].id === tableData[i + 1].name + tableData[i + 1].id)) {
           //tableData[i].color = grey100;
-          if(tableData[i].id in conflictPtc) tableData[i].bgcolor = red200;
+          if(tableData[i].name + tableData[i].id in conflictPtc) tableData[i].bgcolor = red200;
           else {
             tableData[i].bgcolor = curColor;
             needChangeColor = true;
@@ -161,8 +172,11 @@ class Overview extends Component {
       sportData: sportData,
       countDiffID: Object.keys(diffID).length,
       countConflictPtc: Object.keys(conflictPtc).length,
+      countSize: countSize,
+      countLodging: countLodging,
+      countBus: countBus,
       countVegetarian: countVegetarian,
-      countSize: countSize
+      loadDialogOpen: false
     });
   }
 
@@ -194,6 +208,14 @@ class Overview extends Component {
       new Blob([outputString], {type: "text/plain;charset=utf-8"}),
       `${this.props.th}-${curTime.getFullYear()}_${montZero}${+curTime.getMonth() + 1}_${dateZero}${curTime.getDate()}-${curTime.getHours()}_${curTime.getMinutes()}_${curTime.getSeconds()}.csv`
     );
+  }
+
+  handleLoadDialogOpen = () => {
+    this.setState({loadDialogOpen: true});
+  }
+
+  handleLoadDialogClose = () => {
+    this.setState({loadDialogOpen: false});
   }
 
   render() {
@@ -290,7 +312,7 @@ class Overview extends Component {
 
         <div className="card-container" style={{maxWidth: "900px", margin: "auto"}}>
           <Card style={{width: "280px", margin: "10px", display: "inline-block", verticalAlign: "top"}}>
-            <CardTitle title="人數(依身份證字號)"  />
+            <CardTitle title={(<div>人數<br />(依姓名+身份證字號)</div>)}  />
             <CardText>
               {this.state.countDiffID}
             </CardText>
@@ -299,12 +321,6 @@ class Overview extends Component {
             <CardTitle title="資料有出入人數" />
             <CardText>
               {this.state.countConflictPtc}
-            </CardText>
-          </Card>
-          <Card style={{width: "280px", margin: "10px", display: "inline-block", verticalAlign: "top"}}>
-            <CardTitle title="素食人數" />
-            <CardText>
-              {this.state.countVegetarian}
             </CardText>
           </Card>
           <Card style={{width: "280px", margin: "10px", display: "inline-block", verticalAlign: "top"}}>
@@ -317,6 +333,24 @@ class Overview extends Component {
               }
             </CardText>
           </Card>
+          <Card style={{width: "280px", margin: "10px", display: "inline-block", verticalAlign: "top"}}>
+            <CardTitle title="住宿人數" />
+            <CardText>
+              {this.state.countLodging}
+            </CardText>
+          </Card>
+          <Card style={{width: "280px", margin: "10px", display: "inline-block", verticalAlign: "top"}}>
+            <CardTitle title="搭乘遊覽車人數" />
+            <CardText>
+              {this.state.countBus}
+            </CardText>
+          </Card>
+          <Card style={{width: "280px", margin: "10px", display: "inline-block", verticalAlign: "top"}}>
+            <CardTitle title="素食人數" />
+            <CardText>
+              {this.state.countVegetarian}
+            </CardText>
+          </Card>
 
           {sportContainer}
 
@@ -327,6 +361,8 @@ class Overview extends Component {
             </CardText>
           </Card>
         </div>
+
+        <LoadDialog loadDialogOpen={this.state.loadDialogOpen} />
       </div>
     )
   }

@@ -158,6 +158,20 @@ class Participants extends Component {
     });
   }
 
+  handleUnlock = () => {
+    let updates = {};
+    updates[`/sports/${this.props.th}/${this.props.sport}/is_finish/${this.props.university}`] = false;
+    window.firebase.database().ref().update(updates, err => {
+      if (err) console.error(err);
+      else this.setState(prevState => {
+        if('sportData' in prevState && 'is_finish' in prevState.sportData && this.props.university in prevState.sportData.is_finish) {
+          prevState.sportData.is_finish[this.props.university] = false;
+          return {sportData: prevState.sportData};
+        }
+      })
+    });
+  }
+
   handleContactUpdate = d => {
     this.setState(prevState => {
       let curContact = Object.assign(prevState.contact, d);
@@ -217,15 +231,16 @@ class Participants extends Component {
     for(let i = 0; i < ptcsUids.length; ++i) {
       let uid = ptcsUids[i];
       let ptc = this.state.ptcsData[uid];
-      console.log(ptc);
-      if(ptc.status === "member") continue;
+      //console.log(ptc);
+      //if(ptc.status === "member") continue;
       errorPtc[uid] = {};
 
       for(let j = 0; j < checkAttrList.length; ++j) {
         let attr = checkAttrList[j];
         if(ptc[attr] === "") {
-          errorPtc[uid][attr] = "不可為空";
-          break;
+          //errorPtc[uid][attr] = "不可為空";
+          //break;
+          continue;
         }
         if(attr === "id") {
           let id = ptc[attr];
@@ -539,6 +554,18 @@ class Participants extends Component {
       <div style={{paddingTop: "64px"}}>
         <div style={{textAlign: "center"}}>
           <div><ActionHome /></div>
+          { this.props.user.auth === "admin" && this.state.sportData.is_finish && this.state.sportData.is_finish[this.props.university]
+             && this.state.sportData.is_finish[this.props.university] === true ?
+            (<div>
+              <RaisedButton
+                onTouchTap={this.handleUnlock}
+                label="解鎖"
+                secondary={true}
+                style={{margin: "12px"}}
+              />
+            </div>) :
+            null
+          }
           <h3 style={{textAlign: "center"}}>{this.state.sportData.title ? this.state.sportData.title : ''}</h3>
 
           {contactDOM}
