@@ -231,41 +231,66 @@ class Participants extends Component {
     for(let i = 0; i < ptcsUids.length; ++i) {
       let uid = ptcsUids[i];
       let ptc = this.state.ptcsData[uid];
-      //console.log(ptc);
-      //if(ptc.status === "member") continue;
+      if(!("name" in ptc) || ptc.name === "") continue;
       errorPtc[uid] = {};
 
       for(let j = 0; j < checkAttrList.length; ++j) {
         let attr = checkAttrList[j];
-        if(ptc[attr] === "") {
-          //errorPtc[uid][attr] = "不可為空";
-          //break;
-          continue;
+        if(attr !== "id" && ptc[attr] === "") {
+          errorPtc[uid][attr] = "不可為空";
+          break;
         }
-        if(attr === "id") {
+        if(attr === "id" && ptc[attr] !== "") {
           let id = ptc[attr];
           if(id.length !== 10) {
-            errorPtc[uid][attr] = "身分證字號錯誤";
+            errorPtc[uid][attr] = "身分證字號或居留證號錯誤";
             break;
           }
-          const abMap = {A: "10", B: "11",
-            C: "12", D: "13", E: "14", F: "15", G: "16", H: "17",
-            I: "34", J: "18", K: "19", L: "20", M: "21", N: "22",
-            O: "35", P: "23", Q: "24", R: "25", S: "26", T: "27",
-            U: "28", V: "29", W: "32", X: "30", Y: "31", Z: "33"}
-          if(!(id.charAt(0) in abMap)) {
-            errorPtc[uid][attr] = "身分證字號錯誤";
-            break;
+
+          let isIDError = true;
+          errorPtc[uid][attr] = "身分證字號或居留證號錯誤";
+
+          const regionCode = "ABCDEFGHJKLMNPQRSTUVXYWZIO";
+
+          if(regionCode.indexOf(id.charAt(0)) >= 0) {
+            let ab = (regionCode.indexOf(id.charAt(0)) + 10).toString();
+
+            // check 身分證字號
+            let value =
+              +ab.charAt(0) * 1 +
+              +ab.charAt(1) * 9 +
+              +id.charAt(1) * 8 +
+              +id.charAt(2) * 7 +
+              +id.charAt(3) * 6 +
+              +id.charAt(4) * 5 +
+              +id.charAt(5) * 4 +
+              +id.charAt(6) * 3 +
+              +id.charAt(7) * 2 +
+              +id.charAt(8) * 1 +
+              +id.charAt(9) * 1
+            if(value % 10 === 0)
+              isIDError = false;
+
+            // check 居留證號
+            // http://gomumu.pixnet.net/blog/post/3128951
+            let gender = (regionCode.indexOf(id.charAt(1)) + 10) % 10;
+            value =
+              +ab.charAt(0) * 1 % 10 +
+              +ab.charAt(1) * 9 % 10 +
+              +gender       * 8 % 10 +
+              +id.charAt(2) * 7 % 10 +
+              +id.charAt(3) * 6 % 10 +
+              +id.charAt(4) * 5 % 10 +
+              +id.charAt(5) * 4 % 10 +
+              +id.charAt(6) * 3 % 10 +
+              +id.charAt(7) * 2 % 10 +
+              +id.charAt(8) * 1 % 10
+            if(10 - value % 10 === +id.charAt(9))
+              isIDError = false;
           }
-          let ab = abMap[id.charAt(0)];
-          let value = +ab.charAt(0) * 1 + +ab.charAt(1) * 9 +
-            +id.charAt(1) * 8 + +id.charAt(2) * 7 + +id.charAt(3) * 6 +
-            +id.charAt(4) * 5 + +id.charAt(5) * 4 + +id.charAt(6) * 3 +
-            +id.charAt(7) * 2 + +id.charAt(8) * 1 + +id.charAt(9) * 1
-          if(value % 10 !== 0) {
-            errorPtc[uid][attr] = "身分證字號錯誤";
-            break;
-          }
+
+          if(isIDError) break;
+          else delete errorPtc[uid][attr];
         }
         if(attr === "birthday") {
           if(isNaN(+new Date(ptc[attr]))) {
@@ -280,7 +305,6 @@ class Participants extends Component {
         this.handleSendEmailDialogClose();
         return 1;
       }
-      else delete errorPtc[uid]
     }
     return 0;
   }

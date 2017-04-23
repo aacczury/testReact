@@ -5,6 +5,7 @@ import fileSaver from 'file-saver';
 import {FileFileDownload} from 'material-ui/svg-icons';
 
 import LoadDialog from '../components/LoadDialog';
+import Input from '../components/Input';
 
 class Overview extends Component {
   constructor(props) {
@@ -13,6 +14,10 @@ class Overview extends Component {
     this.state = {
       tableData: [],
       sportData: [],
+      participantShot: {},
+      sportsShot: {},
+      participantsShot: {},
+      selectedSports: {},
       countDiffID: 0,
       countConflictPtc: 0,
       countSize: 0,
@@ -21,16 +26,23 @@ class Overview extends Component {
       countVegetarian: 0,
       loadDialogOpen: true
     };
+    this.updateDelay = null;
+    this.updateSelectSport = {};
   }
 
   componentDidMount() {
     if(this.props.user){
       let self = this;
       this.dataRef = window.firebase.database().ref(`/participant/ncku/${this.props.th}`);
-      window.firebase.database().ref(`/sports/${this.props.th}`).once('value').then(sportShot => {
-        this.dataRef.on('value', participant => {
+      this.dataRef.on('value', participantShot => {
+        window.firebase.database().ref(`/sports/${this.props.th}`).once('value').then(sportsShot => {
           window.firebase.database().ref(`/participants/ncku/${this.props.th}`).once('value').then(participantsShot => {
-            self.updateOverview(participant.val(), sportShot.val(), participantsShot.val());
+            self.setState({
+              participantShot: participantShot.val() ? participantShot.val() : {} ,
+              sportsShot: sportsShot.val() ? sportsShot.val() : {},
+              participantsShot: participantsShot.val() ? participantsShot.val() : {}
+            })
+            self.updateOverview();
           });
         });
       });
@@ -78,17 +90,23 @@ class Overview extends Component {
     }
   }
 
-  updateOverview = (d, s, p) => {
+  updateOverview = () => {
     // need loading icon
-    let data = d ? d : {};
-    let sports = s ? s : {};
-    let participants = p ? p : {};
+    let data = this.state.participantShot;
+    let sports = this.state.sportsShot;
+    let participants = this.state.participantsShot;
     let tableData = [], sportData = [];
     const statusList = ["coach", "captain", "manager", "leader", "member"];
+    let selectedSports = this.state.selectedSports;
+    let isInitSelectd = Object.keys(selectedSports).length === 0 ? true : false;
     let diffID = {}, conflictPtc = {};
     let countSize = {}, countLodging = 0, countBus = 0, countVegetarian = 0;
 
     Object.keys(sports).map(sportUid => {
+      // check if selected or init will select all
+      if(isInitSelectd) selectedSports[sportUid] = true;
+      else if(!(sportUid in selectedSports) || !selectedSports[sportUid]) return 0;
+
       let perSportData = {sport: "", contact: {}, data: []};
       perSportData.contact = participants[sportUid].contact ? participants[sportUid].contact : {};
       if(typeof perSportData.contact.name === "undefined") perSportData.contact.name = "";
@@ -118,6 +136,7 @@ class Overview extends Component {
         console.error(participantUid + "'s sport not in sport");
         return 0
       };
+      if(!selectedSports[data[participantUid].sport]) return 0; // if not select
       let curParticipant = this.getParticipantData(data, sports, participantUid); // will not contain undefined
       if(curParticipant.name + curParticipant.id === '') return 1;
       tableData.push(curParticipant);
@@ -126,7 +145,7 @@ class Overview extends Component {
         diffID[curParticipant.name + curParticipant.id] = {...curParticipant}
         if(curParticipant.size in countSize)
           countSize[curParticipant.size] ++;
-        else if(typeof curParticipant.size !== "undefined")
+        else if('size' in curParticipant && curParticipant.size !== '')
           countSize[curParticipant.size] = 1;
         if(curParticipant.lodging) countLodging ++;
         if(curParticipant.bus) countBus ++;
@@ -135,8 +154,19 @@ class Overview extends Component {
       else{
         Object.keys(curParticipant).map(k => {
           if(k !== "status" && k !== "sport")
-            if(diffID[curParticipant.name + curParticipant.id][k] !== curParticipant[k])
+            if(diffID[curParticipant.name + curParticipant.id][k] !== curParticipant[k]) { // need refine
+              if(diffID[curParticipant.name + curParticipant.id][k] === '' || diffID[curParticipant.name + curParticipant.id][k] === false) {
+                diffID[curParticipant.name + curParticipant.id][k] = curParticipant[k];
+                if(k === 'size' && curParticipant[k] in countSize)
+                  countSize[curParticipant[k]] ++;
+                else if(k === 'size' && 'size' in curParticipant)
+                  countSize[curParticipant[k]] = 1;
+                if(k === 'lodging') countLodging ++;
+                if(k === 'bus') countBus ++;
+                if(k === 'vegetarian') countVegetarian ++;
+              }
               conflictPtc[curParticipant.name + curParticipant.id] = true;
+            }
           return 0;
         });
       }
@@ -170,6 +200,7 @@ class Overview extends Component {
     this.setState({ // need loading
       tableData: tableData,
       sportData: sportData,
+      selectedSports: selectedSports,
       countDiffID: Object.keys(diffID).length,
       countConflictPtc: Object.keys(conflictPtc).length,
       countSize: countSize,
@@ -216,6 +247,25 @@ class Overview extends Component {
 
   handleLoadDialogClose = () => {
     this.setState({loadDialogOpen: false});
+  }
+
+  handleSelectSport = d => {
+    Object.assign(this.updateSelectSport, d);
+    if(this.updateDelay) clearTimeout(this.updateDelay);
+    this.updateDelay = setTimeout(() => {
+      this.setState({loadDialogOpen: true}, () => {
+        setTimeout(() => {
+          this.setState(prevState => {
+            Object.keys(this.updateSelectSport).map(sportID =>
+                prevState.selectedSports[sportID] = this.updateSelectSport[sportID])
+            return {selectedSports: prevState.selectedSports}
+          }, () => {
+            this.updateSelectSport = {};
+            this.updateOverview();
+          });
+        }, 100);
+      });
+    }, 1500);
   }
 
   render() {
@@ -300,6 +350,17 @@ class Overview extends Component {
       </div>
     )
 
+    let selectSports = (
+      <div style={{textAlign: "left"}}>
+        {
+          Object.keys(this.state.selectedSports).map((sportID, index) => {
+            return (<Input type="checkbox" key={`selectedSport_${index}`} name={sportID} text={this.state.sportsShot[sportID].title}
+                      value={this.state.selectedSports[sportID]} handleInputUpdate={this.handleSelectSport} />);
+          })
+        }
+      </div>
+    )
+
     return (
       <div className="content" style={{textAlign: "center"}}>
         <RaisedButton
@@ -311,6 +372,13 @@ class Overview extends Component {
         />
 
         <div className="card-container" style={{maxWidth: "900px", margin: "auto"}}>
+          <Card style={{width: "100%", margin: "10px", verticalAlign: "top"}}>
+            <CardTitle title={(<div>項目顯示</div>)}  />
+            <CardText>
+              {selectSports}
+            </CardText>
+          </Card>
+
           <Card style={{width: "280px", margin: "10px", display: "inline-block", verticalAlign: "top"}}>
             <CardTitle title={(<div>人數<br />(依姓名+身份證字號)</div>)}  />
             <CardText>
