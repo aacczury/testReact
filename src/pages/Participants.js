@@ -236,10 +236,11 @@ class Participants extends Component {
 
       for(let j = 0; j < checkAttrList.length; ++j) {
         let attr = checkAttrList[j];
-        if(attr !== "id" && ptc[attr] === "") {
+        if(attr !== "id" && attr !== "birthday" && ptc[attr] === "") {
           errorPtc[uid][attr] = "不可為空";
           break;
         }
+        /*
         if(attr === "id" && ptc[attr] !== "") {
           let id = ptc[attr];
 
@@ -295,7 +296,8 @@ class Participants extends Component {
           if(isIDError) break;
           else delete errorPtc[uid][attr];
         }
-        if(attr === "birthday") {
+        */
+        if(attr === "birthday" && ptc[attr] !== "") {
           if(isNaN(+new Date(ptc[attr]))) {
             errorPtc[uid][attr] = "出生年月日錯誤";
             break;
