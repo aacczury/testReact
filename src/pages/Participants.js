@@ -268,19 +268,19 @@ class Participants extends Component {
                 isIDError = false;
 
               // check 居留證號
-              // http://gomumu.pixnet.net/blog/post/3128951
+              // http://squall75726.pixnet.net/blog/post/309981516
               let gender = (regionCode.indexOf(id.charAt(1)) + 10) % 10;
               value =
-                +ab.charAt(0) * 1 % 10 +
-                +ab.charAt(1) * 9 % 10 +
-                +gender       * 8 % 10 +
-                +id.charAt(2) * 7 % 10 +
-                +id.charAt(3) * 6 % 10 +
-                +id.charAt(4) * 5 % 10 +
-                +id.charAt(5) * 4 % 10 +
-                +id.charAt(6) * 3 % 10 +
-                +id.charAt(7) * 2 % 10 +
-                +id.charAt(8) * 1 % 10
+                +ab.charAt(0) * 1 +
+                +ab.charAt(1) * 9 +
+                +gender       * 8 +
+                +id.charAt(2) * 7 +
+                +id.charAt(3) * 6 +
+                +id.charAt(4) * 5 +
+                +id.charAt(5) * 4 +
+                +id.charAt(6) * 3 +
+                +id.charAt(7) * 2 +
+                +id.charAt(8) * 1
               if(10 - value % 10 === +id.charAt(9))
                 isIDError = false;
             }
