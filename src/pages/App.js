@@ -84,7 +84,9 @@ class App extends Component {
     let query = this.props.location.query;
     if(this.state.user) {
       let university = null;
-      if(this.state.user.auth !== "admin"){
+      if(this.state.user.auth === "admin" || this.state.user.auth === "overview"){
+        university = query.university ? query.university : "ncku";
+      } else {
         let universityName = ["ncku", "ccu", "nsysu", "nchu"];
         if(universityName.indexOf(this.state.user.auth) < 0) {
           console.log("Error university"); // need handle
@@ -94,12 +96,10 @@ class App extends Component {
         }
         else
           university = this.state.user.auth;
-      } else {
-        university = query.university ? query.university : "ncku";
       }
 
       if(query.th) {
-        if(query.overview && this.state.user.auth === "admin") {
+        if(query.overview && (this.state.user.auth === "admin" || this.state.user.auth === "overview")) {
           header = <Header title={`正興城灣盃-第${query.th}屆總覽`} user={this.state.user}
             handleHeaderButtonClick={this.handleHeaderButtonClick("logout")} handleRedirect={this.handleRedirect} th={query.th} />
           content = <Overview user={this.state.user} th={query.th} />

@@ -74,11 +74,11 @@ class Sports extends Component {
     const universityName = ["ncku", "ccu", "nsysu", "nchu"];
     Object.keys(data).map((sportUid, index) => {
       let sport = data[sportUid];
-      if(!this.state.isNCKUHost || this.props.user.auth !== "admin") {
+      if(!this.state.isNCKUHost || (this.props.user.auth !== "admin" && this.props.user.auth !== "overview")) {
         let university = "ncku";
         if(this.props.user.auth in universityName) university = this.props.user.auth;
         if(sport.is_finish && university in sport.is_finish && sport.is_finish[university]) {
-          if(this.props.user.auth !== "admin") {
+          if(this.props.user.auth !== "admin" && this.props.user.auth !== "overview") {
             cardData.push({ order: 'order' in sport ? sport.order : +index + 1, title: sport.title, uid: sportUid, content: (
                 <div style={{display: "inline-block"}}>
                   <Chip backgroundColor="#c8e6c9" color="#222"><Avatar color="#fff" backgroundColor="#4caf50" icon={<ActionDone  />} />已報名完成</Chip>

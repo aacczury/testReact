@@ -1,11 +1,13 @@
 import React, { Component } from 'react';
-import {Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn, Card, CardTitle, CardText, RaisedButton} from 'material-ui';
+import {Card, CardTitle, CardText, RaisedButton} from 'material-ui';
 import {blue200, indigo200, red200} from 'material-ui/styles/colors';
 import fileSaver from 'file-saver';
 import {FileFileDownload} from 'material-ui/svg-icons';
 
 import LoadDialog from '../components/LoadDialog';
 import Input from '../components/Input';
+
+import '../components/ResTable.css';
 
 class Overview extends Component {
   constructor(props) {
@@ -271,78 +273,102 @@ class Overview extends Component {
   render() {
     let tableItems = this.state.tableData.map((d, index) => {
       return (
-        <TableRow style={{color: d.color,backgroundColor: d.bgcolor}} key={`${d.id}_${index}`}>
-          <TableRowColumn>{d.id}</TableRowColumn>
-          <TableRowColumn>{d.name}</TableRowColumn>
-          <TableRowColumn>{d.sport}</TableRowColumn>
-          <TableRowColumn>{d.status}</TableRowColumn>
-        </TableRow>
+        <tr style={{color: d.color,backgroundColor: d.bgcolor}} key={`tr_${index}_${d.id}`}>
+          <td data-label="身分證字號">{d.id}</td>
+          <td data-label="姓名">{d.name}</td>
+          <td data-label="項目">{d.sport}</td>
+          <td data-label="身分">{d.status}</td>
+          <td data-label="系級">{d.deptyear}</td>
+          <td data-label="生日">{d.birthday}</td>
+          <td data-label="衣服尺寸">{d.size}</td>
+          <td data-label="住宿">{d.lodging ? 'V' : ''}</td>
+          <td data-label="搭乘遊覽車">{d.bus ? 'V' : ''}</td>
+          <td data-label="素食">{d.vegetarian ? 'V' : ''}</td>
+        </tr>
       )
     });
 
     let tableContainer = (
-      <Table multiSelectable={true}>
-        <TableHeader>
-          <TableRow>
-            <TableHeaderColumn>身分證字號</TableHeaderColumn>
-            <TableHeaderColumn>姓名</TableHeaderColumn>
-            <TableHeaderColumn>項目</TableHeaderColumn>
-            <TableHeaderColumn>身分</TableHeaderColumn>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
+      <table>
+        <thead>
+          <tr>
+            <th>身分證字號</th>
+            <th>姓名</th>
+            <th>項目</th>
+            <th>身分</th>
+            <th>系級</th>
+            <th>生日</th>
+            <th>衣服尺寸</th>
+            <th>住宿</th>
+            <th>搭乘遊覽車</th>
+            <th>素食</th>
+          </tr>
+        </thead>
+        <tbody>
           {tableItems}
-        </TableBody>
-      </Table>
+        </tbody>
+      </table>
     )
 
     let sportContainer = (
       <div>
         {this.state.sportData.map((s, sIndex) => {
           return (
-            <Card key={`Card_${sIndex}`} style={{margin: "10px", display: "inline-block", verticalAlign: "top"}}>
+            <Card key={`Card_${sIndex}`} style={{margin: "10px", display: "block", verticalAlign: "top"}}>
               <CardTitle title={s.sport} subtitle={this.props.subtitle}  />
               <CardText>
-                <Table multiSelectable={true}>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHeaderColumn></TableHeaderColumn>
-                      <TableHeaderColumn>姓名</TableHeaderColumn>
-                      <TableHeaderColumn>電話</TableHeaderColumn>
-                      <TableHeaderColumn>信箱</TableHeaderColumn>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    <TableRow>
-                      <TableRowColumn>聯絡人</TableRowColumn>
-                      <TableRowColumn>{s.contact.name}</TableRowColumn>
-                      <TableRowColumn>{s.contact.phone}</TableRowColumn>
-                      <TableRowColumn>{s.contact.email}</TableRowColumn>
-                    </TableRow>
-                  </TableBody>
-                </Table>
-                <Table multiSelectable={true} style={{marginTop: "10px"}}>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHeaderColumn>身分證字號</TableHeaderColumn>
-                      <TableHeaderColumn>姓名</TableHeaderColumn>
-                      <TableHeaderColumn>項目</TableHeaderColumn>
-                      <TableHeaderColumn>身分</TableHeaderColumn>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
+                <table>
+                  <thead>
+                    <tr>
+                      <th></th>
+                      <th>姓名</th>
+                      <th>電話</th>
+                      <th>信箱</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td style={{fontWeight: "900", fontSize: "16px"}}>聯絡人</td>
+                      <td data-label="姓名">{s.contact.name}</td>
+                      <td data-label="電話">{s.contact.phone}</td>
+                      <td data-label="信箱">{s.contact.email}</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>身分證字號</th>
+                      <th>姓名</th>
+                      <th>項目</th>
+                      <th>身分</th>
+                      <th>系級</th>
+                      <th>生日</th>
+                      <th>衣服尺寸</th>
+                      <th>住宿</th>
+                      <th>搭乘遊覽車</th>
+                      <th>素食</th>
+                    </tr>
+                  </thead>
+                  <tbody>
                     {s.data.map((d, pIndex) => {
                       return (
-                        <TableRow key={`Row_${pIndex}`}>
-                          <TableRowColumn>{d.id}</TableRowColumn>
-                          <TableRowColumn>{d.name}</TableRowColumn>
-                          <TableRowColumn>{d.sport}</TableRowColumn>
-                          <TableRowColumn>{d.status}</TableRowColumn>
-                        </TableRow>
+                        <tr key={`tr_${pIndex}_${d.id}`}>
+                          <td data-label="身分證字號">{d.id}</td>
+                          <td data-label="姓名">{d.name}</td>
+                          <td data-label="項目">{d.sport}</td>
+                          <td data-label="身分">{d.status}</td>
+                          <td data-label="系級">{d.deptyear}</td>
+                          <td data-label="生日">{d.birthday}</td>
+                          <td data-label="衣服尺寸">{d.size}</td>
+                          <td data-label="住宿">{d.lodging ? 'V' : ''}</td>
+                          <td data-label="搭乘遊覽車">{d.bus ? 'V' : ''}</td>
+                          <td data-label="素食">{d.vegetarian ? 'V' : ''}</td>
+                        </tr>
                       )
                     })}
-                  </TableBody>
-                </Table>
+                  </tbody>
+                </table>
               </CardText>
             </Card>
           );

@@ -35,7 +35,7 @@ class LeftMenu extends Component {
             Object.keys(this.state.years).map((y, yIndex) => {
               let years = this.state.years;
               return <ListItem key={`th_${yIndex}`} primaryText={years[y].title} primaryTogglesNestedList={true} nestedItems={
-                    (this.props.user.auth === "admin" ?
+                    (this.props.user.auth === "admin" || this.props.user.auth === "overview" ?
                       [<ListItem key={1} primaryText={`${years[y].title}總覽`}
                         onTouchTap={() => this.props.handleRedirect(`/?th=${years[y].th}&overview=true`)} />] : []
                     ).concat(
@@ -53,12 +53,13 @@ class LeftMenu extends Component {
                               let handleDisabled = false;
                               let rightIcon = null;
                               let style = {};
-                              if(this.props.user.auth !== "admin" &&
-                                  sport.is_finish && university in sport.is_finish && sport.is_finish[university]) {
-                                handleOnTouchTap = null;
-                                handleDisabled = true;
+                              if(sport.is_finish && university in sport.is_finish && sport.is_finish[university]) {
+                                if(this.props.user.auth !== "admin" && this.props.user.auth !== "overview") {
+                                  handleOnTouchTap = null;
+                                  handleDisabled = true;
+                                  style = {cursor: "default"};
+                                }
                                 rightIcon = <ActionDone color="#4caf50" />;
-                                style = {cursor: "default"};
                               }
                               return <ListItem key={`sportItem_${sIndex}`} primaryText={sport.title}
                                 onTouchTap={handleOnTouchTap} disabled={handleDisabled}
