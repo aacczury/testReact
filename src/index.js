@@ -5,6 +5,7 @@ import { createHistory } from 'history';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import injectTapEventPlugin from 'react-tap-event-plugin';
 
+import { FIREBASE_CONFIG_BAK } from './constants/tokens';
 import Routes from './Routes';
 
 import './index.css';
@@ -20,12 +21,7 @@ const Index = () => (
 )
 
 // Initialize Firebase
-const firebaseConfig = {
-  apiKey: "AIzaSyAjdarRIsUshhdQOwaFLxlBneFWz12JrTU",
-  authDomain: "chcwcup.firebaseapp.com",
-  databaseURL: "https://chcwcup.firebaseio.com",
-};
-window.firebase.initializeApp(firebaseConfig);
+window.firebase.initializeApp(FIREBASE_CONFIG_BAK);
 
 ReactDOM.render(
   <Index />,
