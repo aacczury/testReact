@@ -38,13 +38,12 @@ class Overview extends Component {
       this.dataRef = window.firebase.database().ref(`/participant/ncku/${this.props.th}`);
       this.dataRef.on('value', participantShot => {
         window.firebase.database().ref(`/sports/${this.props.th}`).once('value').then(sportsShot => {
-          window.firebase.database().ref(`/participants/ncku/${this.props.th}`).once('value').then(participantsShot => {
+          window.firebase.database().ref(`/participants//${this.props.university}/${this.props.th}`).once('value').then(participantsShot => {
             self.setState({
               participantShot: participantShot.val() ? participantShot.val() : {} ,
               sportsShot: sportsShot.val() ? sportsShot.val() : {},
               participantsShot: participantsShot.val() ? participantsShot.val() : {}
-            })
-            self.updateOverview();
+            }, () => self.updateOverview())
           });
         });
       });
@@ -140,7 +139,7 @@ class Overview extends Component {
       };
       if(!selectedSports[data[participantUid].sport]) return 0; // if not select
       let curParticipant = this.getParticipantData(data, sports, participantUid); // will not contain undefined
-      if(curParticipant.name + curParticipant.id === '') return 1;
+      if(curParticipant.name + curParticipant.id === '') return 0;
       tableData.push(curParticipant);
 
       if(!(curParticipant.name + curParticipant.id in diffID)) {
@@ -258,8 +257,7 @@ class Overview extends Component {
       this.setState({loadDialogOpen: true}, () => {
         setTimeout(() => {
           this.setState(prevState => {
-            Object.keys(this.updateSelectSport).map(sportID =>
-                prevState.selectedSports[sportID] = this.updateSelectSport[sportID])
+            Object.assign(prevState.selectedSports, this.updateSelectSport)
             return {selectedSports: prevState.selectedSports}
           }, () => {
             this.updateSelectSport = {};

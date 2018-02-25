@@ -6,8 +6,9 @@ import Main from './Main';
 import Login from './Login';
 import Years from './Years';
 import Sports from './Sports';
-import Participants from './Participants'
-import Overview from './Overview'
+import Participants from './Participants';
+import Overview from './Overview';
+import Group from './Group';
 
 //import './App.css';
 
@@ -99,10 +100,15 @@ class App extends Component {
       }
 
       if(query.th) {
-        if(query.overview && (this.state.user.auth === "admin" || this.state.user.auth === "overview")) {
+        if(query.group && (this.state.user.auth === "admin" || this.state.user.auth === "overview")) {
           header = <Header title={`正興城灣盃-第${query.th}屆總覽`} user={this.state.user}
             handleHeaderButtonClick={this.handleHeaderButtonClick("logout")} handleRedirect={this.handleRedirect} th={query.th} />
-          content = <Overview user={this.state.user} th={query.th} />
+          content = <Group user={this.state.user} th={query.th} university={university} />
+        }
+        else if(query.overview && (this.state.user.auth === "admin" || this.state.user.auth === "overview")) {
+          header = <Header title={`正興城灣盃-第${query.th}屆總覽`} user={this.state.user}
+            handleHeaderButtonClick={this.handleHeaderButtonClick("logout")} handleRedirect={this.handleRedirect} th={query.th} />
+          content = <Overview user={this.state.user} th={query.th} university={university} />
         }
         else if(query.sport && university) {
           header = <Header title={`正興城灣盃-第${query.th}屆報名資料`} user={this.state.user}
