@@ -27,12 +27,12 @@ class Header extends Component {
     let leftButton = null;
     let rightButton = null;
     let { userData } = this.props;
-    if (userData) {
+    if (userData.uid) {
       leftButton = (
         <IconButton
           onTouchTap={this.handleMenuToggle}>
           <NavigationMenu />
-          <LeftMenu user={userData} menuOpen={this.state.menuOpen} handleMenuRequestChange={this.handleMenuRequestChange} handleRedirect={this.props.handleRedirect} />
+          <LeftMenu menuOpen={this.state.menuOpen} handleMenuRequestChange={this.handleMenuRequestChange} handleRedirect={this.props.handleRedirect} />
         </IconButton>
       );
       rightButton = <FlatButton labelStyle={{ fontFamily: FONT_FAMILY }} onTouchTap={this.props.handleHeaderButtonClick} label="登出" />

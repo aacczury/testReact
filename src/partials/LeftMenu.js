@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
 import { Drawer, Divider, List, ListItem } from 'material-ui';
 import { ActionDone } from 'material-ui/svg-icons';
 
@@ -11,9 +13,13 @@ class LeftMenu extends Component {
       sports: {}
     };
   }
+  static propTypes = {
+    userData: PropTypes.object.isRequired
+  }
 
   componentDidMount() {
-    if (this.props.user) {
+    let { userData } = this.props;
+    if (userData.uid) {
       let self = this;
       window.firebase.database().ref(`/years`).on('value', years => {
         self.setState({ years: years.val() ? years.val() : {} });
@@ -25,6 +31,7 @@ class LeftMenu extends Component {
   }
 
   render() {
+    let { userData } = this.props;
     return (
       <Drawer docked={false} open={this.props.menuOpen}
         onRequestChange={this.props.handleMenuRequestChange} style={{ textAlign: "left" }} >
@@ -35,7 +42,7 @@ class LeftMenu extends Component {
             Object.keys(this.state.years).map((y, yIndex) => {
               let years = this.state.years;
               return <ListItem key={`th_${yIndex}`} primaryText={years[y].title} primaryTogglesNestedList={true} nestedItems={
-                (this.props.user.auth === "admin" || this.props.user.auth === "overview" ?
+                (userData.auth === "admin" || userData.auth === "overview" ?
                   [<ListItem key={1} primaryText={`${years[y].title}總覽`}
                     onTouchTap={() => this.props.handleRedirect(`/?th=${years[y].th}&overview=true`)} />] : []
                 ).concat(
@@ -48,13 +55,13 @@ class LeftMenu extends Component {
                           const universityName = ["ncku", "cuu", "nsysu", "nchu"];
                           let sport = this.state.sports[years[y].th][s];
                           let university = "ncku"
-                          if (this.props.user.auth in universityName) university = this.props.user.auth;
+                          if (userData.auth in universityName) university = userData.auth;
                           let handleOnTouchTap = () => this.props.handleRedirect(`/?th=${years[y].th}&university=${university}&sport=${s}`);
                           let handleDisabled = false;
                           let rightIcon = null;
                           let style = {};
                           if (sport.is_finish && university in sport.is_finish && sport.is_finish[university]) {
-                            if (this.props.user.auth !== "admin" && this.props.user.auth !== "overview") {
+                            if (userData.auth !== "admin" && userData.auth !== "overview") {
                               handleOnTouchTap = null;
                               handleDisabled = true;
                               style = { cursor: "default" };
@@ -78,4 +85,16 @@ class LeftMenu extends Component {
   }
 }
 
-export default LeftMenu;
+const mapStateToProps = state => {
+  console.log(state);
+  let props = {};
+  Object.defineProperty(props, "userData", {
+    value: state.userData,
+    writable: false,
+    enumerable: true,
+    configurable: false
+  });
+  return props
+}
+
+export default connect(mapStateToProps)(LeftMenu);
