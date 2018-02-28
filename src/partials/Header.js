@@ -59,14 +59,9 @@ class Header extends Component {
 
 const mapStateToProps = state => {
   console.log(state);
-  let props = {};
-  Object.defineProperty(props, "userData", {
-    value: state.userData,
-    writable: false,
-    enumerable: true,
-    configurable: false
-  });
-  return props
+  return Object.freeze({
+    userData: state.userData
+  })
 }
 
 export default connect(mapStateToProps)(Header);

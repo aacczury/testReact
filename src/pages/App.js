@@ -164,20 +164,10 @@ class App extends Component {
 
 const mapStateToProps = state => {
   console.log(state);
-  let props = {};
-  Object.defineProperty(props, "loadDialog", {
-    value: state.loadDialog,
-    writable: false,
-    enumerable: true,
-    configurable: false
-  });
-  Object.defineProperty(props, "userData", {
-    value: state.userData,
-    writable: false,
-    enumerable: true,
-    configurable: false
-  });
-  return props
+  return Object.freeze({
+    loadDialog: state.loadDialog,
+    userData: state.userData
+  })
 }
 
 const mapDispatchToProps = dispatch => {
