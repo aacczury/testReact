@@ -1,5 +1,5 @@
 <% @codepage=65001 %>
-<%
+    <%
 Set myMail = CreateObject("CDO.Message")
 myMail.Subject = Request.Form("title")
 myMail.From = "chcwcup@mail.ncku.edu.tw"

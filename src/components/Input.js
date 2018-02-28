@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import {TextField, Checkbox, DatePicker} from 'material-ui';
+import { TextField, Checkbox, DatePicker } from 'material-ui';
 import intl from 'intl';
 import 'intl/locale-data/jsonp/zh-Hant-TW';
 
-import {fontFamily} from '../config';
+import { fontFamily } from '../config';
 
 
 
@@ -26,8 +26,8 @@ class Input extends Component {
 
   handleChange = (e, v) => {
     let node = e ? e.target : this.inputNode.props;
-    this.setState({value: v});
-    if(node.name) {
+    this.setState({ value: v });
+    if (node.name) {
       this.props.handleInputUpdate({
         [node.name]: v
       });
@@ -36,7 +36,7 @@ class Input extends Component {
 
   render() {
     let inputComponent = null;
-    if(this.props.type === "text" || this.props.type === "email" || this.props.type === "password") {
+    if (this.props.type === "text" || this.props.type === "email" || this.props.type === "password") {
       inputComponent = (
         <TextField
           fullWidth={true}
@@ -47,14 +47,14 @@ class Input extends Component {
           name={this.props.name}
           type={this.props.type}
           errorText={this.props.errorText}
-          style={{textAlign: "left"}}
-          textareaStyle={{fontFamily: fontFamily}}
-          inputStyle={{fontFamily: fontFamily}}
-          errorStyle={{fontFamily: fontFamily}}
-          floatingLabelStyle={{fontFamily: fontFamily}}
+          style={{ textAlign: "left" }}
+          textareaStyle={{ fontFamily: fontFamily }}
+          inputStyle={{ fontFamily: fontFamily }}
+          errorStyle={{ fontFamily: fontFamily }}
+          floatingLabelStyle={{ fontFamily: fontFamily }}
         />
       )
-    }else if(this.props.type === "checkbox") {
+    } else if (this.props.type === "checkbox") {
       inputComponent = (
         <Checkbox
           checked={this.state.value ? true : false}
@@ -62,12 +62,12 @@ class Input extends Component {
           onCheck={this.handleChange}
           disabled={this.props.disabled ? true : false}
           name={this.props.name}
-          labelStyle={{fontFamily: fontFamily}}
+          labelStyle={{ fontFamily: fontFamily }}
         />
       )
-    }else if(this.props.type === "date") {
+    } else if (this.props.type === "date") {
       inputComponent = (
-        <DatePicker ref={(inputNode) => {this.inputNode = inputNode;}}
+        <DatePicker ref={(inputNode) => { this.inputNode = inputNode; }}
           container="inline"
           value={this.state.value ? new Date(this.state.value) : null}
           floatingLabelText={this.props.text}
@@ -78,9 +78,9 @@ class Input extends Component {
           autoOk={true}
           cancelLabel="取消"
           DateTimeFormat={intl.DateTimeFormat}
-          errorStyle={{fontFamily: fontFamily}}
-          dialogContainerStyle={{fontFamily: fontFamily}}
-          textFieldStyle={{width: "100%", fontFamily: fontFamily}}
+          errorStyle={{ fontFamily: fontFamily }}
+          dialogContainerStyle={{ fontFamily: fontFamily }}
+          textFieldStyle={{ width: "100%", fontFamily: fontFamily }}
         />
       )
     }

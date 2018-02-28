@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import {attrList, attrName, attrType} from '../config';
+import { attrList, attrName, attrType } from '../config';
 import ResTR from './ResTR'
 
 class ParticipantInfo extends Component {
@@ -16,7 +16,7 @@ class ParticipantInfo extends Component {
   }
 
   componentDidMount = () => {
-    if(this.props.user && this.props.th && this.props.uid && this.dataRef){ // need varify
+    if (this.props.user && this.props.th && this.props.uid && this.dataRef) { // need varify
       let self = this;
       this.dataRef.once('value').then(snapshot => {
         self.updateParticipantInfo(snapshot.val());
@@ -33,7 +33,7 @@ class ParticipantInfo extends Component {
         self.updateParticipantInfo(snapshot.val());
       }, err => err && console.log(err));
     }
-    else if(nextProps.errorPtc || this.props.errorPtc) {
+    else if (nextProps.errorPtc || this.props.errorPtc) {
       this.updateParticipantInfo(this.state.ptcInfo, nextProps.errorPtc ? nextProps.errorPtc : {});
     }
   }
@@ -43,7 +43,7 @@ class ParticipantInfo extends Component {
 
   createInputData = (ptcInfo, errorText = {}) => {
     return attrList.map(attr => {
-      return {type: attrType[attr], name: attr, label: attrName[attr], value: ptcInfo[attr], errorText: errorText[attr]};
+      return { type: attrType[attr], name: attr, label: attrName[attr], value: ptcInfo[attr], errorText: errorText[attr] };
     })
   }
 
@@ -62,13 +62,13 @@ class ParticipantInfo extends Component {
       inputData: inputData,
       ptcInfo: ptcInfo
     });
-    this.props.handleUpdatePtcInfo({[this.props.uid]: ptcInfo});
+    this.props.handleUpdatePtcInfo({ [this.props.uid]: ptcInfo });
   }
 
   handleParticipantInfoUpdate = (d) => {
     this.setState(prevState => {
       let curPtcInfo = Object.assign(prevState.ptcInfo, d);
-      this.props.handleUpdatePtcInfo({[this.props.uid]: curPtcInfo});
+      this.props.handleUpdatePtcInfo({ [this.props.uid]: curPtcInfo });
       return {
         ptcInfo: curPtcInfo,
         inputData: this.createInputData(curPtcInfo)

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import {IconButton} from 'material-ui';
-import {ContentClear} from 'material-ui/svg-icons'
+import { IconButton } from 'material-ui';
+import { ContentClear } from 'material-ui/svg-icons'
 
 import Input from './Input.js';
 
@@ -15,7 +15,7 @@ class ResTR extends Component {
     });
 
     let clearButton = null;
-    if(this.props.handleRemoveParticipantInfo)
+    if (this.props.handleRemoveParticipantInfo)
       clearButton = (
         <td data-label="">
           <IconButton>
@@ -32,7 +32,7 @@ class ResTR extends Component {
     return (
       <tr>
         {clearButton}
-        <td data-label=""><div style={{fontWeight: "900", fontSize: "16px"}}>{this.props.status}</div></td>
+        <td data-label=""><div style={{ fontWeight: "900", fontSize: "16px" }}>{this.props.status}</div></td>
         {tdItems}
       </tr>
     );

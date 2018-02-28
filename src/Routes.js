@@ -6,7 +6,7 @@ import App from './pages/App';
 
 class Routes extends Component {
   render() {
-    return(
+    return (
       <Router {...this.props}>
         <Route path="/" component={App} />
         {/*<Route path="*" component={NotFound} />*/}

@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import {Card, CardTitle, CardText, RaisedButton} from 'material-ui';
-import {blue200, indigo200, red200} from 'material-ui/styles/colors';
+import { Card, CardTitle, CardText, RaisedButton } from 'material-ui';
+import { blue200, indigo200, red200 } from 'material-ui/styles/colors';
 import fileSaver from 'file-saver';
-import {FileFileDownload} from 'material-ui/svg-icons';
+import { FileFileDownload } from 'material-ui/svg-icons';
 
 import LoadDialog from '../components/LoadDialog';
 import Input from '../components/Input';
@@ -33,14 +33,14 @@ class Overview extends Component {
   }
 
   componentDidMount() {
-    if(this.props.user){
+    if (this.props.user) {
       let self = this;
       this.dataRef = window.firebase.database().ref(`/participant/ncku/${this.props.th}`);
       this.dataRef.on('value', participantShot => {
         window.firebase.database().ref(`/sports/${this.props.th}`).once('value').then(sportsShot => {
           window.firebase.database().ref(`/participants//${this.props.university}/${this.props.th}`).once('value').then(participantsShot => {
             self.setState({
-              participantShot: participantShot.val() ? participantShot.val() : {} ,
+              participantShot: participantShot.val() ? participantShot.val() : {},
               sportsShot: sportsShot.val() ? sportsShot.val() : {},
               participantsShot: participantsShot.val() ? participantsShot.val() : {}
             }, () => self.updateOverview())
@@ -51,26 +51,26 @@ class Overview extends Component {
   }
 
   componentWillUnmount() {
-    if(this.dataRef && this.dataRef.off){
+    if (this.dataRef && this.dataRef.off) {
       this.dataRef.off();
     }
   }
 
   getParticipantData = (data, sports, uid, memberName = "隊員") => {
-    const statusName = {coach: "教練", captain: "領隊", manager: "管理", leader: "隊長", member: memberName};
+    const statusName = { coach: "教練", captain: "領隊", manager: "管理", leader: "隊長", member: memberName };
     const keyList = ["id", "name", "sport", "status", "deptyear", "birthday", "size", "lodging", "bus", "vegetarian"];
     let d = data[uid];
 
     keyList.map(k => {
-      if(typeof d[k] === "undefined") {
-        if(k !== "lodging" && k !== "bus" && k !== "vegetarian") d[k] = "";
+      if (typeof d[k] === "undefined") {
+        if (k !== "lodging" && k !== "bus" && k !== "vegetarian") d[k] = "";
         else d[k] = false;
       }
       return 0;
     });
 
     let birthday = "";
-    if(d.birthday !== "") {
+    if (d.birthday !== "") {
       birthday = new Date(d.birthday);
       let monthZero = +birthday.getMonth() + 1 > 9 ? '' : '0';
       let dateZero = +birthday.getDate() > 9 ? '' : '0';
@@ -105,18 +105,18 @@ class Overview extends Component {
 
     Object.keys(sports).map(sportUid => {
       // check if selected or init will select all
-      if(isInitSelectd) selectedSports[sportUid] = true;
-      else if(!(sportUid in selectedSports) || !selectedSports[sportUid]) return 0;
+      if (isInitSelectd) selectedSports[sportUid] = true;
+      else if (!(sportUid in selectedSports) || !selectedSports[sportUid]) return 0;
 
-      let perSportData = {sport: "", contact: {}, data: []};
+      let perSportData = { sport: "", contact: {}, data: [] };
       perSportData.contact = participants[sportUid].contact ? participants[sportUid].contact : {};
-      if(typeof perSportData.contact.name === "undefined") perSportData.contact.name = "";
-      if(typeof perSportData.contact.phone === "undefined") perSportData.contact.phone = "";
-      if(typeof perSportData.contact.email === "undefined") perSportData.contact.email = "";
+      if (typeof perSportData.contact.name === "undefined") perSportData.contact.name = "";
+      if (typeof perSportData.contact.phone === "undefined") perSportData.contact.phone = "";
+      if (typeof perSportData.contact.email === "undefined") perSportData.contact.email = "";
       let memberName = Object.keys(participants[sportUid]).length === 2 ? "成員" : "隊員";
       statusList.map(s => {
-        if(s in participants[sportUid]) {
-          if(s === "member") {
+        if (s in participants[sportUid]) {
+          if (s === "member") {
             Object.keys(participants[sportUid][s]).map(participantUid => {
               perSportData.data.push(this.getParticipantData(data, sports, participantUid, memberName));
               return 0;
@@ -133,38 +133,38 @@ class Overview extends Component {
     });
 
     Object.keys(data).map(participantUid => {
-      if(!(data[participantUid].sport in sports)) {
+      if (!(data[participantUid].sport in sports)) {
         console.error(participantUid + "'s sport not in sport");
         return 0
       };
-      if(!selectedSports[data[participantUid].sport]) return 0; // if not select
+      if (!selectedSports[data[participantUid].sport]) return 0; // if not select
       let curParticipant = this.getParticipantData(data, sports, participantUid); // will not contain undefined
-      if(curParticipant.name + curParticipant.id === '') return 0;
+      if (curParticipant.name + curParticipant.id === '') return 0;
       tableData.push(curParticipant);
 
-      if(!(curParticipant.name + curParticipant.id in diffID)) {
-        diffID[curParticipant.name + curParticipant.id] = {...curParticipant}
-        if(curParticipant.size in countSize)
-          countSize[curParticipant.size] ++;
-        else if('size' in curParticipant && curParticipant.size !== '')
+      if (!(curParticipant.name + curParticipant.id in diffID)) {
+        diffID[curParticipant.name + curParticipant.id] = { ...curParticipant }
+        if (curParticipant.size in countSize)
+          countSize[curParticipant.size]++;
+        else if ('size' in curParticipant && curParticipant.size !== '')
           countSize[curParticipant.size] = 1;
-        if(curParticipant.lodging) countLodging ++;
-        if(curParticipant.bus) countBus ++;
-        if(curParticipant.vegetarian) countVegetarian ++;
+        if (curParticipant.lodging) countLodging++;
+        if (curParticipant.bus) countBus++;
+        if (curParticipant.vegetarian) countVegetarian++;
       }
-      else{
+      else {
         Object.keys(curParticipant).map(k => {
-          if(k !== "status" && k !== "sport")
-            if(diffID[curParticipant.name + curParticipant.id][k] !== curParticipant[k]) { // need refine
-              if(diffID[curParticipant.name + curParticipant.id][k] === '' || diffID[curParticipant.name + curParticipant.id][k] === false) {
+          if (k !== "status" && k !== "sport")
+            if (diffID[curParticipant.name + curParticipant.id][k] !== curParticipant[k]) { // need refine
+              if (diffID[curParticipant.name + curParticipant.id][k] === '' || diffID[curParticipant.name + curParticipant.id][k] === false) {
                 diffID[curParticipant.name + curParticipant.id][k] = curParticipant[k];
-                if(k === 'size' && curParticipant[k] in countSize)
-                  countSize[curParticipant[k]] ++;
-                else if(k === 'size' && 'size' in curParticipant)
+                if (k === 'size' && curParticipant[k] in countSize)
+                  countSize[curParticipant[k]]++;
+                else if (k === 'size' && 'size' in curParticipant)
                   countSize[curParticipant[k]] = 1;
-                if(k === 'lodging') countLodging ++;
-                if(k === 'bus') countBus ++;
-                if(k === 'vegetarian') countVegetarian ++;
+                if (k === 'lodging') countLodging++;
+                if (k === 'bus') countBus++;
+                if (k === 'vegetarian') countVegetarian++;
               }
               conflictPtc[curParticipant.name + curParticipant.id] = true;
             }
@@ -176,25 +176,25 @@ class Overview extends Component {
     });
 
     tableData.sort((a, b) => {
-      if(a.id === '' && b.id ==='')
+      if (a.id === '' && b.id === '')
         return a.name + a.id < b.name + b.id ? -1 : 1;
       return a.id < b.id ? -1 : 1;
     });
     let curColor = blue200, needChangeColor = false;
-    for(let i = 0; i < tableData.length; ++i) {
-      if(needChangeColor && i && tableData[i - 1].name + tableData[i - 1].id !== tableData[i].name + tableData[i].id) {
+    for (let i = 0; i < tableData.length; ++i) {
+      if (needChangeColor && i && tableData[i - 1].name + tableData[i - 1].id !== tableData[i].name + tableData[i].id) {
         curColor = curColor === blue200 ? indigo200 : blue200;
         needChangeColor = false;
       }
-      if((!i && tableData[i].name + tableData[i].id === tableData[i + 1].name + tableData[i + 1].id) ||
+      if ((!i && tableData[i].name + tableData[i].id === tableData[i + 1].name + tableData[i + 1].id) ||
         (i && tableData[i - 1].name + tableData[i - 1].id === tableData[i].name + tableData[i].id) ||
-        (i !== tableData.length - 1  && tableData[i].name + tableData[i].id === tableData[i + 1].name + tableData[i + 1].id)) {
-          //tableData[i].color = grey100;
-          if(tableData[i].name + tableData[i].id in conflictPtc) tableData[i].bgcolor = red200;
-          else {
-            tableData[i].bgcolor = curColor;
-            needChangeColor = true;
-          }
+        (i !== tableData.length - 1 && tableData[i].name + tableData[i].id === tableData[i + 1].name + tableData[i + 1].id)) {
+        //tableData[i].color = grey100;
+        if (tableData[i].name + tableData[i].id in conflictPtc) tableData[i].bgcolor = red200;
+        else {
+          tableData[i].bgcolor = curColor;
+          needChangeColor = true;
+        }
       }
     }
 
@@ -237,28 +237,28 @@ class Overview extends Component {
     let montZero = +curTime.getMonth() + 1 > 9 ? '' : '0';
     let dateZero = +curTime.getDate() > 9 ? '' : '0';
     fileSaver.saveAs(
-      new Blob([outputString], {type: "text/plain;charset=utf-8"}),
+      new Blob([outputString], { type: "text/plain;charset=utf-8" }),
       `${this.props.th}-${curTime.getFullYear()}_${montZero}${+curTime.getMonth() + 1}_${dateZero}${curTime.getDate()}-${curTime.getHours()}_${curTime.getMinutes()}_${curTime.getSeconds()}.csv`
     );
   }
 
   handleLoadDialogOpen = () => {
-    this.setState({loadDialogOpen: true});
+    this.setState({ loadDialogOpen: true });
   }
 
   handleLoadDialogClose = () => {
-    this.setState({loadDialogOpen: false});
+    this.setState({ loadDialogOpen: false });
   }
 
   handleSelectSport = d => {
     Object.assign(this.updateSelectSport, d);
-    if(this.updateDelay) clearTimeout(this.updateDelay);
+    if (this.updateDelay) clearTimeout(this.updateDelay);
     this.updateDelay = setTimeout(() => {
-      this.setState({loadDialogOpen: true}, () => {
+      this.setState({ loadDialogOpen: true }, () => {
         setTimeout(() => {
           this.setState(prevState => {
             Object.assign(prevState.selectedSports, this.updateSelectSport)
-            return {selectedSports: prevState.selectedSports}
+            return { selectedSports: prevState.selectedSports }
           }, () => {
             this.updateSelectSport = {};
             this.updateOverview();
@@ -271,7 +271,7 @@ class Overview extends Component {
   render() {
     let tableItems = this.state.tableData.map((d, index) => {
       return (
-        <tr style={{color: d.color,backgroundColor: d.bgcolor}} key={`tr_${index}_${d.id}`}>
+        <tr style={{ color: d.color, backgroundColor: d.bgcolor }} key={`tr_${index}_${d.id}`}>
           <td data-label="身分證字號">{d.id}</td>
           <td data-label="姓名">{d.name}</td>
           <td data-label="項目">{d.sport}</td>
@@ -312,8 +312,8 @@ class Overview extends Component {
       <div>
         {this.state.sportData.map((s, sIndex) => {
           return (
-            <Card key={`Card_${sIndex}`} style={{margin: "10px", display: "block", verticalAlign: "top"}}>
-              <CardTitle title={s.sport} subtitle={this.props.subtitle}  />
+            <Card key={`Card_${sIndex}`} style={{ margin: "10px", display: "block", verticalAlign: "top" }}>
+              <CardTitle title={s.sport} subtitle={this.props.subtitle} />
               <CardText>
                 <table>
                   <thead>
@@ -326,7 +326,7 @@ class Overview extends Component {
                   </thead>
                   <tbody>
                     <tr>
-                      <td style={{fontWeight: "900", fontSize: "16px"}}>聯絡人</td>
+                      <td style={{ fontWeight: "900", fontSize: "16px" }}>聯絡人</td>
                       <td data-label="姓名">{s.contact.name}</td>
                       <td data-label="電話">{s.contact.phone}</td>
                       <td data-label="信箱">{s.contact.email}</td>
@@ -375,47 +375,47 @@ class Overview extends Component {
     )
 
     let selectSports = (
-      <div style={{textAlign: "left"}}>
+      <div style={{ textAlign: "left" }}>
         {
           Object.keys(this.state.selectedSports).map((sportID, index) => {
             return (<Input type="checkbox" key={`selectedSport_${index}`} name={sportID} text={this.state.sportsShot[sportID].title}
-                      value={this.state.selectedSports[sportID]} handleInputUpdate={this.handleSelectSport} />);
+              value={this.state.selectedSports[sportID]} handleInputUpdate={this.handleSelectSport} />);
           })
         }
       </div>
     )
 
     return (
-      <div className="content" style={{textAlign: "center"}}>
+      <div className="content" style={{ textAlign: "center" }}>
         <RaisedButton
           onTouchTap={this.handleExportData}
           label="匯出"
           secondary={true}
-          style={{margin: "12px"}}
+          style={{ margin: "12px" }}
           icon={<FileFileDownload />}
         />
 
-        <div className="card-container" style={{maxWidth: "900px", margin: "auto"}}>
-          <Card style={{width: "100%", margin: "10px", verticalAlign: "top"}}>
-            <CardTitle title={(<div>項目顯示</div>)}  />
+        <div className="card-container" style={{ maxWidth: "900px", margin: "auto" }}>
+          <Card style={{ width: "100%", margin: "10px", verticalAlign: "top" }}>
+            <CardTitle title={(<div>項目顯示</div>)} />
             <CardText>
               {selectSports}
             </CardText>
           </Card>
 
-          <Card style={{width: "280px", margin: "10px", display: "inline-block", verticalAlign: "top"}}>
-            <CardTitle title={(<div>人數<br />(依姓名+身份證字號)</div>)}  />
+          <Card style={{ width: "280px", margin: "10px", display: "inline-block", verticalAlign: "top" }}>
+            <CardTitle title={(<div>人數<br />(依姓名+身份證字號)</div>)} />
             <CardText>
               {this.state.countDiffID}
             </CardText>
           </Card>
-          <Card style={{width: "280px", margin: "10px", display: "inline-block", verticalAlign: "top"}}>
+          <Card style={{ width: "280px", margin: "10px", display: "inline-block", verticalAlign: "top" }}>
             <CardTitle title="資料有出入人數" />
             <CardText>
               {this.state.countConflictPtc}
             </CardText>
           </Card>
-          <Card style={{width: "280px", margin: "10px", display: "inline-block", verticalAlign: "top"}}>
+          <Card style={{ width: "280px", margin: "10px", display: "inline-block", verticalAlign: "top" }}>
             <CardTitle title="衣服尺寸人數" />
             <CardText>
               {
@@ -425,19 +425,19 @@ class Overview extends Component {
               }
             </CardText>
           </Card>
-          <Card style={{width: "280px", margin: "10px", display: "inline-block", verticalAlign: "top"}}>
+          <Card style={{ width: "280px", margin: "10px", display: "inline-block", verticalAlign: "top" }}>
             <CardTitle title="住宿人數" />
             <CardText>
               {this.state.countLodging}
             </CardText>
           </Card>
-          <Card style={{width: "280px", margin: "10px", display: "inline-block", verticalAlign: "top"}}>
+          <Card style={{ width: "280px", margin: "10px", display: "inline-block", verticalAlign: "top" }}>
             <CardTitle title="搭乘遊覽車人數" />
             <CardText>
               {this.state.countBus}
             </CardText>
           </Card>
-          <Card style={{width: "280px", margin: "10px", display: "inline-block", verticalAlign: "top"}}>
+          <Card style={{ width: "280px", margin: "10px", display: "inline-block", verticalAlign: "top" }}>
             <CardTitle title="素食人數" />
             <CardText>
               {this.state.countVegetarian}
@@ -446,7 +446,7 @@ class Overview extends Component {
 
           {sportContainer}
 
-          <Card style={{margin: "10px", display: "inline-block", verticalAlign: "top"}}>
+          <Card style={{ margin: "10px", display: "inline-block", verticalAlign: "top" }}>
             <CardTitle title="總覽" />
             <CardText>
               {tableContainer}

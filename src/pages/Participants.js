@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import {ActionHome, ImageExposurePlus1} from 'material-ui/svg-icons';
-import {Card, CardTitle, CardText, IconButton, RaisedButton, Snackbar} from 'material-ui';
+import { ActionHome, ImageExposurePlus1 } from 'material-ui/svg-icons';
+import { Card, CardTitle, CardText, IconButton, RaisedButton, Snackbar } from 'material-ui';
 
-import {highStatusList, statusName, attrList, attrType, attrName} from '../config';
+import { highStatusList, statusName, attrList, attrType, attrName } from '../config';
 import ParticipantInfo from '../components/ParticipantInfo';
 import Input from '../components/Input';
 import AddDialog from '../components/AddDialog';
@@ -22,7 +22,7 @@ class Participants extends Component {
         phone: "",
         email: ""
       },
-      errorPtc : {},
+      errorPtc: {},
       errorContact: {},
       participantsData: {},
       yearData: {},
@@ -36,11 +36,11 @@ class Participants extends Component {
   }
 
   componentDidMount = () => {
-    if(this.props.user){ // need varify
+    if (this.props.user) { // need varify
       let self = this;
       window.firebase.database().ref(`/years`).once('value').then(yearShort => {
         window.firebase.database().ref(`/sports/${this.props.th}/${this.props.sport}`).once('value').then(sportShot => {
-          self.dataListener = self.dataRef.on('value', function(snapshot) {
+          self.dataListener = self.dataRef.on('value', function (snapshot) {
             self.updateParticipants(snapshot.val(), sportShot.val(), yearShort.val());
           }, err => err && console.error(err));
         }, err => err && console.error(err));
@@ -56,7 +56,7 @@ class Participants extends Component {
       let self = this;
       window.firebase.database().ref(`/years`).once('value').then(yearShort => {
         window.firebase.database().ref(`/sports/${nextProps.th}/${nextProps.sport}`).once('value').then(sportShot => {
-          self.dataListener = self.dataRef.on('value', function(snapshot) {
+          self.dataListener = self.dataRef.on('value', function (snapshot) {
             self.updateParticipants(snapshot.val(), sportShot.val(), yearShort.val());
           }, err => err && console.error(err));
         }, err => err && console.error(err));
@@ -74,7 +74,7 @@ class Participants extends Component {
     let errorPtc = e;
     let tableData = [];
     highStatusList.map((status, index) => {
-      if(status in data && data[status]) {
+      if (status in data && data[status]) {
         tableData.push(<ParticipantInfo key={`ptc_high_${index}`} user={this.props.user}
           university={this.props.university} th={this.props.th} uid={data[status]} status={statusName[status]}
           handleUpdatePtcInfo={this.handleUpdatePtcInfo} errorPtc={errorPtc[data[status]]} />)
@@ -83,9 +83,9 @@ class Participants extends Component {
     });
 
     let memberName = tableData.length === 0 ? "成員" : "隊員";
-    if('member' in data) {
+    if ('member' in data) {
       Object.keys(data.member).map((uid, index) => {
-        if(this.props.user.auth === "admin")
+        if (this.props.user.auth === "admin")
           tableData.push(<ParticipantInfo key={`ptc_member_${index}`} user={this.props.user} university={this.props.university}
             th={this.props.th} uid={uid} status={memberName}
             handleUpdatePtcInfo={this.handleUpdatePtcInfo} errorPtc={errorPtc[uid]}
@@ -112,7 +112,7 @@ class Participants extends Component {
   handleAddParticipantInfo = () => {
     let uid = window.firebase.database().ref(`/participant/${this.props.university}/${this.props.th}/`).push().key;
     window.firebase.database().ref().update({
-      [`/participant/${this.props.university}/${this.props.th}/${uid}`]: {status: "member", sport: this.props.sport},
+      [`/participant/${this.props.university}/${this.props.th}/${uid}`]: { status: "member", sport: this.props.sport },
       [`/participants/${this.props.university}/${this.props.th}/${this.props.sport}/member/${uid}`]: true
     }, err => err && console.error(err));
   }
@@ -120,14 +120,14 @@ class Participants extends Component {
   handleRemoveParticipantInfo = (uid) => {
     return () => {
       window.firebase.database().ref().update({
-        [`/participants/${this.props.university}/${this.props.th}/${this.props.sport}/member/${uid}`] : null,
-        [`/participant/${this.props.university}/${this.props.th}/${uid}`] : null
+        [`/participants/${this.props.university}/${this.props.th}/${this.props.sport}/member/${uid}`]: null,
+        [`/participant/${this.props.university}/${this.props.th}/${uid}`]: null
       }, err => {
-        if(err) console.error(err);
+        if (err) console.error(err);
         else this.setState(prevState => {
-          if(uid in prevState.ptcsData) {
+          if (uid in prevState.ptcsData) {
             delete prevState.ptcsData[uid];
-            return {ptcsData: prevState.ptcsData};
+            return { ptcsData: prevState.ptcsData };
           } else console.error(uid + " not in delete ptcsData!!!");
         })
       });
@@ -164,9 +164,9 @@ class Participants extends Component {
     window.firebase.database().ref().update(updates, err => {
       if (err) console.error(err);
       else this.setState(prevState => {
-        if('sportData' in prevState && 'is_finish' in prevState.sportData && this.props.university in prevState.sportData.is_finish) {
+        if ('sportData' in prevState && 'is_finish' in prevState.sportData && this.props.university in prevState.sportData.is_finish) {
           prevState.sportData.is_finish[this.props.university] = false;
-          return {sportData: prevState.sportData};
+          return { sportData: prevState.sportData };
         }
       })
     });
@@ -190,24 +190,24 @@ class Participants extends Component {
     const checkContactAttrList = ["name", "phone", "email"];
     let errorContact = {};
     let contact = this.state.contact;
-    for(let i = 0; i < checkContactAttrList.length; ++i) {
+    for (let i = 0; i < checkContactAttrList.length; ++i) {
       let attr = checkContactAttrList[i];
-      if(attr in contact) {
-        if(contact[attr] === "") {
+      if (attr in contact) {
+        if (contact[attr] === "") {
           errorContact[attr] = "不可為空";
           break;
         }
-        if(attr === "phone") {
+        if (attr === "phone") {
           let match = contact[attr].match(/09\d{8}/);
-          if(!match || match[0] !== contact[attr]) {
+          if (!match || match[0] !== contact[attr]) {
             errorContact[attr] = "格式錯誤，請輸入十位數字手機號碼";
             break;
           }
         }
-        if(attr === "email") {
+        if (attr === "email") {
           /* ref: http://emailregex.com/ */
           let match = contact[attr].match(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/);
-          if(!match || match[0] !== contact[attr]) {
+          if (!match || match[0] !== contact[attr]) {
             errorContact[attr] = "信箱格式錯誤";
             break;
           }
@@ -216,9 +216,9 @@ class Participants extends Component {
         console.error(attr + " not in contact!!!");
       }
     }
-    if(Object.keys(errorContact).length > 0) {
-      this.setState({errorContact: errorContact});
-      if(Object.keys(this.state.errorPtc).length > 0)
+    if (Object.keys(errorContact).length > 0) {
+      this.setState({ errorContact: errorContact });
+      if (Object.keys(this.state.errorPtc).length > 0)
         this.updateParticipants(this.state.participantsData, this.state.sportData, this.state.yearData, {});
       this.handleSendEmailDialogClose();
       return 1;
@@ -228,15 +228,15 @@ class Participants extends Component {
     const checkAttrList = ["name", "deptyear", "id", "birthday", "size"];
     let ptcsUids = Object.keys(this.state.ptcsData);
     let errorPtc = {};
-    for(let i = 0; i < ptcsUids.length; ++i) {
+    for (let i = 0; i < ptcsUids.length; ++i) {
       let uid = ptcsUids[i];
       let ptc = this.state.ptcsData[uid];
-      if(!("name" in ptc) || ptc.name === "") continue;
+      if (!("name" in ptc) || ptc.name === "") continue;
       errorPtc[uid] = {};
 
-      for(let j = 0; j < checkAttrList.length; ++j) {
+      for (let j = 0; j < checkAttrList.length; ++j) {
         let attr = checkAttrList[j];
-        if(attr !== "id" && attr !== "birthday" && ptc[attr] === "") {
+        if (attr !== "id" && attr !== "birthday" && ptc[attr] === "") {
           errorPtc[uid][attr] = "不可為空";
           break;
         }
@@ -297,15 +297,15 @@ class Participants extends Component {
           else delete errorPtc[uid][attr];
         }
         */
-        if(attr === "birthday" && ptc[attr] !== "") {
-          if(isNaN(+new Date(ptc[attr]))) {
+        if (attr === "birthday" && ptc[attr] !== "") {
+          if (isNaN(+new Date(ptc[attr]))) {
             errorPtc[uid][attr] = "出生年月日錯誤";
             break;
           }
         }
       }
 
-      if(Object.keys(errorPtc[uid]).length > 0) {
+      if (Object.keys(errorPtc[uid]).length > 0) {
         this.updateParticipants(this.state.participantsData, this.state.sportData, this.state.yearData, errorPtc);
         this.handleSendEmailDialogClose();
         return 1;
@@ -319,7 +319,7 @@ class Participants extends Component {
 
     let ptcData = {};
     attrList.map(attr => {
-      if(typeof d[attr] === 'undefined') {
+      if (typeof d[attr] === 'undefined') {
         ptcData[attr] = attrType[attr] === 'checkbox' ? false : '';
       } else ptcData[attr] = d[attr];
 
@@ -327,7 +327,7 @@ class Participants extends Component {
       if (attr === 'size') ptcData[attr] = ptcData[attr].toUpperCase();
       if (attr === 'birthday' && ptcData[attr] !== '') {
         let birthday = new Date(ptcData[attr]);
-        if(isNaN(+birthday)) {
+        if (isNaN(+birthday)) {
           console.error(birthday + " is not birthday!!!");
           return 1;
         }
@@ -388,15 +388,15 @@ class Participants extends Component {
 
     let isHighLevel = false;
     highStatusList.map(status => {
-      if(status in this.state.participantsData) {
+      if (status in this.state.participantsData) {
         isHighLevel = true;
         let uid = this.state.participantsData[status];
-        if(uid in this.state.ptcsData) {
+        if (uid in this.state.ptcsData) {
           let ptcInfo = this.getParticipantData(this.state.ptcsData[uid]);
           body += `<tr style=${trStyle}>
                     <td style=${tdStyle}>${statusName[status]}</td>`;
           attrList.map(attr => {
-            if(attr !== "status") {
+            if (attr !== "status") {
               body += `<td style=${tdStyle}>${ptcInfo[attr]}</td>`;
             }
             return 0;
@@ -411,15 +411,15 @@ class Participants extends Component {
 
     let memberName = isHighLevel ? "隊員" : "成員";
     let memberUids = 'member' in this.state.participantsData ?
-                        Object.keys(this.state.participantsData["member"]) :
-                        [];
+      Object.keys(this.state.participantsData["member"]) :
+      [];
     memberUids.map(uid => {
-      if(uid in this.state.ptcsData) {
+      if (uid in this.state.ptcsData) {
         let ptcInfo = this.getParticipantData(this.state.ptcsData[uid]);
         body += `<tr style=${trStyle}>
                   <td style=${tdStyle}>${memberName}</td>`;
         attrList.map(attr => {
-          if(attr !== "status") {
+          if (attr !== "status") {
             body += `<td style=${tdStyle}>${ptcInfo[attr]}</td>`;
           }
           return 0;
@@ -436,9 +436,9 @@ class Participants extends Component {
     let yearUids = Object.keys(this.state.yearData);
     let year = {};
     yearUids.map(uid => {
-        if("th" in this.state.yearData[uid] && this.state.yearData[uid].th === this.props.th)
-          year = this.state.yearData[uid];
-        return 0;
+      if ("th" in this.state.yearData[uid] && this.state.yearData[uid].th === this.props.th)
+        year = this.state.yearData[uid];
+      return 0;
     });
     body += `因資料已送出，無法再於系統修改，<br />
               如仍有需修改的資料或任何報名上的疑問，<br />
@@ -459,7 +459,7 @@ class Participants extends Component {
 
   handleSubmit = () => {
     this.handleLoadDialogOpen();
-    if(this.checkData()){
+    if (this.checkData()) {
       this.handleErrorAlertOpen();
       this.handleLoadDialogClose();
       return;
@@ -475,34 +475,34 @@ class Participants extends Component {
   }
 
   handleSendEmailDialogOpen = () => {
-    this.setState({sendEmailDialogOpen: true})
+    this.setState({ sendEmailDialogOpen: true })
   }
 
   handleSendEmailDialogClose = () => {
-    this.setState({sendEmailDialogOpen: false})
+    this.setState({ sendEmailDialogOpen: false })
   }
 
   handleErrorAlertOpen = () => {
-    this.setState({errorAlertOpen: true})
+    this.setState({ errorAlertOpen: true })
   }
 
   handleErrorAlertClose = () => {
-    this.setState({errorAlertOpen: false})
+    this.setState({ errorAlertOpen: false })
   }
 
   handleLoadDialogOpen = () => {
-    this.setState({loadDialogOpen: true});
+    this.setState({ loadDialogOpen: true });
   }
 
   handleLoadDialogClose = () => {
-    this.setState({loadDialogOpen: false});
+    this.setState({ loadDialogOpen: false });
   }
 
   render() {
     let cancelHeadCell = (<th></th>);
 
     let plus1 = null;
-    if(this.props.user.auth === "admin")
+    if (this.props.user.auth === "admin")
       plus1 = (
         <tr>
           <td colSpan="10">
@@ -515,7 +515,7 @@ class Participants extends Component {
 
     let contactDOM = (
       <div>
-        <Card style={{display: "inline-block"}}>
+        <Card style={{ display: "inline-block" }}>
           <CardText>
             <table>
               <thead>
@@ -530,7 +530,7 @@ class Participants extends Component {
               <tbody>
                 <tr>
                   <td></td>
-                  <td style={{fontWeight: "900", fontSize: "16px"}}>聯絡人</td>
+                  <td style={{ fontWeight: "900", fontSize: "16px" }}>聯絡人</td>
                   <td data-label="姓名">
                     <Input type="text" name="name" value={this.state.contact.name} handleInputUpdate={this.handleContactUpdate}
                       errorText={this.state.errorContact.name} />
@@ -552,8 +552,8 @@ class Participants extends Component {
     )
 
     let ptcInfoDOM = (
-      <Card style={{margin: "10px", display: "inline-block", verticalAlign: "top"}}>
-        <CardTitle title={this.props.title} subtitle={this.props.subtitle}  />
+      <Card style={{ margin: "10px", display: "inline-block", verticalAlign: "top" }}>
+        <CardTitle title={this.props.title} subtitle={this.props.subtitle} />
         <CardText>
           <table>
             <thead>
@@ -580,22 +580,22 @@ class Participants extends Component {
     )
 
     let content = (
-      <div style={{paddingTop: "64px"}}>
-        <div style={{textAlign: "center"}}>
+      <div style={{ paddingTop: "64px" }}>
+        <div style={{ textAlign: "center" }}>
           <div><ActionHome /></div>
-          { this.props.user.auth === "admin" && this.state.sportData.is_finish && this.state.sportData.is_finish[this.props.university]
-             && this.state.sportData.is_finish[this.props.university] === true ?
+          {this.props.user.auth === "admin" && this.state.sportData.is_finish && this.state.sportData.is_finish[this.props.university]
+            && this.state.sportData.is_finish[this.props.university] === true ?
             (<div>
               <RaisedButton
                 onTouchTap={this.handleUnlock}
                 label="解鎖"
                 secondary={true}
-                style={{margin: "12px"}}
+                style={{ margin: "12px" }}
               />
             </div>) :
             null
           }
-          <h3 style={{textAlign: "center"}}>{this.state.sportData.title ? this.state.sportData.title : ''}</h3>
+          <h3 style={{ textAlign: "center" }}>{this.state.sportData.title ? this.state.sportData.title : ''}</h3>
 
           {contactDOM}
           {ptcInfoDOM}
@@ -605,7 +605,7 @@ class Participants extends Component {
               onTouchTap={this.handleSendEmailDialogOpen}
               label="送出"
               secondary={true}
-              style={{margin: "12px"}}
+              style={{ margin: "12px" }}
             />
           </div>
         </div>
@@ -619,10 +619,10 @@ class Participants extends Component {
           message="資料有錯誤或缺漏"
           autoHideDuration={4000}
           onRequestClose={this.handleErrorAlertClose}
-          bodyStyle={{backgroundColor: "#F44336"}}
+          bodyStyle={{ backgroundColor: "#F44336" }}
         />
 
-        <LoadDialog loadDialogOpen={this.state.loadDialogOpen}/>
+        <LoadDialog loadDialogOpen={this.state.loadDialogOpen} />
       </div>
     );
 

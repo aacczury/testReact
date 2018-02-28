@@ -11,14 +11,14 @@ class App extends Component {
       inputData: [
         { type: "text", name: "name", text: "暱稱" },
         { type: "text", name: "password", text: "密碼" },
-        { type: "email", name: "email", text: "電子信箱"}
+        { type: "email", name: "email", text: "電子信箱" }
       ],
       pageState: "main"
     };
     this.handleAddClick = this.handleAddClick.bind(this);
     this.handleHeaderClick = this.handleHeaderClick.bind(this);
     var self = this;
-    window.firebase.auth().onAuthStateChanged(function(user) {
+    window.firebase.auth().onAuthStateChanged(function (user) {
       self.setState({ // need loading
         isUserLogin: user
       });
@@ -27,10 +27,10 @@ class App extends Component {
 
   componentDidUpdate() {
     console.log(this.state.pageState);
-    if(this.state.pageState === "login") {
+    if (this.state.pageState === "login") {
       var uiConfig = {
         'callbacks': {
-          'signInSuccess': function(user, credential, redirectUrl) {
+          'signInSuccess': function (user, credential, redirectUrl) {
             //if(!user.emailVerified){
             //  user.sendEmailVerification().then(function(){
             //    dialog.showModal();
@@ -54,7 +54,7 @@ class App extends Component {
 
   handleAddClick() {
     this.setState(prevState => {
-      return {inputData: prevState.inputData.concat({type: "text", name: "TEST", text: "TEST"})};
+      return { inputData: prevState.inputData.concat({ type: "text", name: "TEST", text: "TEST" }) };
     });
   }
 
@@ -62,14 +62,14 @@ class App extends Component {
     return {
       login: (e) => {
         this.setState(prevState => {
-          return {pageState: "login"};
+          return { pageState: "login" };
         });
       },
       logout: (e) => {
         var self = this;
-        window.firebase.auth().signOut().then(function(){
+        window.firebase.auth().signOut().then(function () {
           self.setState(prevState => {
-            return {pageState: "main"};
+            return { pageState: "main" };
           });
         });
       }
@@ -84,11 +84,11 @@ class App extends Component {
       login: "登入"
     }
     var header = <Header title={!(this.state.pageState in headerTitle) ? headerTitle.main : headerTitle[this.state.pageState]}
-      isUserLogin={this.state.isUserLogin} headerClick={this.handleHeaderClick}  />;
+      isUserLogin={this.state.isUserLogin} headerClick={this.handleHeaderClick} />;
 
     var pageDom = {
       main: (
-        <div className="mdl-layout__content" style={{marginTop: "50px"}}>
+        <div className="mdl-layout__content" style={{ marginTop: "50px" }}>
           <InputContainer inputData={this.state.inputData} />
           <button className="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" onClick={this.handleAddClick}>
             Add
@@ -96,13 +96,13 @@ class App extends Component {
         </div>
       ),
       login: (
-        <div className="mdl-layout__content" style={{marginTop: "50px"}}>
+        <div className="mdl-layout__content" style={{ marginTop: "50px" }}>
           <div id="firebaseui-auth-container"></div>
         </div>
       )
     };
     let page = null;
-    if(!(this.state.pageState in pageDom)) {
+    if (!(this.state.pageState in pageDom)) {
       page = pageDom.main;
     }
     else {

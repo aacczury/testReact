@@ -10,7 +10,7 @@ class CardContainer extends Component {
     });
 
     return (
-      <div className="card-container" style={{maxWidth: "900px", margin: "auto"}}>
+      <div className="card-container" style={{ maxWidth: "900px", margin: "auto" }}>
         {cardItems}
       </div>
     );

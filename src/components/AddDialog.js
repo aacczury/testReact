@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {FlatButton, Dialog} from 'material-ui';
+import { FlatButton, Dialog } from 'material-ui';
 
 class AddDialog extends Component {
   constructor(props) {
@@ -11,8 +11,8 @@ class AddDialog extends Component {
   }
 
   componentWillReceiveProps = (nextProps) => {
-    if(nextProps.addDialogOpen !== this.state.addDialogOpen)
-      this.setState({addDialogOpen: nextProps.addDialogOpen ? true : false})
+    if (nextProps.addDialogOpen !== this.state.addDialogOpen)
+      this.setState({ addDialogOpen: nextProps.addDialogOpen ? true : false })
   }
 
   render() {
@@ -36,7 +36,7 @@ class AddDialog extends Component {
         modal={false}
         open={this.state.addDialogOpen}
         onRequestClose={this.props.handleAddDialogClose}
-        contentStyle={{maxWidth: "300px"}}
+        contentStyle={{ maxWidth: "300px" }}
         autoScrollBodyContent={true}
       >
         {this.props.content}

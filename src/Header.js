@@ -4,7 +4,7 @@ class Header extends Component {
   render() {
     let userNext = !this.props.isUserLogin ? "login" : "logout";
     let button = <a id="log-link" className="mdl-navigation__link"
-        onClick={this.props.headerClick(userNext)} style={{cursor: "pointer"}}>{userNext}</a>;
+      onClick={this.props.headerClick(userNext)} style={{ cursor: "pointer" }}>{userNext}</a>;
 
     return (
       <div className="mdl-layout__header mdl-layout--fixed-header">

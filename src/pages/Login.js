@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {Card, CardText, RaisedButton} from 'material-ui';
+import { Card, CardText, RaisedButton } from 'material-ui';
 
 import InputContainer from '../containers/InputContainer';
 
@@ -29,7 +29,7 @@ class Login extends Component {
 
   createInputData = (userInfo, errorText) => {
     return [
-      { type: "text", name: "email", text: "信箱", value: userInfo.email, disabled: false, errorText: errorText.email},
+      { type: "text", name: "email", text: "信箱", value: userInfo.email, disabled: false, errorText: errorText.email },
       { type: "password", name: "password", text: "密碼", value: userInfo.password, disabled: false, errorText: errorText.password }
     ]
   }
@@ -55,7 +55,7 @@ class Login extends Component {
   }
 
   handleLogin = () => {
-    this.updateErrorText({email: '', password: ''});
+    this.updateErrorText({ email: '', password: '' });
     if (window.firebase.auth().currentUser) {
       alert("你已經登入惹")
     }
@@ -63,39 +63,39 @@ class Login extends Component {
       let email = this.state.userInfo.email;
       let password = this.state.userInfo.password;
       if (email.length < 4) {
-        this.updateErrorText({email: '信箱格式錯誤'});
+        this.updateErrorText({ email: '信箱格式錯誤' });
         return;
       }
       if (password.length < 6) {
-        this.updateErrorText({password: '密碼長度錯誤'});
+        this.updateErrorText({ password: '密碼長度錯誤' });
         return;
       }
 
-      this.setState({isLoginButtonDisabled: true});
+      this.setState({ isLoginButtonDisabled: true });
       this.props.handleLoadDialogOpen();
       let self = this;
       window.firebase.auth().signInWithEmailAndPassword(email, password).catch(err => {
         var errorCode = err.code;
         var errorMessage = err.message;
-        if(errorCode === 'auth/invalid-email'){
-          self.updateErrorText({email: '信箱格式錯誤'});
+        if (errorCode === 'auth/invalid-email') {
+          self.updateErrorText({ email: '信箱格式錯誤' });
         } else if (errorCode === 'auth/user-not-found' || errorCode === 'auth/wrong-password') {
-          self.updateErrorText({email: '帳號或密碼錯誤', password: '帳號或密碼錯誤'});
+          self.updateErrorText({ email: '帳號或密碼錯誤', password: '帳號或密碼錯誤' });
         } else if (err) {
           console.error(err);
-          self.updateErrorText({email: errorMessage});
+          self.updateErrorText({ email: errorMessage });
         }
-        if(err) this.props.handleLoadDialogClose();
+        if (err) this.props.handleLoadDialogClose();
 
-        self.setState({isLoginButtonDisabled: false});
+        self.setState({ isLoginButtonDisabled: false });
       });
     }
   }
 
   render() {
     let content = (
-      <div style={{textAlign: "center"}}>
-        <Card style={{width: "280px", margin: "10px", display: "inline-block", verticalAlign: "top"}}>
+      <div style={{ textAlign: "center" }}>
+        <Card style={{ width: "280px", margin: "10px", display: "inline-block", verticalAlign: "top" }}>
           <CardText>
             <InputContainer inputData={this.state.inputData} handleInputUpdate={this.handleUserInfoUpdate} />
             <RaisedButton

@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
-import {ActionHome} from 'material-ui/svg-icons';
+import { ActionHome } from 'material-ui/svg-icons';
 
 class Main extends Component {
   render() {
     let content = (
-      <div style={{paddingTop: "64px"}}>
-        <div style={{textAlign: "center"}}>
+      <div style={{ paddingTop: "64px" }}>
+        <div style={{ textAlign: "center" }}>
           <ActionHome />
           <h1>正興城灣盃報名系統</h1>
           <h2>請先登入</h2>

@@ -3,8 +3,8 @@ import {
 } from '../constants/actionTypes';
 
 export function updateUserData(user) {
-	return {
+    return {
         type: UPDATE_USER_DATA,
         user
-	};
+    };
 }

@@ -12,54 +12,54 @@ import Participants from './Participants';
 import Overview from './Overview';
 import Group from './Group';
 
-import {UNIVERSITY_LIST} from  '../constants/constants'
-import {openLoadDialog, closeLoadDialog, updateUserData} from '../actions'
+import { UNIVERSITY_LIST } from '../constants/constants'
+import { openLoadDialog, closeLoadDialog, updateUserData } from '../actions'
 //import './App.css';
 
 class App extends Component {
   static propTypes = {
     userData: PropTypes.object.isRequired,
-    loadDialog: PropTypes.bool.isRequired,
+    loadDialog: PropTypes.bool.isRequired
   }
 
   getUserAuth = uid => {
     return new Promise((resolve, reject) => {
-        window.firebase.database().ref(`/users/${uid}`).once('value').then(snapshot => {
-          let userInfo = snapshot.val() ? snapshot.val() : {};
-          resolve(userInfo.auth);
-        });
+      window.firebase.database().ref(`/users/${uid}`).once('value').then(snapshot => {
+        let userInfo = snapshot.val() ? snapshot.val() : {};
+        resolve(userInfo.auth);
+      });
     })
   }
 
   getUserData = async uid => {
-      let user = {};
-      const auth = await this.getUserAuth(uid);
-      Object.defineProperty(user, "uid", {
-          value: uid,
-          writable: false,
-          enumerable: false,
-          configurable: false
-      });
-      Object.defineProperty(user, "auth", {
-          value: auth,
-          writable: false,
-          enumerable: false,
-          configurable: false
-      });
-      console.log(user);
-      return user;
+    let user = {};
+    const auth = await this.getUserAuth(uid);
+    Object.defineProperty(user, "uid", {
+      value: uid,
+      writable: false,
+      enumerable: false,
+      configurable: false
+    });
+    Object.defineProperty(user, "auth", {
+      value: auth,
+      writable: false,
+      enumerable: false,
+      configurable: false
+    });
+    console.log(user);
+    return user;
   }
 
-  componentDidMount(){
-    let {userData, location,
-      openLoadDialog, closeLoadDialog, updateUserData} = this.props;
+  componentDidMount() {
+    let { userData, location,
+      openLoadDialog, closeLoadDialog, updateUserData } = this.props;
     let self = this;
     window.firebase.auth().onAuthStateChanged(user => {
-      if(user && location.query.login)
+      if (user && location.query.login)
         self.handleRedirect('/');
 
       openLoadDialog();
-      if(user && user.uid !== userData.uid)
+      if (user && user.uid !== userData.uid)
         self.getUserData(user.uid)
           .then(async user => updateUserData(user))
           .then(() => closeLoadDialog());
@@ -78,7 +78,7 @@ class App extends Component {
     return {
       logout: () => {
         let self = this;
-        window.firebase.auth().signOut().then(function(){
+        window.firebase.auth().signOut().then(function () {
           console.log("Logout safe."); // need a dialog
           self.handleRedirect('/');
         });
@@ -92,40 +92,40 @@ class App extends Component {
   render() {
     let header = null;
     let content = null;
-    let {userData} = this.props;
+    let { userData } = this.props;
     let query = this.props.location.query;
-    if(userData.uid) {
+    if (userData.uid) {
       let university = null;
-      if(userData.auth === "admin" || userData.auth === "overview"){
+      if (userData.auth === "admin" || userData.auth === "overview") {
         university = query.university ? query.university : "ncku";
       } else {
-        if(UNIVERSITY_LIST.indexOf(userData.auth) < 0) {
+        if (UNIVERSITY_LIST.indexOf(userData.auth) < 0) {
           console.log("Error university"); // need handle
         }
-        else if(query.university && userData.auth !== query.university){
+        else if (query.university && userData.auth !== query.university) {
           console.log("Not your university");
         }
         else
           university = userData.auth;
       }
 
-      if(query.th) {
-        if(query.group && (userData.auth === "admin" || userData.auth === "overview")) {
+      if (query.th) {
+        if (query.group && (userData.auth === "admin" || userData.auth === "overview")) {
           header = <Header title={`正興城灣盃-第${query.th}屆總覽`} user={userData}
             handleHeaderButtonClick={this.handleHeaderButtonClick("logout")} handleRedirect={this.handleRedirect} th={query.th} />
           content = <Group user={userData} th={query.th} university={university} />
         }
-        else if(query.overview && (userData.auth === "admin" || userData.auth === "overview")) {
+        else if (query.overview && (userData.auth === "admin" || userData.auth === "overview")) {
           header = <Header title={`正興城灣盃-第${query.th}屆總覽`} user={userData}
             handleHeaderButtonClick={this.handleHeaderButtonClick("logout")} handleRedirect={this.handleRedirect} th={query.th} />
           content = <Overview user={userData} th={query.th} university={university} />
         }
-        else if(query.sport && university) {
+        else if (query.sport && university) {
           header = <Header title={`正興城灣盃-第${query.th}屆報名資料`} user={userData}
             handleHeaderButtonClick={this.handleHeaderButtonClick("logout")} handleRedirect={this.handleRedirect} th={query.th} />
           content = <Participants user={userData} th={query.th} sport={query.sport} university={university} handleRedirect={this.handleRedirect} />
         }
-        else if(!query.sport){
+        else if (!query.sport) {
           header = <Header title={`正興城灣盃-第${query.th}屆比賽項目`} user={userData}
             handleHeaderButtonClick={this.handleHeaderButtonClick("logout")} handleRedirect={this.handleRedirect} th={query.th} />
           content = <Sports user={userData} handleRedirect={this.handleRedirect} th={query.th} />
@@ -141,10 +141,10 @@ class App extends Component {
         content = <Years user={userData} handleRedirect={this.handleRedirect} />;
       }
     }
-    else if(query.login) {
+    else if (query.login) {
       header = <Header login={query.login} title="正興城灣盃-登入" />
       content = <Login handleRedirect={this.handleRedirect}
-                  handleLoadDialogOpen={this.handleLoadDialogOpen} handleLoadDialogClose={this.handleLoadDialogClose} />
+        handleLoadDialogOpen={this.handleLoadDialogOpen} handleLoadDialogClose={this.handleLoadDialogClose} />
     }
     else {
       header = <Header title="正興城灣盃"
@@ -166,16 +166,16 @@ const mapStateToProps = state => {
   console.log(state);
   let props = {};
   Object.defineProperty(props, "loadDialog", {
-      value: state.loadDialog,
-      writable: false,
-      enumerable: true,
-      configurable: false
+    value: state.loadDialog,
+    writable: false,
+    enumerable: true,
+    configurable: false
   });
   Object.defineProperty(props, "userData", {
-      value: state.userData,
-      writable: false,
-      enumerable: true,
-      configurable: false
+    value: state.userData,
+    writable: false,
+    enumerable: true,
+    configurable: false
   });
   return props
 }

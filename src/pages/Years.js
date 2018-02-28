@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {ActionHome} from 'material-ui/svg-icons';
+import { ActionHome } from 'material-ui/svg-icons';
 
 import AddCard from '../components/AddCard';
 import AddDialog from '../components/AddDialog';
@@ -32,10 +32,10 @@ class Years extends Component {
   }
 
   componentDidMount() {
-    if(this.props.user){
+    if (this.props.user) {
       let self = this;
       this.dataRef = window.firebase.database().ref(`/years`);
-      this.dataRef.on('value', function(snapshot) {
+      this.dataRef.on('value', function (snapshot) {
         self.updateYears(snapshot.val());
       });
       this.setState({
@@ -45,7 +45,7 @@ class Years extends Component {
   }
 
   componentWillUnmount() {
-    if(this.dataRef && this.dataRef.off){
+    if (this.dataRef && this.dataRef.off) {
       this.dataRef.off();
     }
   }
@@ -58,11 +58,12 @@ class Years extends Component {
       cardData.push({
         title: data[k].title,
         url: `/?th=${data[k].th}`, content: (
-        <div>
-          {`活動地點: ${data[k].venue ? data[k].venue : ''}`}<br />
-          {`活動日期: ${data[k].date ? data[k].date : ''}`}<br />
-        </div>
-      )});
+          <div>
+            {`活動地點: ${data[k].venue ? data[k].venue : ''}`}<br />
+            {`活動日期: ${data[k].date ? data[k].date : ''}`}<br />
+          </div>
+        )
+      });
       return 0;
     });
 
@@ -98,16 +99,16 @@ class Years extends Component {
   }
 
   handleAddYear = () => { // pop screen
-    if(this.props.user.auth === "admin") {
-      let {yearYear, yearTh, yearOrganizer, yearTitle, yearDate, yearVenue,
-            yearContactName, yearContactPhone, yearContactEmail, yearNCKUHost} = this.state.addYearInfo; // need check collision
+    if (this.props.user.auth === "admin") {
+      let { yearYear, yearTh, yearOrganizer, yearTitle, yearDate, yearVenue,
+        yearContactName, yearContactPhone, yearContactEmail, yearNCKUHost } = this.state.addYearInfo; // need check collision
       let yearUid = window.firebase.database().ref(`/years`).push().key;
       window.firebase.database().ref().update({
         [`/years/${yearUid}`]: {
           year: yearYear,
           th: yearTh,
           organizer:
-          yearOrganizer,
+            yearOrganizer,
           title: yearTitle,
           date: yearDate,
           venue: yearVenue,
@@ -118,50 +119,50 @@ class Years extends Component {
         }
       }, (err) => {
         // will update by on
-        if(err) console.log(err);
+        if (err) console.log(err);
         this.handleAddDialogClose();
         this.setState(prevState => {
           let curAddYearInfo = {
-                yearYear: '',
-                yearTh: '',
-                yearOrganizer: '',
-                yearTitle: '',
-                yearDate: '',
-                yearVenue: '',
-                yearContactName: '',
-                yearContactPhone: '',
-                yearContactEmail: '',
-                yearNCKUHost: false
-              };
-          return {addYearInfo: curAddYearInfo, addYearData: this.createAddYearData(curAddYearInfo)};
+            yearYear: '',
+            yearTh: '',
+            yearOrganizer: '',
+            yearTitle: '',
+            yearDate: '',
+            yearVenue: '',
+            yearContactName: '',
+            yearContactPhone: '',
+            yearContactEmail: '',
+            yearNCKUHost: false
+          };
+          return { addYearInfo: curAddYearInfo, addYearData: this.createAddYearData(curAddYearInfo) };
         });
       });
     }
   }
 
   handleAddDialogOpen = () => {
-    this.setState({addDialogOpen: true})
+    this.setState({ addDialogOpen: true })
   }
 
   handleAddDialogClose = () => {
-    this.setState({addDialogOpen: false})
+    this.setState({ addDialogOpen: false })
   }
 
   render() {
     let addCard = null;
-    if(this.props.user.auth === "admin")
+    if (this.props.user.auth === "admin")
       addCard = <AddCard handlePlus1={this.handleAddDialogOpen} />;
 
     let addDialog = null;
-    if(this.props.user.auth === "admin")
+    if (this.props.user.auth === "admin")
       addDialog =
         <AddDialog title="新增盃賽" addDialogOpen={this.state.addDialogOpen} handleAddSubmit={this.handleAddYear}
           handleAddDialogOpen={this.handleAddDialogOpen} handleAddDialogClose={this.handleAddDialogClose}
           content={<InputContainer inputData={this.state.addYearData} handleInputUpdate={this.handleAddYearInfoUpdate} />} />;
 
     let content = (
-      <div style={{paddingTop: "64px"}}>
-        <div style={{textAlign: "center"}}>
+      <div style={{ paddingTop: "64px" }}>
+        <div style={{ textAlign: "center" }}>
           <ActionHome />
           {addCard}
           <CardContainer cardData={this.state.cardData} handleRedirect={this.props.handleRedirect} />

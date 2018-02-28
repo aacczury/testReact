@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import {Card, CardTitle, CardText, IconButton} from 'material-ui';
-import {ContentClear} from 'material-ui/svg-icons';
+import { Card, CardTitle, CardText, IconButton } from 'material-ui';
+import { ContentClear } from 'material-ui/svg-icons';
 
 class CardItem extends Component {
   constructor(props) {
@@ -13,7 +13,7 @@ class CardItem extends Component {
 
   render() {
     let cardContent = null;
-    if(this.props.content) {
+    if (this.props.content) {
       cardContent = (
         <CardText>
           {this.props.content}
@@ -22,9 +22,9 @@ class CardItem extends Component {
     }
 
     let clearButton = null;
-    if(this.props.handleRemoveCard)
+    if (this.props.handleRemoveCard)
       clearButton = (
-        <div style={{textAlign: "right"}}>
+        <div style={{ textAlign: "right" }}>
           <IconButton>
             <ContentClear onTouchTap={this.props.handleRemoveCard} />
           </IconButton>
@@ -32,16 +32,16 @@ class CardItem extends Component {
       )
 
     let cardComponent = (
-        <Card style={{width: "280px", margin: "10px", display: "inline-block", verticalAlign: "top"}}>
-          {clearButton}
-          { this.props.url ?
-            <CardTitle title={this.props.title} subtitle={this.props.subtitle} style={{cursor: "pointer"}}
-              onTouchTap={() => this.props.handleRedirect(this.props.url)} /> :
-            <CardTitle title={this.props.title} subtitle={this.props.subtitle}  />
-          }
-          {cardContent}
-        </Card>
-      )
+      <Card style={{ width: "280px", margin: "10px", display: "inline-block", verticalAlign: "top" }}>
+        {clearButton}
+        {this.props.url ?
+          <CardTitle title={this.props.title} subtitle={this.props.subtitle} style={{ cursor: "pointer" }}
+            onTouchTap={() => this.props.handleRedirect(this.props.url)} /> :
+          <CardTitle title={this.props.title} subtitle={this.props.subtitle} />
+        }
+        {cardContent}
+      </Card>
+    )
 
     return cardComponent;
   }
