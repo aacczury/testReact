@@ -9,3 +9,6 @@ export const FIREBASE_CONFIG_BAK = {
     authDomain: "chcwcup-bak.firebaseapp.com",
     databaseURL: "https://chcwcup-bak.firebaseio.com",
 };
+
+export const BASE_NAME = "/act/chcwcup/register/"
+export const BASE_NAME_BAK = "/act/chcwcup/register/"

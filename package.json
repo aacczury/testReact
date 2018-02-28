@@ -14,8 +14,10 @@
     "prop-types": "^15.6.0",
     "react": "^15.6.2",
     "react-dom": "^15.6.2",
+    "react-redux": "^5.0.7",
     "react-router": "^3.2.0",
-    "react-tap-event-plugin": "^2.0.1"
+    "react-tap-event-plugin": "^2.0.1",
+    "redux": "^3.7.2"
   },
   "homepage": "http://stud.adm.ncku.edu.tw/act/chcwcup/register/",
   "scripts": {
