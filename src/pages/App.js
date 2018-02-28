@@ -12,6 +12,7 @@ import Participants from './Participants';
 import Overview from './Overview';
 import Group from './Group';
 
+import {UNIVERSITY_LIST} from  '../constants/constants'
 import {openLoadDialog, closeLoadDialog, updateUserData} from '../actions'
 //import './App.css';
 
@@ -98,8 +99,7 @@ class App extends Component {
       if(userData.auth === "admin" || userData.auth === "overview"){
         university = query.university ? query.university : "ncku";
       } else {
-        let universityName = ["ncku", "ccu", "nsysu", "nchu"];
-        if(universityName.indexOf(userData.auth) < 0) {
+        if(UNIVERSITY_LIST.indexOf(userData.auth) < 0) {
           console.log("Error university"); // need handle
         }
         else if(query.university && userData.auth !== query.university){
