@@ -1,20 +1,30 @@
 import React, { Component } from 'react';
 import {TextField, Checkbox, DatePicker} from 'material-ui';
+import intl from 'intl';
+import 'intl/locale-data/jsonp/zh-Hant-TW';
+
+import {fontFamily} from '../config';
+
+
 
 class Input extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      id: props.name + +new Date(),
-      value: this.props.value ? this.props.value : ''
+      id: this.props.name + +new Date(),
+      value: typeof this.props.value === 'undefined' ? '' : this.props.value
     };
-
-    this.handleChange = this.handleChange.bind(this);
   }
 
-  handleChange(e, v) {
-    // need check input data
+  componentWillReceiveProps = (nextProps) => {
+    // You don't have to do this check first, but it can help prevent an unneeded render
+    if (nextProps.value !== this.state.value) {
+      this.setState({ value: typeof nextProps.value === 'undefined' ? '' : nextProps.value });
+    }
+  }
+
+  handleChange = (e, v) => {
     let node = e ? e.target : this.inputNode.props;
     this.setState({value: v});
     if(node.name) {
@@ -26,15 +36,22 @@ class Input extends Component {
 
   render() {
     let inputComponent = null;
-    if(this.props.type === "text" || this.props.type === "email") {
+    if(this.props.type === "text" || this.props.type === "email" || this.props.type === "password") {
       inputComponent = (
         <TextField
-          defaultValue={this.state.value}
+          fullWidth={true}
+          value={this.state.value}
           floatingLabelText={this.props.text}
           onChange={this.handleChange}
           disabled={this.props.disabled ? true : false}
           name={this.props.name}
           type={this.props.type}
+          errorText={this.props.errorText}
+          style={{textAlign: "left"}}
+          textareaStyle={{fontFamily: fontFamily}}
+          inputStyle={{fontFamily: fontFamily}}
+          errorStyle={{fontFamily: fontFamily}}
+          floatingLabelStyle={{fontFamily: fontFamily}}
         />
       )
     }else if(this.props.type === "checkbox") {
@@ -45,6 +62,7 @@ class Input extends Component {
           onCheck={this.handleChange}
           disabled={this.props.disabled ? true : false}
           name={this.props.name}
+          labelStyle={{fontFamily: fontFamily}}
         />
       )
     }else if(this.props.type === "date") {
@@ -56,6 +74,13 @@ class Input extends Component {
           onChange={this.handleChange}
           disabled={this.props.disabled ? true : false}
           name={this.props.name}
+          errorText={this.props.errorText}
+          autoOk={true}
+          cancelLabel="取消"
+          DateTimeFormat={intl.DateTimeFormat}
+          errorStyle={{fontFamily: fontFamily}}
+          dialogContainerStyle={{fontFamily: fontFamily}}
+          textFieldStyle={{width: "100%", fontFamily: fontFamily}}
         />
       )
     }

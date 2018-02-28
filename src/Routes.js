@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Router, Route } from 'react-router';
 
-import App from './components/App';
+import App from './pages/App';
 //import NotFound from './components/NotFound';
 
 class Routes extends Component {
@@ -9,8 +9,6 @@ class Routes extends Component {
     return(
       <Router {...this.props}>
         <Route path="/" component={App} />
-        <Route path="/login" component={App} />
-        <Route path="/th/:th" component={App} />
         {/*<Route path="*" component={NotFound} />*/}
       </Router>
     )
