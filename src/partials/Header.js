@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
 import {AppBar, IconButton, FlatButton} from 'material-ui';
 import {ActionHome, NavigationMenu} from 'material-ui/svg-icons';
 
@@ -14,6 +16,9 @@ class Header extends Component {
       menuOpen: false
     }
   }
+  static propTypes = {
+    userData: PropTypes.object.isRequired
+  }
 
   handleMenuToggle = () => this.setState({menuOpen: !this.state.menuOpen});
   handleMenuRequestChange = (menuOpen) => this.setState({menuOpen});
@@ -21,12 +26,13 @@ class Header extends Component {
   render() {
     let leftButton = null;
     let rightButton = null;
-    if(this.props.user) {
+    let {userData} = this.props;
+    if(userData) {
       leftButton = (
         <IconButton
           onTouchTap={this.handleMenuToggle}>
           <NavigationMenu />
-          <LeftMenu user={this.props.user} menuOpen={this.state.menuOpen} handleMenuRequestChange={this.handleMenuRequestChange} handleRedirect={this.props.handleRedirect} />
+          <LeftMenu user={userData} menuOpen={this.state.menuOpen} handleMenuRequestChange={this.handleMenuRequestChange} handleRedirect={this.props.handleRedirect} />
         </IconButton>
       );
       rightButton = <FlatButton labelStyle={{fontFamily: FONT_FAMILY}} onTouchTap={this.props.handleHeaderButtonClick} label="登出" />
@@ -51,4 +57,16 @@ class Header extends Component {
   }
 }
 
-export default Header;
+const mapStateToProps = state => {
+  console.log(state);
+  let props = {};
+  Object.defineProperty(props, "userData", {
+      value: state.userData,
+      writable: false,
+      enumerable: true,
+      configurable: false
+  });
+  return props
+}
+
+export default connect(mapStateToProps)(Header);
