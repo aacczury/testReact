@@ -57,16 +57,13 @@ class App extends Component {
       if (user && location.query.login)
         self.handleRedirect('/');
 
-      openLoadDialog();
-      if (user && user.uid !== userData.uid)
+      if (user && user.uid !== userData.uid) {
+        openLoadDialog();
         self.getUserData(user.uid)
           .then(async user => updateUserData(user))
           .then(() => closeLoadDialog());
-      else closeLoadDialog();
+      }
     });
-  }
-
-  componentWillReceiveProps = (nextProps) => {
   }
 
   handleRedirect = url => {
