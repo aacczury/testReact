@@ -1,24 +1,18 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
 import { Dialog, CircularProgress } from 'material-ui';
 
 class LoadDialog extends Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      loadDialogOpen: this.props.loadDialogOpen ? true : false
-    };
-  }
-
-  componentWillReceiveProps = (nextProps) => {
-    if (nextProps.loadDialogOpen !== this.state.loadDialogOpen)
-      this.setState({ loadDialogOpen: nextProps.loadDialogOpen ? true : false })
+  static propTypes = {
+    loadDialog: PropTypes.bool.isRequired
   }
 
   render() {
-    let loadDialog = (
+    let { loadDialog } = this.props;
+    let dialog = (
       <Dialog
-        open={this.state.loadDialogOpen}
+        open={loadDialog}
         contentStyle={{ width: "100px", height: "100px" }}
         modal={true}
       >
@@ -28,8 +22,15 @@ class LoadDialog extends Component {
         />
       </Dialog>
     )
-    return loadDialog;
+    return dialog;
   }
 }
 
-export default LoadDialog;
+const mapStateToProps = state => {
+  console.log(state);
+  return Object.freeze({
+    loadDialog: state.loadDialog
+  })
+}
+
+export default connect(mapStateToProps)(LoadDialog);

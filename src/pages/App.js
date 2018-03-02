@@ -18,8 +18,7 @@ import { openLoadDialog, closeLoadDialog, updateUserData } from '../actions'
 
 class App extends Component {
   static propTypes = {
-    userData: PropTypes.object.isRequired,
-    loadDialog: PropTypes.bool.isRequired
+    userData: PropTypes.object.isRequired
   }
 
   getUserAuth = uid => {
@@ -143,8 +142,7 @@ class App extends Component {
     }
     else if (query.login) {
       header = <Header login={query.login} title="正興城灣盃-登入" />
-      content = <Login handleRedirect={this.handleRedirect}
-        handleLoadDialogOpen={this.handleLoadDialogOpen} handleLoadDialogClose={this.handleLoadDialogClose} />
+      content = <Login handleRedirect={this.handleRedirect} />
     }
     else {
       header = <Header title="正興城灣盃"
@@ -156,7 +154,7 @@ class App extends Component {
       <div className="App">
         {header}
         {content}
-        <LoadDialog loadDialogOpen={this.props.loadDialog} />
+        <LoadDialog />
       </div>
     );
   }
@@ -165,7 +163,6 @@ class App extends Component {
 const mapStateToProps = state => {
   console.log(state);
   return Object.freeze({
-    loadDialog: state.loadDialog,
     userData: state.userData
   })
 }
