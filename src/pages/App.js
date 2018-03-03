@@ -13,7 +13,7 @@ import Overview from './Overview';
 import Group from './Group';
 
 import { UNIVERSITY_LIST } from '../constants/constants'
-import { openLoadDialog, closeLoadDialog, updateUserData } from '../actions'
+import { fetchUserDataIfNeeded } from '../actions'
 //import './App.css';
 
 class App extends Component {
@@ -21,47 +21,15 @@ class App extends Component {
     userData: PropTypes.object.isRequired
   }
 
-  getUserAuth = uid => {
-    return new Promise((resolve, reject) => {
-      window.firebase.database().ref(`/users/${uid}`).once('value').then(snapshot => {
-        let userInfo = snapshot.val() ? snapshot.val() : {};
-        resolve(userInfo.auth);
-      });
-    })
-  }
-
-  getUserData = async uid => {
-    let user = {};
-    const auth = await this.getUserAuth(uid);
-    Object.defineProperty(user, "uid", {
-      value: uid,
-      writable: false,
-      enumerable: false,
-      configurable: false
-    });
-    Object.defineProperty(user, "auth", {
-      value: auth,
-      writable: false,
-      enumerable: false,
-      configurable: false
-    });
-    console.log(user);
-    return user;
-  }
-
   componentDidMount() {
-    let { userData, location,
-      openLoadDialog, closeLoadDialog, updateUserData } = this.props;
+    let { location, fetchUserDataIfNeeded } = this.props;
     let self = this;
     window.firebase.auth().onAuthStateChanged(user => {
       if (user && location.query.login)
         self.handleRedirect('/');
 
-      if (user && user.uid !== userData.uid) {
-        openLoadDialog();
-        self.getUserData(user.uid)
-          .then(async user => updateUserData(user))
-          .then(() => closeLoadDialog());
+      if (user) {
+        fetchUserDataIfNeeded(user.uid)
       }
     });
   }
@@ -166,15 +134,8 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    openLoadDialog: () => {
-      dispatch(openLoadDialog());
-    },
-    closeLoadDialog: () => {
-      dispatch(closeLoadDialog());
-    },
-
-    updateUserData: user => {
-      dispatch(updateUserData(user));
+    fetchUserDataIfNeeded: uid => {
+      dispatch(fetchUserDataIfNeeded(uid));
     }
   }
 }

@@ -5,7 +5,8 @@ import { Provider } from 'react-redux';
 import { createHistory } from 'history';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import injectTapEventPlugin from 'react-tap-event-plugin';
-import { createStore } from 'redux'
+import thunkMiddleware from 'redux-thunk'
+import { createStore, applyMiddleware } from 'redux'
 
 import { FIREBASE_CONFIG_BAK, BASE_NAME_BAK } from './constants/tokens';
 import Routes from './Routes';
@@ -15,7 +16,12 @@ import './index.css';
 
 injectTapEventPlugin();
 
-let store = createStore(registrationApp);
+let store = createStore(
+  registrationApp,
+  applyMiddleware(
+    thunkMiddleware
+  )
+);
 const browserHistory = useRouterHistory(createHistory)({ basename: BASE_NAME_BAK });
 
 const Index = () => (
