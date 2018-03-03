@@ -7,6 +7,8 @@ import AddDialog from '../components/AddDialog';
 import LoadDialog from '../components/LoadDialog';
 import Input from '../components/Input';
 
+import { STATUS_NAME, KEY_LIST } from '../constants/constants'
+
 import '../components/ResTable.css';
 
 class Group extends Component {
@@ -57,10 +59,9 @@ class Group extends Component {
 
 
   getPtcData = (d, sport, memberName = "隊員") => {
-    const statusName = { coach: "教練", captain: "領隊", manager: "管理", leader: "隊長", member: memberName };
-    const keyList = ["id", "name", "sport", "status", "deptyear", "birthday", "size", "lodging", "bus", "vegetarian"];
+    const statusName = { ...STATUS_NAME, member: memberName };
 
-    keyList.map(k => {
+    KEY_LIST.map(k => {
       if (typeof d[k] === "undefined") {
         if (k !== "lodging" && k !== "bus" && k !== "vegetarian") d[k] = "";
         else d[k] = false;

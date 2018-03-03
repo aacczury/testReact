@@ -16,3 +16,5 @@ export const ATTR_TYPE = {
     name: "text", deptyear: "text", id: "text", birthday: "date",
     size: "text", lodging: "checkbox", bus: "checkbox", vegetarian: "checkbox"
 };
+
+export const KEY_LIST = ["id", "name", "sport", "status", "deptyear", "birthday", "size", "lodging", "bus", "vegetarian"];

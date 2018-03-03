@@ -7,6 +7,8 @@ import { FileFileDownload } from 'material-ui/svg-icons';
 import LoadDialog from '../components/LoadDialog';
 import Input from '../components/Input';
 
+import { STATUS_NAME, KEY_LIST } from '../constants/constants'
+
 import '../components/ResTable.css';
 
 class Overview extends Component {
@@ -57,11 +59,10 @@ class Overview extends Component {
   }
 
   getParticipantData = (data, sports, uid, memberName = "隊員") => {
-    const statusName = { coach: "教練", captain: "領隊", manager: "管理", leader: "隊長", member: memberName };
-    const keyList = ["id", "name", "sport", "status", "deptyear", "birthday", "size", "lodging", "bus", "vegetarian"];
+    const statusName = { ...STATUS_NAME, member: memberName };
     let d = data[uid];
 
-    keyList.map(k => {
+    KEY_LIST.map(k => {
       if (typeof d[k] === "undefined") {
         if (k !== "lodging" && k !== "bus" && k !== "vegetarian") d[k] = "";
         else d[k] = false;

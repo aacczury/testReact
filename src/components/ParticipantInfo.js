@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import { attrList, attrName, attrType } from '../config';
+import { ATTR_LIST, ATTR_NAME, ATTR_TYPE } from '../constants/constants'
 import ResTR from './ResTR'
 
 class ParticipantInfo extends Component {
@@ -42,8 +42,8 @@ class ParticipantInfo extends Component {
   }
 
   createInputData = (ptcInfo, errorText = {}) => {
-    return attrList.map(attr => {
-      return { type: attrType[attr], name: attr, label: attrName[attr], value: ptcInfo[attr], errorText: errorText[attr] };
+    return ATTR_LIST.map(attr => {
+      return { type: ATTR_TYPE[attr], name: attr, label: ATTR_NAME[attr], value: ptcInfo[attr], errorText: errorText[attr] };
     })
   }
 
@@ -51,8 +51,8 @@ class ParticipantInfo extends Component {
     // need loading icon
     let data = d ? d : {};
     let ptcInfo = {};
-    attrList.map(attr => {
-      ptcInfo[attr] = typeof data[attr] === 'undefined' ? (attrType[attr] !== 'checkbox' ? '' : false) : data[attr];
+    ATTR_LIST.map(attr => {
+      ptcInfo[attr] = typeof data[attr] === 'undefined' ? (ATTR_TYPE[attr] !== 'checkbox' ? '' : false) : data[attr];
       return 0;
     });
     ptcInfo.status = "status" in data ? data.status : "";

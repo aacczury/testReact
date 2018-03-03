@@ -3,9 +3,7 @@ import { TextField, Checkbox, DatePicker } from 'material-ui';
 import intl from 'intl';
 import 'intl/locale-data/jsonp/zh-Hant-TW';
 
-import { fontFamily } from '../config';
-
-
+import { FONT_FAMILY } from '../constants/constants'
 
 class Input extends Component {
   constructor(props) {
@@ -48,10 +46,10 @@ class Input extends Component {
           type={this.props.type}
           errorText={this.props.errorText}
           style={{ textAlign: "left" }}
-          textareaStyle={{ fontFamily: fontFamily }}
-          inputStyle={{ fontFamily: fontFamily }}
-          errorStyle={{ fontFamily: fontFamily }}
-          floatingLabelStyle={{ fontFamily: fontFamily }}
+          textareaStyle={{ fontFamily: FONT_FAMILY }}
+          inputStyle={{ fontFamily: FONT_FAMILY }}
+          errorStyle={{ fontFamily: FONT_FAMILY }}
+          floatingLabelStyle={{ fontFamily: FONT_FAMILY }}
         />
       )
     } else if (this.props.type === "checkbox") {
@@ -62,7 +60,7 @@ class Input extends Component {
           onCheck={this.handleChange}
           disabled={this.props.disabled ? true : false}
           name={this.props.name}
-          labelStyle={{ fontFamily: fontFamily }}
+          labelStyle={{ fontFamily: FONT_FAMILY }}
         />
       )
     } else if (this.props.type === "date") {
@@ -78,9 +76,9 @@ class Input extends Component {
           autoOk={true}
           cancelLabel="取消"
           DateTimeFormat={intl.DateTimeFormat}
-          errorStyle={{ fontFamily: fontFamily }}
-          dialogContainerStyle={{ fontFamily: fontFamily }}
-          textFieldStyle={{ width: "100%", fontFamily: fontFamily }}
+          errorStyle={{ fontFamily: FONT_FAMILY }}
+          dialogContainerStyle={{ fontFamily: FONT_FAMILY }}
+          textFieldStyle={{ width: "100%", fontFamily: FONT_FAMILY }}
         />
       )
     }

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { ActionHome, ImageExposurePlus1 } from 'material-ui/svg-icons';
 import { Card, CardTitle, CardText, IconButton, RaisedButton, Snackbar } from 'material-ui';
 
-import { highStatusList, statusName, attrList, attrType, attrName } from '../config';
+import { HIGH_STATUS_LIST, STATUS_NAME, ATTR_LIST, ATTR_TYPE, ATTR_NAME } from '../constants/constants'
 import ParticipantInfo from '../components/ParticipantInfo';
 import Input from '../components/Input';
 import AddDialog from '../components/AddDialog';
@@ -73,10 +73,10 @@ class Participants extends Component {
     let yearData = y ? y : {};
     let errorPtc = e;
     let tableData = [];
-    highStatusList.map((status, index) => {
+    HIGH_STATUS_LIST.map((status, index) => {
       if (status in data && data[status]) {
         tableData.push(<ParticipantInfo key={`ptc_high_${index}`} user={this.props.user}
-          university={this.props.university} th={this.props.th} uid={data[status]} status={statusName[status]}
+          university={this.props.university} th={this.props.th} uid={data[status]} status={STATUS_NAME[status]}
           handleUpdatePtcInfo={this.handleUpdatePtcInfo} errorPtc={errorPtc[data[status]]} />)
       }
       return 0;
@@ -318,12 +318,12 @@ class Participants extends Component {
     let d = data ? data : {};
 
     let ptcData = {};
-    attrList.map(attr => {
+    ATTR_LIST.map(attr => {
       if (typeof d[attr] === 'undefined') {
-        ptcData[attr] = attrType[attr] === 'checkbox' ? false : '';
+        ptcData[attr] = ATTR_TYPE[attr] === 'checkbox' ? false : '';
       } else ptcData[attr] = d[attr];
 
-      if (attrType[attr] === 'checkbox') ptcData[attr] = ptcData[attr] ? 'V' : '';
+      if (ATTR_TYPE[attr] === 'checkbox') ptcData[attr] = ptcData[attr] ? 'V' : '';
       if (attr === 'size') ptcData[attr] = ptcData[attr].toUpperCase();
       if (attr === 'birthday' && ptcData[attr] !== '') {
         let birthday = new Date(ptcData[attr]);
@@ -375,27 +375,27 @@ class Participants extends Component {
         </tr>
       </table><br /><br />`;
 
-    const mailAttrList = ['status'].concat(attrList);
+    const mailAttrList = ['status'].concat(ATTR_LIST);
 
     body += `
       <table style=${tableStyle}>
         <tr style=${trStyle}>`;
     mailAttrList.map(attr => {
-      body += `<th style=${thStyle}>${attrName[attr]}</th>`;
+      body += `<th style=${thStyle}>${ATTR_NAME[attr]}</th>`;
       return 0;
     })
     body += `</tr>`;
 
     let isHighLevel = false;
-    highStatusList.map(status => {
+    HIGH_STATUS_LIST.map(status => {
       if (status in this.state.participantsData) {
         isHighLevel = true;
         let uid = this.state.participantsData[status];
         if (uid in this.state.ptcsData) {
           let ptcInfo = this.getParticipantData(this.state.ptcsData[uid]);
           body += `<tr style=${trStyle}>
-                    <td style=${tdStyle}>${statusName[status]}</td>`;
-          attrList.map(attr => {
+                    <td style=${tdStyle}>${STATUS_NAME[status]}</td>`;
+          ATTR_LIST.map(attr => {
             if (attr !== "status") {
               body += `<td style=${tdStyle}>${ptcInfo[attr]}</td>`;
             }
@@ -418,7 +418,7 @@ class Participants extends Component {
         let ptcInfo = this.getParticipantData(this.state.ptcsData[uid]);
         body += `<tr style=${trStyle}>
                   <td style=${tdStyle}>${memberName}</td>`;
-        attrList.map(attr => {
+        ATTR_LIST.map(attr => {
           if (attr !== "status") {
             body += `<td style=${tdStyle}>${ptcInfo[attr]}</td>`;
           }
