@@ -90,7 +90,7 @@ class App extends Component {
     let content = null;
     let { userData } = this.props;
     let query = this.props.location.query;
-    if (userData.uid) {
+    if (userData.auth !== null) {
       let university = null;
       if (userData.auth === "admin" || userData.auth === "overview") {
         university = query.university ? query.university : "ncku";
