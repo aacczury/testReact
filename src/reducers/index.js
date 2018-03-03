@@ -1,10 +1,10 @@
 import { combineReducers } from 'redux'
-import loadDialog from './loadDialogReducers'
 import userData from './userDataReducers'
+import isLoadDialogOpen from './isLoadDialogOpenReducers'
 
 const registrationApp = combineReducers({
-    loadDialog,
-    userData
+    userData,
+    isLoadDialogOpen
 })
 
 export default registrationApp

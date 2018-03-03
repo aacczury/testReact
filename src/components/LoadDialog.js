@@ -5,14 +5,14 @@ import { Dialog, CircularProgress } from 'material-ui';
 
 class LoadDialog extends Component {
   static propTypes = {
-    loadDialog: PropTypes.bool.isRequired
+    isLoadDialogOpen: PropTypes.bool.isRequired
   }
 
   render() {
-    let { loadDialog } = this.props;
+    let { isLoadDialogOpen } = this.props;
     let dialog = (
       <Dialog
-        open={loadDialog}
+        open={isLoadDialogOpen}
         contentStyle={{ width: "100px", height: "100px" }}
         modal={true}
       >
@@ -29,7 +29,7 @@ class LoadDialog extends Component {
 const mapStateToProps = state => {
   console.log(state);
   return Object.freeze({
-    loadDialog: state.loadDialog
+    isLoadDialogOpen: state.isLoadDialogOpen
   })
 }
 
