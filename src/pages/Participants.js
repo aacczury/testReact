@@ -240,10 +240,16 @@ class Participants extends Component {
           errorPtc[uid][attr] = "不可為空";
           break;
         }
-        
+
         if (attr === "birthday" && ptc[attr] !== "") {
           if (isNaN(+new Date(ptc[attr]))) {
             errorPtc[uid][attr] = "出生年月日錯誤";
+            break;
+          }
+
+          let match = ptc[attr].match(/\d{4}-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])/);
+          if (!match || match[0] !== ptc[attr]) {
+            errorPtc[uid][attr] = "請輸入西元年-月-日，例：1991-01-01";
             break;
           }
         }
@@ -507,7 +513,7 @@ class Participants extends Component {
                 <th>姓名</th>
                 <th>系級</th>
                 <th>身分證字號</th>
-                <th>出生年月日</th>
+                <th>出生年月日 (例: 1991-01-01)</th>
                 <th>衣服尺寸</th>
                 <th>住宿</th>
                 <th>搭乘遊覽車</th>
