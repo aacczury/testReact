@@ -240,63 +240,7 @@ class Participants extends Component {
           errorPtc[uid][attr] = "不可為空";
           break;
         }
-        /*
-        if(attr === "id" && ptc[attr] !== "") {
-          let id = ptc[attr];
-
-          let isIDError = true;
-          errorPtc[uid][attr] = "身分證字號或居留證號錯誤";
-
-          const regionCode = "ABCDEFGHJKLMNPQRSTUVXYWZIO";
-          if(id.length === 10) {
-            if(regionCode.indexOf(id.charAt(0)) >= 0) {
-              let ab = (regionCode.indexOf(id.charAt(0)) + 10).toString();
-
-              // check 身分證字號
-              let value =
-                +ab.charAt(0) * 1 +
-                +ab.charAt(1) * 9 +
-                +id.charAt(1) * 8 +
-                +id.charAt(2) * 7 +
-                +id.charAt(3) * 6 +
-                +id.charAt(4) * 5 +
-                +id.charAt(5) * 4 +
-                +id.charAt(6) * 3 +
-                +id.charAt(7) * 2 +
-                +id.charAt(8) * 1 +
-                +id.charAt(9) * 1
-              if(value % 10 === 0)
-                isIDError = false;
-
-              // check 居留證號
-              // http://squall75726.pixnet.net/blog/post/309981516
-              let gender = (regionCode.indexOf(id.charAt(1)) + 10) % 10;
-              value =
-                +ab.charAt(0) * 1 +
-                +ab.charAt(1) * 9 +
-                +gender       * 8 +
-                +id.charAt(2) * 7 +
-                +id.charAt(3) * 6 +
-                +id.charAt(4) * 5 +
-                +id.charAt(5) * 4 +
-                +id.charAt(6) * 3 +
-                +id.charAt(7) * 2 +
-                +id.charAt(8) * 1
-              if(10 - value % 10 === +id.charAt(9))
-                isIDError = false;
-            }
-          }
-
-          // old 居留證號
-          if(id.length === 7)
-            if(regionCode.indexOf(id.charAt(0)) >= 0)
-              if(!isNaN(+id.substring(1, id.length)))
-                isIDError = false;
-
-          if(isIDError) break;
-          else delete errorPtc[uid][attr];
-        }
-        */
+        
         if (attr === "birthday" && ptc[attr] !== "") {
           if (isNaN(+new Date(ptc[attr]))) {
             errorPtc[uid][attr] = "出生年月日錯誤";
