@@ -27,7 +27,6 @@ class LoadDialog extends Component {
 }
 
 const mapStateToProps = state => {
-  console.log(state);
   return Object.freeze({
     isLoadDialogOpen: state.isLoadDialogOpen
   })
