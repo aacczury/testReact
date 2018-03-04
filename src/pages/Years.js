@@ -1,15 +1,20 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
 import { ActionHome } from 'material-ui/svg-icons';
 
 import AddCard from '../components/AddCard';
 import AddDialog from '../components/AddDialog';
 import CardContainer from '../containers/CardContainer';
 import InputContainer from '../containers/InputContainer';
-import LoadDialog from '../components/LoadDialog';
+
+import { openLoadDialog, closeLoadDialog } from '../actions'
 
 class Years extends Component {
   constructor(props) {
     super(props);
+
+    let { openLoadDialog } = this.props
 
     this.state = {
       cardData: [],
@@ -27,12 +32,18 @@ class Years extends Component {
         yearNCKUHost: false
       },
       addDialogOpen: false,
-      loadDialogOpen: true
     };
+
+    openLoadDialog();
+  }
+
+  static propTypes = {
+    userData: PropTypes.object.isRequired
   }
 
   componentDidMount() {
-    if (this.props.user) {
+    let { userData } = this.props
+    if (userData.uid !== null) {
       let self = this;
       this.dataRef = window.firebase.database().ref(`/years`);
       this.dataRef.on('value', function (snapshot) {
@@ -51,6 +62,7 @@ class Years extends Component {
   }
 
   updateYears = (d) => {
+    let { closeLoadDialog } = this.props
     // need loading icon
     let data = d ? d : {};
     let cardData = [];
@@ -68,8 +80,10 @@ class Years extends Component {
     });
 
     this.setState({ // need loading
-      cardData: cardData,
-      loadDialogOpen: false
+      cardData: cardData
+    }, err => {
+      if (err) console.error(err);
+      closeLoadDialog();
     });
   }
 
@@ -99,7 +113,8 @@ class Years extends Component {
   }
 
   handleAddYear = () => { // pop screen
-    if (this.props.user.auth === "admin") {
+    let { userData } = this.props
+    if (userData.auth === "admin") {
       let { yearYear, yearTh, yearOrganizer, yearTitle, yearDate, yearVenue,
         yearContactName, yearContactPhone, yearContactEmail, yearNCKUHost } = this.state.addYearInfo; // need check collision
       let yearUid = window.firebase.database().ref(`/years`).push().key;
@@ -149,12 +164,13 @@ class Years extends Component {
   }
 
   render() {
+    let { userData } = this.props
     let addCard = null;
-    if (this.props.user.auth === "admin")
+    if (userData.auth === "admin")
       addCard = <AddCard handlePlus1={this.handleAddDialogOpen} />;
 
     let addDialog = null;
-    if (this.props.user.auth === "admin")
+    if (userData.auth === "admin")
       addDialog =
         <AddDialog title="新增盃賽" addDialogOpen={this.state.addDialogOpen} handleAddSubmit={this.handleAddYear}
           handleAddDialogOpen={this.handleAddDialogOpen} handleAddDialogClose={this.handleAddDialogClose}
@@ -168,7 +184,6 @@ class Years extends Component {
           <CardContainer cardData={this.state.cardData} handleRedirect={this.props.handleRedirect} />
           {addDialog}
         </div>
-        <LoadDialog />
       </div>
     );
 
@@ -180,4 +195,21 @@ class Years extends Component {
   }
 }
 
-export default Years;
+const mapStateToProps = state => {
+  return Object.freeze({
+    userData: state.userData
+  })
+}
+
+const mapDispatchToProps = dispatch => {
+  return {
+    openLoadDialog: () => {
+      dispatch(openLoadDialog());
+    },
+    closeLoadDialog: () => {
+      dispatch(closeLoadDialog());
+    }
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Years);

@@ -3,12 +3,12 @@ import {
     CLOSE_LOAD_DIALOG
 } from '../constants/actionTypes';
 
-const isLoadDialogOpen = (state = false, action) => {
+const isLoadDialogOpen = (state = 0, action) => {
     switch (action.type) {
         case OPEN_LOAD_DIALOG:
-            return true
+            return state + 1
         case CLOSE_LOAD_DIALOG:
-            return false
+            return state > 0 ? state - 1 : state
         default:
             return state
     }
