@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import {ActionHome, ImageExposurePlus1} from 'material-ui/svg-icons';
-import {Card, CardTitle, CardText, IconButton, RaisedButton, Snackbar} from 'material-ui';
+import {Card, CardText, IconButton, RaisedButton, Snackbar} from 'material-ui';
 
 import {highStatusList, statusName, attrList, attrType, attrName} from '../config';
 import ParticipantInfo from '../components/ParticipantInfo';
@@ -506,7 +506,6 @@ class Participants extends Component {
       highStatusDOM = (
         <div>
           <Card style={{margin: "10px", display: "inline-block", verticalAlign: "top"}}>
-            <CardTitle title={this.props.title} subtitle={this.props.subtitle}  />
             <CardText>
               <table>
                 <thead>
@@ -528,7 +527,6 @@ class Participants extends Component {
 
     let ptcInfoDOM = (
       <Card style={{margin: "10px", display: "inline-block", verticalAlign: "top"}}>
-        <CardTitle title={this.props.title} subtitle={this.props.subtitle}  />
         <CardText>
           <table>
             <thead>
