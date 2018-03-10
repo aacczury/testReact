@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import {attrList, attrName, attrType} from '../config';
+import {attrList, attrName, attrType, highStatusList} from '../config';
 import ResTR from './ResTR'
 
 class ParticipantInfo extends Component {
@@ -42,6 +42,11 @@ class ParticipantInfo extends Component {
   }
 
   createInputData = (ptcInfo, errorText = {}) => {
+    if (highStatusList.indexOf(ptcInfo.status) !== -1) {
+      let attr = "name";
+      return [{type: attrType[attr], name: attr, label: attrName[attr], value: ptcInfo[attr], errorText: errorText[attr]}];
+    }
+
     return attrList.map(attr => {
       return {type: attrType[attr], name: attr, label: attrName[attr], value: ptcInfo[attr], errorText: errorText[attr]};
     })

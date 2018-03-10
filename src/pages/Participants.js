@@ -15,8 +15,9 @@ class Participants extends Component {
     super(props);
 
     this.state = {
-      tableData: [],
       ptcsData: {},
+      tableData: [],
+      highStatusForm: [],
       contact: {
         name: "",
         phone: "",
@@ -72,17 +73,18 @@ class Participants extends Component {
     let sportData = s ? s : {};
     let yearData = y ? y : {};
     let errorPtc = e;
+    let highStatusForm = [];
     let tableData = [];
     highStatusList.map((status, index) => {
       if(status in data && data[status]) {
-        tableData.push(<ParticipantInfo key={`ptc_high_${index}`} user={this.props.user}
+        highStatusForm.push(<ParticipantInfo key={`ptc_high_${index}`} user={this.props.user}
           university={this.props.university} th={this.props.th} uid={data[status]} status={statusName[status]}
           handleUpdatePtcInfo={this.handleUpdatePtcInfo} errorPtc={errorPtc[data[status]]} />)
       }
       return 0;
     });
 
-    let memberName = tableData.length === 0 ? "成員" : "隊員";
+    let memberName = highStatusForm.length === 0 ? "成員" : "隊員";
     if('member' in data) {
       Object.keys(data.member).map((uid, index) => {
         if(this.props.user.auth === "admin")
@@ -99,6 +101,7 @@ class Participants extends Component {
     }
 
     this.setState({ // need loading
+      highStatusForm: highStatusForm,
       tableData: tableData,
       contact: data.contact,
       participantsData: data,
@@ -324,8 +327,32 @@ class Participants extends Component {
         </tr>
       </table><br /><br />`;
 
-    const mailAttrList = ['status'].concat(attrList);
+      body += `
+      <table style=${tableStyle}>
+        <tr>
+          <th style=${thStyle}>身分</th>
+          <th style=${thStyle}>姓名</th>
+        </tr>`;
+      let isHighLevel = false;
+      highStatusList.map(status => {
+        if(status in this.state.participantsData) {
+          isHighLevel = true;
+          let uid = this.state.participantsData[status];
+          if(uid in this.state.ptcsData) {
+            let ptcInfo = this.getParticipantData(this.state.ptcsData[uid]);
+            body += `<tr style=${trStyle}>
+                      <td style=${tdStyle}>${statusName[status]}</td>
+                      <td style=${tdStyle}>${ptcInfo.name}</td>
+                    </tr>`;
+          } else {
+            console.error(uid + " not in high ptcsData!!!");
+          }
+        }
+        return 0;
+      });
+    body += `</table><br />`;
 
+    const mailAttrList = ['status'].concat(attrList);
     body += `
       <table style=${tableStyle}>
         <tr style=${trStyle}>`;
@@ -334,29 +361,6 @@ class Participants extends Component {
       return 0;
     })
     body += `</tr>`;
-
-    let isHighLevel = false;
-    highStatusList.map(status => {
-      if(status in this.state.participantsData) {
-        isHighLevel = true;
-        let uid = this.state.participantsData[status];
-        if(uid in this.state.ptcsData) {
-          let ptcInfo = this.getParticipantData(this.state.ptcsData[uid]);
-          body += `<tr style=${trStyle}>
-                    <td style=${tdStyle}>${statusName[status]}</td>`;
-          attrList.map(attr => {
-            if(attr !== "status") {
-              body += `<td style=${tdStyle}>${ptcInfo[attr]}</td>`;
-            }
-            return 0;
-          });
-          body += `</tr>`;
-        } else {
-          console.error(uid + " not in high ptcsData!!!");
-        }
-      }
-      return 0;
-    });
 
     let memberName = isHighLevel ? "隊員" : "成員";
     let memberUids = 'member' in this.state.participantsData ?
@@ -500,6 +504,31 @@ class Participants extends Component {
       </div>
     )
 
+    let highStatusDOM = null;
+    if (this.state.highStatusForm.length > 0) {
+      highStatusDOM = (
+        <div>
+          <Card style={{margin: "10px", display: "inline-block", verticalAlign: "top"}}>
+            <CardTitle title={this.props.title} subtitle={this.props.subtitle}  />
+            <CardText>
+              <table>
+                <thead>
+                  <tr>
+                    {cancelHeadCell}
+                    <th>身分</th>
+                    <th>姓名</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {this.state.highStatusForm}
+                </tbody>
+              </table>
+            </CardText>
+          </Card>
+        </div>
+      )
+    }
+
     let ptcInfoDOM = (
       <Card style={{margin: "10px", display: "inline-block", verticalAlign: "top"}}>
         <CardTitle title={this.props.title} subtitle={this.props.subtitle}  />
@@ -547,6 +576,7 @@ class Participants extends Component {
           <h3 style={{textAlign: "center"}}>{this.state.sportData.title ? this.state.sportData.title : ''}</h3>
 
           {contactDOM}
+          {highStatusDOM}
           {ptcInfoDOM}
 
           <div>
