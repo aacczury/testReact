@@ -234,15 +234,12 @@ class Participants extends Component {
     for(let i = 0; i < ptcsUids.length; ++i) {
       let uid = ptcsUids[i];
       let ptc = this.state.ptcsData[uid];
-      if(!("name" in ptc) || ptc.name === "") continue;
+
       errorPtc[uid] = {};
 
       for(let j = 0; j < checkAttrList.length; ++j) {
         let attr = checkAttrList[j];
-        if(attr !== "id" && attr !== "birthday" && ptc[attr] === "") {
-          errorPtc[uid][attr] = "不可為空";
-          break;
-        }
+
         if(attr === "birthday" && ptc[attr] !== "") {
           if(isNaN(+new Date(ptc[attr]))) {
             errorPtc[uid][attr] = "出生年月日錯誤";
