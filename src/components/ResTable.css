@@ -49,5 +49,6 @@ table th {
   table td:before {
     content: attr(data-label);
     font-weight: 900;
+    margin-right: 5px;
   }
 }
