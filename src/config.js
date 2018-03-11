@@ -4,7 +4,7 @@ const universityList = ["ncku", "ccu", "nsysu", "nchu"];
 const universityName = {ncku: "成功大學", ccu: "中正大學", nsysu: "中山大學" , nchu: "中興大學"};
 
 const statusList = ["coach", "captain", "manager", "leader", "member"];
-const highStatusList = ["coach", "captain", "manager", "leader"];
+const highStatusList = ["coach", "captain", "manager"];
 const statusName = {coach: "教練", captain: "領隊", manager: "管理", leader: "隊長", member: "隊員"};
 
 const attrList = ["name", "deptyear", "id", "birthday", "size", "lodging", "bus", "vegetarian"];

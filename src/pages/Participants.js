@@ -84,7 +84,14 @@ class Participants extends Component {
       return 0;
     });
 
-    let memberName = highStatusForm.length === 0 ? "成員" : "隊員";
+    if ('leader' in data && data["leader"]) {
+      let status = "leader"
+      tableData.push(<ParticipantInfo key={`ptc_${status}`} user={this.props.user}
+        university={this.props.university} th={this.props.th} uid={data[status]} status={statusName[status]}
+        handleUpdatePtcInfo={this.handleUpdatePtcInfo} errorPtc={errorPtc[data[status]]} />)
+    }
+
+    let memberName = tableData.length === 0 ? "成員" : "隊員";
     if('member' in data) {
       Object.keys(data.member).map((uid, index) => {
         if(this.props.user.auth === "admin")
@@ -358,6 +365,23 @@ class Participants extends Component {
       return 0;
     })
     body += `</tr>`;
+
+    if ("leader" in this.state.participantsData && this.state.participantsData["leader"]) {
+      let status = "leader"
+      let uid = this.state.participantsData[status];
+      if(uid in this.state.ptcsData) {
+        let ptcInfo = this.getParticipantData(this.state.ptcsData[uid]);
+        body += `<tr style=${trStyle}>
+                  <td style=${tdStyle}>${statusName[status]}</td>`;
+        attrList.map(attr => {
+          if(attr !== "status") {
+            body += `<td style=${tdStyle}>${ptcInfo[attr]}</td>`;
+          }
+          return 0;
+        });
+        body += `</tr>`;
+      }
+    }
 
     let memberName = isHighLevel ? "隊員" : "成員";
     let memberUids = 'member' in this.state.participantsData ?
