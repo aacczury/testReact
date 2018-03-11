@@ -8,6 +8,7 @@ import LoadDialog from '../components/LoadDialog';
 import Input from '../components/Input';
 
 import '../components/ResTable.css';
+import { highStatusList, statusName } from '../config';
 
 class Overview extends Component {
   constructor(props) {
@@ -98,7 +99,7 @@ class Overview extends Component {
     let sports = this.state.sportsShot;
     let participants = this.state.participantsShot;
     let tableData = [], sportData = [];
-    const statusList = ["coach", "captain", "manager", "leader", "member"];
+    const statusList = ["leader", "member"];
     let selectedSports = this.state.selectedSports;
     let isInitSelectd = Object.keys(selectedSports).length === 0 ? true : false;
     let diffID = {}, conflictPtc = {};
@@ -109,11 +110,21 @@ class Overview extends Component {
       if(isInitSelectd) selectedSports[sportUid] = true;
       else if(!(sportUid in selectedSports) || !selectedSports[sportUid]) return 0;
 
-      let perSportData = {sport: "", contact: {}, data: []};
+      let perSportData = {sport: "", contact: {}, highStatusData: [], data: []};
       perSportData.contact = participants[sportUid].contact ? participants[sportUid].contact : {};
       if(typeof perSportData.contact.name === "undefined") perSportData.contact.name = "";
       if(typeof perSportData.contact.phone === "undefined") perSportData.contact.phone = "";
       if(typeof perSportData.contact.email === "undefined") perSportData.contact.email = "";
+      highStatusList.map(s => {
+        if(s in participants[sportUid]) {
+          let d = data[participants[sportUid][s]]
+          perSportData.highStatusData.push({
+            "name": typeof d.name === "undefined" ? "" : d.name,
+            "status": typeof d.status === "undefined" ? "" : statusName[d.status]
+          });
+        }
+        return 0;
+      })
       let memberName = Object.keys(participants[sportUid]).length === 2 ? "成員" : "隊員";
       statusList.map(s => {
         if(s in participants[sportUid]) {
@@ -139,6 +150,7 @@ class Overview extends Component {
         return 0
       };
       if(!selectedSports[data[participantUid].sport]) return 0; // if not select
+      if (highStatusList.indexOf(data[participantUid].status) !== -1) return 0 // high status didn't need calculate
       let curParticipant = this.getParticipantData(data, sports, participantUid); // will not contain undefined
       if(curParticipant.name + curParticipant.id === '') return 1;
       tableData.push(curParticipant);
@@ -333,6 +345,24 @@ class Overview extends Component {
                       <td data-label="電話">{s.contact.phone}</td>
                       <td data-label="信箱">{s.contact.email}</td>
                     </tr>
+                  </tbody>
+                </table>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>姓名</th>
+                      <th>身分</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {s.highStatusData.map((d, pIndex) => {
+                      return (
+                        <tr key={`tr_highStatus_${d.status}_${pIndex}`}>
+                          <td data-label="姓名">{d.name}</td>
+                          <td data-label="身分">{d.status}</td>
+                        </tr>
+                      )
+                    })}
                   </tbody>
                 </table>
                 <table>
