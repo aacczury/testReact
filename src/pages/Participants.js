@@ -419,7 +419,6 @@ class Participants extends Component {
               煩請聯絡：<br />`;
     if ("contact" in year) {
       Object.values(year.contact).map(contactInfo => {
-        console.log(contactInfo)
         body += `<br />
         <div style="color:#2196F3">
           ${contactInfo.title ? contactInfo.title : ""} ${contactInfo.name ? contactInfo.name : ""}<br />
