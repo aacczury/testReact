@@ -7,6 +7,7 @@ import AddDialog from '../components/AddDialog';
 import CardContainer from '../containers/CardContainer';
 import InputContainer from '../containers/InputContainer';
 import LoadDialog from '../components/LoadDialog';
+import { highStatusList } from '../config';
 
 class Sports extends Component {
   constructor(props) {
@@ -50,6 +51,28 @@ class Sports extends Component {
 
         self.dataRef = window.firebase.database().ref(`/sports/${self.props.th}`);
         self.dataRef.on('value', function(snapshot) {
+          console.log(snapshot.val())
+          let th = self.props.th
+          let university = "ncku"
+          let updates = {}
+          Object.keys(snapshot.val()).map((sportUid, index) => {
+            window.firebase.database().ref(`/participants/${university}/${th}/${sportUid}`).once('value').then(sportPtcsSnapshot => {
+              let sportPtcs = sportPtcsSnapshot.val() ? sportPtcsSnapshot.val() : {};
+              highStatusList.map(status => {
+                if (!(status in sportPtcs)) {
+                  let uid = window.firebase.database().ref(`/participant/${university}/${th}`).push().key;
+                  updates[`/participants/${university}/${th}/${sportUid}/${status}`] = uid;
+                  updates[`/participant/${university}/${th}/${uid}`] = {status: status, sport: sportUid};
+                }
+                return 0
+              })
+            }).then(() => {
+              if (index === Object.keys(snapshot.val()).length - 1 && Object.keys(updates).length > 0) {
+                window.firebase.database().ref().update(updates);
+              }
+            })
+            return 0
+          })
           self.updateSports(snapshot.val());
         });
         self.setState({
