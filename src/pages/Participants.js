@@ -392,15 +392,28 @@ class Participants extends Component {
     });
     body += `因資料已送出，無法再於系統修改，<br />
               如仍有需修改的資料或任何報名上的疑問，<br />
-              煩請聯絡本屆正興城灣盃負責人：
-              <div style="color:#2196F3">
-                ${year.contact_name ? year.contact_name : ""}<br />
-                ${year.contact_phone ? year.contact_phone : ""}<br />
-                ${year.contact_email ? year.contact_email : ""}<br />
-              </div>
-              <br />
-              謝謝，<br />
-              正興城灣盃籌備團隊敬上<br />
+              煩請聯絡：<br />`;
+    if ("contact" in year) {
+      Object.values(year.contact).map(contactInfo => {
+        console.log(contactInfo)
+        body += `<br />
+        <div style="color:#2196F3">
+          ${contactInfo.title ? contactInfo.title : ""} ${contactInfo.name ? contactInfo.name : ""}<br />
+          ${contactInfo.phone ? "電話: " + contactInfo.phone + "<br />" : ""}
+          ${contactInfo.email ? "信箱: " + contactInfo.email + "<br />" : ""}
+        </div>`
+        return 0;
+      });
+    } else {
+      body += `<div style="color:#2196F3">
+        ${year.contact_name ? year.contact_name + "<br />" : ""}
+        ${year.contact_phone ? year.contact_phone + "<br />" : ""}
+        ${year.contact_email ? year.contact_email + "<br />" : ""}
+      </div>`
+    }
+    body += `<br />
+              感謝您的填寫<br />
+              正興城灣盃籌備團隊 敬上<br />
               </div>
               `
     body = encodeURI(body);
