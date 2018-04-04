@@ -152,6 +152,9 @@ class Overview extends Component {
       if(!selectedSports[data[participantUid].sport]) return 0; // if not select
       if (highStatusList.indexOf(data[participantUid].status) !== -1) return 0 // high status didn't need calculate
       let curParticipant = this.getParticipantData(data, sports, participantUid); // will not contain undefined
+      curParticipant.name = curParticipant.name.trim().replace(/[Ａ-Ｚａ-ｚ０-９]/g, function(s) {return String.fromCharCode(s.charCodeAt(0) - 0xFEE0)});
+      curParticipant.id = curParticipant.id.trim().replace(/[Ａ-Ｚａ-ｚ０-９]/g, function(s) {return String.fromCharCode(s.charCodeAt(0) - 0xFEE0)});
+      curParticipant.size = curParticipant.size.trim().replace(/[Ａ-Ｚａ-ｚ０-９]/g, function(s) {return String.fromCharCode(s.charCodeAt(0) - 0xFEE0)});
       if(curParticipant.name + curParticipant.id === '') return 1;
       tableData.push(curParticipant);
 
