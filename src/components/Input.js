@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {TextField, Checkbox, DatePicker} from 'material-ui';
+import {TextField, Checkbox} from 'material-ui';
 
 import {fontFamily} from '../config';
 
@@ -61,24 +61,6 @@ class Input extends Component {
           disabled={this.props.disabled ? true : false}
           name={this.props.name}
           labelStyle={{fontFamily: fontFamily}}
-        />
-      )
-    }else if(this.props.type === "date") {
-      inputComponent = (
-        <DatePicker ref={(inputNode) => {this.inputNode = inputNode;}}
-          container="inline"
-          value={this.state.value ? new Date(this.state.value) : null}
-          floatingLabelText={this.props.text}
-          onChange={this.handleChange}
-          disabled={this.props.disabled ? true : false}
-          name={this.props.name}
-          errorText={this.props.errorText}
-          autoOk={true}
-          cancelLabel="取消"
-          DateTimeFormat={new Intl.DateTimeFormat('zh-Hant-TW')}
-          errorStyle={{fontFamily: fontFamily}}
-          dialogContainerStyle={{fontFamily: fontFamily}}
-          textFieldStyle={{width: "100%", fontFamily: fontFamily}}
         />
       )
     }
