@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Router, Route } from 'react-router';
+import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 
 import App from './pages/App';
 //import NotFound from './components/NotFound';
@@ -7,7 +7,7 @@ import App from './pages/App';
 class Routes extends Component {
   render() {
     return(
-      <Router {...this.props}>
+      <Router {...this.props} basename={this.props.basename}>
         <Route path="/" component={App} />
         {/*<Route path="*" component={NotFound} />*/}
       </Router>
