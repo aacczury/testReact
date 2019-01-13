@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
 import {TextField, Checkbox, DatePicker} from 'material-ui';
-import intl from 'intl';
-import 'intl/locale-data/jsonp/zh-Hant-TW';
 
 import {fontFamily} from '../config';
 
@@ -77,7 +75,7 @@ class Input extends Component {
           errorText={this.props.errorText}
           autoOk={true}
           cancelLabel="取消"
-          DateTimeFormat={intl.DateTimeFormat}
+          DateTimeFormat={new Intl.DateTimeFormat('zh-Hant-TW')}
           errorStyle={{fontFamily: fontFamily}}
           dialogContainerStyle={{fontFamily: fontFamily}}
           textFieldStyle={{width: "100%", fontFamily: fontFamily}}
