@@ -1,9 +1,5 @@
 import React, { Component } from 'react';
-import {TextField, Checkbox} from 'material-ui';
-
-import {fontFamily} from '../config';
-
-
+import { TextField, FormControlLabel, Checkbox } from '@material-ui/core';
 
 class Input extends Component {
   constructor(props) {
@@ -39,28 +35,28 @@ class Input extends Component {
         <TextField
           fullWidth={true}
           value={this.state.value}
-          floatingLabelText={this.props.text}
+          label={this.props.text}
+          margin='dense'
           onChange={this.handleChange}
           disabled={this.props.disabled ? true : false}
           name={this.props.name}
           type={this.props.type}
-          errorText={this.props.errorText}
-          style={{textAlign: "left"}}
-          textareaStyle={{fontFamily: fontFamily}}
-          inputStyle={{fontFamily: fontFamily}}
-          errorStyle={{fontFamily: fontFamily}}
-          floatingLabelStyle={{fontFamily: fontFamily}}
+          error={this.props.errorText ? true : false}
+          helperText={this.props.errorText ? this.props.errorText : ''}
         />
       )
     }else if(this.props.type === "checkbox") {
       inputComponent = (
-        <Checkbox
-          checked={this.state.value ? true : false}
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={this.state.value ? true : false}
+              onChange={this.handleChange}
+              disabled={this.props.disabled ? true : false}
+              name={this.props.name}
+            />
+          }
           label={this.props.text}
-          onCheck={this.handleChange}
-          disabled={this.props.disabled ? true : false}
-          name={this.props.name}
-          labelStyle={{fontFamily: fontFamily}}
         />
       )
     }

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {FlatButton, Dialog} from 'material-ui';
+import { Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@material-ui/core';
 
 class AddDialog extends Component {
   constructor(props) {
@@ -17,29 +17,32 @@ class AddDialog extends Component {
 
   render() {
     let addDialogActions = [
-      <FlatButton
+      <Button
         label="取消"
-        primary={true}
-        onTouchTap={this.props.handleAddDialogClose}
+        color="primary"
+        onClick={this.props.handleAddDialogClose}
       />,
-      <FlatButton
+      <Button
         label="送出"
-        primary={true}
-        onTouchTap={this.props.handleAddSubmit}
+        color="primary"
+        onClick={this.props.handleAddSubmit}
       />,
     ];
 
     let addDialog = (
       <Dialog
-        title={this.props.title}
-        actions={addDialogActions}
         modal={false}
         open={this.state.addDialogOpen}
-        onRequestClose={this.props.handleAddDialogClose}
-        contentStyle={{maxWidth: "300px"}}
-        autoScrollBodyContent={true}
+        onClose={this.props.handleAddDialogClose}
+        scroll='paper'
       >
-        {this.props.content}
+        <DialogTitle>{this.props.title}</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            {this.props.content}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>{addDialogActions}</DialogActions>
       </Dialog>
     )
     return addDialog;

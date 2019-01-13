@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import {AppBar, IconButton, FlatButton} from 'material-ui';
-import {ActionHome, NavigationMenu} from 'material-ui/svg-icons';
+import { AppBar, IconButton, Button } from '@material-ui/core';
+import { Home, Menu } from '@material-ui/icons';
 
 import LeftMenu from './LeftMenu';
 
@@ -24,20 +24,20 @@ class Header extends Component {
     if(this.props.user) {
       leftButton = (
         <IconButton
-          onTouchTap={this.handleMenuToggle}>
-          <NavigationMenu />
+          onClick={this.handleMenuToggle}>
+          <Menu />
           <LeftMenu user={this.props.user} menuOpen={this.state.menuOpen} handleMenuRequestChange={this.handleMenuRequestChange} handleRedirect={this.props.handleRedirect} />
         </IconButton>
       );
-      rightButton = <FlatButton labelStyle={{fontFamily: fontFamily}} onTouchTap={this.props.handleHeaderButtonClick} label="登出" />
+      rightButton = <Button labelStyle={{fontFamily: fontFamily}} onClick={this.props.handleHeaderButtonClick} label="登出" />
     }
     else if(this.props.login) {
-      leftButton = (<IconButton><ActionHome /></IconButton>);
+      leftButton = (<IconButton><Home /></IconButton>);
       rightButton = null;
     }
     else {
-      leftButton = (<IconButton><ActionHome /></IconButton>);
-      rightButton = <FlatButton labelStyle={{fontFamily: fontFamily}} onTouchTap={this.props.handleHeaderButtonClick} label="登入" />
+      leftButton = (<IconButton><Home /></IconButton>);
+      rightButton = <Button labelStyle={{fontFamily: fontFamily}} onClick={this.props.handleHeaderButtonClick} label="登入" />
     }
 
     return (

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {Card, CardText, RaisedButton} from 'material-ui';
+import { Card, CardContent, Button } from '@material-ui/core';
 
 import InputContainer from '../containers/InputContainer';
 
@@ -96,15 +96,15 @@ class Login extends Component {
     let content = (
       <div style={{textAlign: "center"}}>
         <Card style={{width: "280px", margin: "10px", display: "inline-block", verticalAlign: "top"}}>
-          <CardText>
+          <CardContent>
             <InputContainer inputData={this.state.inputData} handleInputUpdate={this.handleUserInfoUpdate} />
-            <RaisedButton
-              label="登入"
-              secondary={true}
-              onTouchTap={this.handleLogin}
+            <Button
+              variant='contained'
+              color='secondary'
+              onClick={this.handleLogin}
               disabled={this.state.isLoginButtonDisabled}
-            />
-          </CardText>
+            >"登入"</Button>
+          </CardContent>
         </Card>
       </div>
     )

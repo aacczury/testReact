@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {Dialog, CircularProgress} from 'material-ui';
+import { Dialog, CircularProgress } from '@material-ui/core';
 
 class LoadDialog extends Component {
   constructor(props) {
@@ -19,8 +19,6 @@ class LoadDialog extends Component {
     let loadDialog = (
       <Dialog
         open={this.state.loadDialogOpen}
-        contentStyle={{width: "100px", height: "100px"}}
-        modal={true}
         >
         <CircularProgress
           size={50}

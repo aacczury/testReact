@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import {FlatButton, Avatar, Chip} from 'material-ui';
-import {ActionHome, ActionDone} from 'material-ui/svg-icons';
+import { Button, Avatar, Chip } from '@material-ui/core';
+import { Home,  Done} from '@material-ui/icons';
 
 import AddCard from '../components/AddCard';
 import AddDialog from '../components/AddDialog';
@@ -81,13 +81,21 @@ class Sports extends Component {
           if(this.props.user.auth !== "admin" && this.props.user.auth !== "overview") {
             cardData.push({ order: 'order' in sport ? sport.order : +index + 1, title: sport.title, uid: sportUid, content: (
                 <div style={{display: "inline-block"}}>
-                  <Chip backgroundColor="#c8e6c9" color="#222"><Avatar color="#fff" backgroundColor="#4caf50" icon={<ActionDone  />} />已報名完成</Chip>
+                  <Chip avatar={
+                    <Avatar color="#fff" backgroundColor="#4caf50">
+                      <Done />
+                    </Avatar>
+                  } backgroundColor="#c8e6c9" color="#222">已報名完成</Chip>
                 </div>
               )});
           } else {
             cardData.push({ order: 'order' in sport ? sport.order : +index + 1, title: sport.title, uid: sportUid, content: (
                 <div style={{display: "inline-block"}}>
-                  <Chip backgroundColor="#c8e6c9" color="#222"><Avatar color="#fff" backgroundColor="#4caf50" icon={<ActionDone  />} />已報名完成</Chip>
+                  <Chip avatar={
+                    <Avatar color="#fff" backgroundColor="#4caf50">
+                      <Done />
+                    </Avatar>
+                  } backgroundColor="#c8e6c9" color="#222">已報名完成</Chip>
                 </div>
               ), url: `/?th=${this.props.th}&university=${university}&sport=${sportUid}`});
           }
@@ -104,13 +112,15 @@ class Sports extends Component {
           <div>
             {universityName.map(university => {
               let bgcolor = null;
-              let primary = true;
+              let fgcolor = 'primary';
               if(sport.is_finish && university in sport.is_finish && sport.is_finish[university]){
                 bgcolor = "#c8e6c9";
-                primary = false;
+                fgcolor = 'default';
               }
-              return <FlatButton key={`btn_${university}`} backgroundColor={bgcolor} primary={primary} label={university.toUpperCase()}
-                onTouchTap={() => this.props.handleRedirect(`/?th=${this.props.th}&university=${university}&sport=${sportUid}`)} />
+              return <Button key={`btn_${university}`} backgroundColor={bgcolor} color={fgcolor}
+                onClick={() => this.props.handleRedirect(`/?th=${this.props.th}&university=${university}&sport=${sportUid}`)}>
+                  {university.toUpperCase()}
+                </Button>
             })}
           </div>
         )});
@@ -261,7 +271,7 @@ class Sports extends Component {
     let content = (
       <div style={{paddingTop: "64px"}}>
         <div style={{textAlign: "center"}}>
-          <ActionHome />
+          <Home />
           {addCard}
           <CardContainer cardData={this.state.cardData} handleRedirect={this.props.handleRedirect}
             handleRemoveCard={this.props.user.auth === "admin" && this.handleRemoveSport} />

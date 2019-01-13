@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import {IconButton} from 'material-ui';
-import {ContentClear} from 'material-ui/svg-icons'
+import { IconButton } from '@material-ui/core';
+import { Clear } from '@material-ui/icons'
 
 import Input from './Input.js';
 
@@ -19,7 +19,7 @@ class ResTR extends Component {
       clearButton = (
         <td data-label="">
           <IconButton>
-            <ContentClear onTouchTap={this.props.handleRemoveParticipantInfo} />
+            <Clear onClick={this.props.handleRemoveParticipantInfo} />
           </IconButton>
         </td>
       )

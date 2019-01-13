@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {ActionHome} from 'material-ui/svg-icons';
+import { Home } from '@material-ui/icons';
 
 import AddCard from '../components/AddCard';
 import AddDialog from '../components/AddDialog';
@@ -162,7 +162,7 @@ class Years extends Component {
     let content = (
       <div style={{paddingTop: "64px"}}>
         <div style={{textAlign: "center"}}>
-          <ActionHome />
+          <Home />
           {addCard}
           <CardContainer cardData={this.state.cardData} handleRedirect={this.props.handleRedirect} />
           {addDialog}

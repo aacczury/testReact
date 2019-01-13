@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import {Card, CardTitle, CardText, IconButton} from 'material-ui';
-import {ContentClear} from 'material-ui/svg-icons';
+import { Card, CardHeader, CardContent, IconButton } from '@material-ui/core';
+import { Clear } from '@material-ui/icons';
 
 class CardItem extends Component {
   constructor(props) {
@@ -15,9 +15,9 @@ class CardItem extends Component {
     let cardContent = null;
     if(this.props.content) {
       cardContent = (
-        <CardText>
+        <CardContent>
           {this.props.content}
-        </CardText>
+        </CardContent>
       )
     }
 
@@ -26,7 +26,7 @@ class CardItem extends Component {
       clearButton = (
         <div style={{textAlign: "right"}}>
           <IconButton>
-            <ContentClear onTouchTap={this.props.handleRemoveCard} />
+            <Clear onClick={this.props.handleRemoveCard} />
           </IconButton>
         </div>
       )
@@ -35,9 +35,9 @@ class CardItem extends Component {
         <Card style={{width: "280px", margin: "10px", display: "inline-block", verticalAlign: "top"}}>
           {clearButton}
           { this.props.url ?
-            <CardTitle title={this.props.title} subtitle={this.props.subtitle} style={{cursor: "pointer"}}
-              onTouchTap={() => this.props.handleRedirect(this.props.url)} /> :
-            <CardTitle title={this.props.title} subtitle={this.props.subtitle}  />
+            <CardHeader title={this.props.title} subheader={this.props.subtitle} style={{cursor: "pointer"}}
+              onClick={() => this.props.handleRedirect(this.props.url)} /> :
+            <CardHeader title={this.props.title} subheader={this.props.subtitle}  />
           }
           {cardContent}
         </Card>

@@ -1,18 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import injectTapEventPlugin from 'react-tap-event-plugin';
 
 import Routes from './Routes';
 
 import './index.css';
 
-injectTapEventPlugin();
-
 const Index = () => (
-  <MuiThemeProvider>
-    <Routes basename="/act/chcwcup/register/" />
-  </MuiThemeProvider>
+  <Routes basename="/act/chcwcup/register/" />
 )
 
 // Initialize Firebase

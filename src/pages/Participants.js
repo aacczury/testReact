@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import {ActionHome, ImageExposurePlus1} from 'material-ui/svg-icons';
-import {Card, CardText, IconButton, RaisedButton, Snackbar} from 'material-ui';
+import { Card, CardContent, IconButton, Button, Snackbar, SnackbarContent } from '@material-ui/core';
+import { Home, ExposurePlus1, Close } from '@material-ui/icons';
 
 import {highStatusList, statusName, attrList, attrType, attrName} from '../config';
 import ParticipantInfo from '../components/ParticipantInfo';
@@ -493,7 +493,7 @@ class Participants extends Component {
         <tr>
           <td colSpan="10">
             {<IconButton>
-              <ImageExposurePlus1 onTouchTap={this.handleAddParticipantInfo} />
+              <ExposurePlus1 onClick={this.handleAddParticipantInfo} />
             </IconButton>}
           </td>
         </tr>
@@ -502,7 +502,7 @@ class Participants extends Component {
     let contactDOM = (
       <div>
         <Card style={{display: "inline-block"}}>
-          <CardText>
+          <CardContent>
             <table>
               <thead>
                 <tr>
@@ -532,7 +532,7 @@ class Participants extends Component {
                 </tr>
               </tbody>
             </table>
-          </CardText>
+          </CardContent>
         </Card>
       </div>
     )
@@ -542,7 +542,7 @@ class Participants extends Component {
       highStatusDOM = (
         <div>
           <Card style={{margin: "10px", display: "inline-block", verticalAlign: "top"}}>
-            <CardText>
+            <CardContent>
               <table>
                 <thead>
                   <tr>
@@ -555,7 +555,7 @@ class Participants extends Component {
                   {this.state.highStatusForm}
                 </tbody>
               </table>
-            </CardText>
+            </CardContent>
           </Card>
         </div>
       )
@@ -563,7 +563,7 @@ class Participants extends Component {
 
     let ptcInfoDOM = (
       <Card style={{margin: "10px", display: "inline-block", verticalAlign: "top"}}>
-        <CardText>
+        <CardContent>
           <table>
             <thead>
               <tr>
@@ -584,21 +584,22 @@ class Participants extends Component {
               {plus1}
             </tbody>
           </table>
-        </CardText>
+        </CardContent>
       </Card>
     )
 
     let content = (
       <div style={{paddingTop: "64px"}}>
         <div style={{textAlign: "center"}}>
-          <div><ActionHome /></div>
+          <div><Home /></div>
           { this.props.user.auth === "admin" && this.state.sportData.is_finish && this.state.sportData.is_finish[this.props.university]
              && this.state.sportData.is_finish[this.props.university] === true ?
             (<div>
-              <RaisedButton
-                onTouchTap={this.handleUnlock}
+              <Button
+                variant="contained"
+                onClick={this.handleUnlock}
                 label="解鎖"
-                secondary={true}
+                color="secondary"
                 style={{margin: "12px"}}
               />
             </div>) :
@@ -611,10 +612,11 @@ class Participants extends Component {
           {ptcInfoDOM}
 
           <div>
-            <RaisedButton
-              onTouchTap={this.handleSendEmailDialogOpen}
+            <Button
+              variant="contained"
+              onClick={this.handleSendEmailDialogOpen}
               label="送出"
-              secondary={true}
+              color="secondary"
               style={{margin: "12px"}}
             />
           </div>
@@ -626,11 +628,21 @@ class Participants extends Component {
 
         <Snackbar
           open={this.state.errorAlertOpen}
-          message="資料有錯誤或缺漏"
           autoHideDuration={4000}
-          onRequestClose={this.handleErrorAlertClose}
           bodyStyle={{backgroundColor: "#F44336"}}
-        />
+        >
+          <SnackbarContent
+            message="資料有錯誤或缺漏"
+            action={[
+              <IconButton
+                color="inherit"
+                onClick={this.handleErrorAlertClose}
+              >
+                <Close />
+              </IconButton>,
+            ]}
+          / >
+        </Snackbar>
 
         <LoadDialog loadDialogOpen={this.state.loadDialogOpen}/>
       </div>

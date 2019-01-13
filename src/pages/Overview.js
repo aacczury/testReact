@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import {Card, CardTitle, CardText, RaisedButton} from 'material-ui';
-import {blue200, indigo200, red200} from 'material-ui/styles/colors';
+import { Card, CardHeader, CardContent, Button } from '@material-ui/core';
+import { blue, indigo, red } from '@material-ui/core/colors';
+import { CloudDownload } from '@material-ui/icons';
 import fileSaver from 'file-saver';
-import {FileFileDownload} from 'material-ui/svg-icons';
 
 import LoadDialog from '../components/LoadDialog';
 import Input from '../components/Input';
@@ -196,17 +196,17 @@ class Overview extends Component {
         return a.name + a.id < b.name + b.id ? -1 : 1;
       return a.id < b.id ? -1 : 1;
     });
-    let curColor = blue200, needChangeColor = false;
+    let curColor = blue[200], needChangeColor = false;
     for(let i = 0; i < tableData.length; ++i) {
       if(needChangeColor && i && tableData[i - 1].name + tableData[i - 1].id !== tableData[i].name + tableData[i].id) {
-        curColor = curColor === blue200 ? indigo200 : blue200;
+        curColor = curColor === blue[200] ? indigo[200] : blue[200];
         needChangeColor = false;
       }
       if((!i && tableData[i].name + tableData[i].id === tableData[i + 1].name + tableData[i + 1].id) ||
         (i && tableData[i - 1].name + tableData[i - 1].id === tableData[i].name + tableData[i].id) ||
         (i !== tableData.length - 1  && tableData[i].name + tableData[i].id === tableData[i + 1].name + tableData[i + 1].id)) {
           //tableData[i].color = grey100;
-          if(tableData[i].name + tableData[i].id in conflictPtc) tableData[i].bgcolor = red200;
+          if(tableData[i].name + tableData[i].id in conflictPtc) tableData[i].bgcolor = red[200];
           else {
             tableData[i].bgcolor = curColor;
             needChangeColor = true;
@@ -330,8 +330,8 @@ class Overview extends Component {
         {this.state.sportData.map((s, sIndex) => {
           return (
             <Card key={`Card_${sIndex}`} style={{margin: "10px", display: "block", verticalAlign: "top"}}>
-              <CardTitle title={s.sport} subtitle={this.props.subtitle}  />
-              <CardText>
+              <CardHeader title={s.sport} subheader={this.props.subtitle}  />
+              <CardContent>
                 <table>
                   <thead>
                     <tr>
@@ -402,7 +402,7 @@ class Overview extends Component {
                     })}
                   </tbody>
                 </table>
-              </CardText>
+              </CardContent>
             </Card>
           );
         })}
@@ -422,70 +422,71 @@ class Overview extends Component {
 
     return (
       <div className="content" style={{textAlign: "center"}}>
-        <RaisedButton
-          onTouchTap={this.handleExportData}
+        <Button
+          variant="contained"
+          onClick={this.handleExportData}
           label="匯出"
-          secondary={true}
+          color='secondary'
           style={{margin: "12px"}}
-          icon={<FileFileDownload />}
+          icon={<CloudDownload />}
         />
 
         <div className="card-container" style={{maxWidth: "900px", margin: "auto"}}>
           <Card style={{width: "100%", margin: "10px", verticalAlign: "top"}}>
-            <CardTitle title={(<div>項目顯示</div>)}  />
-            <CardText>
+            <CardHeader title={(<div>項目顯示</div>)}  />
+            <CardContent>
               {selectSports}
-            </CardText>
+            </CardContent>
           </Card>
 
           <Card style={{width: "280px", margin: "10px", display: "inline-block", verticalAlign: "top"}}>
-            <CardTitle title={(<div>人數<br />(依姓名+身份證字號)</div>)}  />
-            <CardText>
+            <CardHeader title={(<div>人數<br />(依姓名+身份證字號)</div>)}  />
+            <CardContent>
               {this.state.countDiffID}
-            </CardText>
+            </CardContent>
           </Card>
           <Card style={{width: "280px", margin: "10px", display: "inline-block", verticalAlign: "top"}}>
-            <CardTitle title="資料有出入人數" />
-            <CardText>
+            <CardHeader title="資料有出入人數" />
+            <CardContent>
               {this.state.countConflictPtc}
-            </CardText>
+            </CardContent>
           </Card>
           <Card style={{width: "280px", margin: "10px", display: "inline-block", verticalAlign: "top"}}>
-            <CardTitle title="衣服尺寸人數" />
-            <CardText>
+            <CardHeader title="衣服尺寸人數" />
+            <CardContent>
               {
                 Object.keys(this.state.countSize).map((size, index) => {
                   return <div key={`${size}_${index}`}>{size}：{this.state.countSize[size]}</div>
                 })
               }
-            </CardText>
+            </CardContent>
           </Card>
           <Card style={{width: "280px", margin: "10px", display: "inline-block", verticalAlign: "top"}}>
-            <CardTitle title="住宿人數" />
-            <CardText>
+            <CardHeader title="住宿人數" />
+            <CardContent>
               {this.state.countLodging}
-            </CardText>
+            </CardContent>
           </Card>
           <Card style={{width: "280px", margin: "10px", display: "inline-block", verticalAlign: "top"}}>
-            <CardTitle title="搭乘遊覽車人數" />
-            <CardText>
+            <CardHeader title="搭乘遊覽車人數" />
+            <CardContent>
               {this.state.countBus}
-            </CardText>
+            </CardContent>
           </Card>
           <Card style={{width: "280px", margin: "10px", display: "inline-block", verticalAlign: "top"}}>
-            <CardTitle title="素食人數" />
-            <CardText>
+            <CardHeader title="素食人數" />
+            <CardContent>
               {this.state.countVegetarian}
-            </CardText>
+            </CardContent>
           </Card>
 
           {sportContainer}
 
           <Card style={{margin: "10px", display: "inline-block", verticalAlign: "top"}}>
-            <CardTitle title="總覽" />
-            <CardText>
+            <CardHeader title="總覽" />
+            <CardContent>
               {tableContainer}
-            </CardText>
+            </CardContent>
           </Card>
         </div>
 

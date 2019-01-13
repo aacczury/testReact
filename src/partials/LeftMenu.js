@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import {Drawer, Divider, List, ListItem} from 'material-ui';
-import {ActionDone} from 'material-ui/svg-icons';
+import { Drawer, Divider, List, ListItem } from '@material-ui/core';
+import { Done } from '@material-ui/icons';
 
 class LeftMenu extends Component {
   constructor(props) {
@@ -26,10 +26,10 @@ class LeftMenu extends Component {
 
   render() {
     return (
-      <Drawer docked={false} open={this.props.menuOpen}
-        onRequestChange={this.props.handleMenuRequestChange} style={{textAlign: "left"}} >
+      <Drawer open={this.props.menuOpen}
+        onClose={this.props.handleMenuRequestChange} style={{textAlign: "left"}} >
         <List>
-          <ListItem primaryText="首頁" onTouchTap={() => this.props.handleRedirect(`/`)}/>
+          <ListItem primaryText="首頁" onClick={() => this.props.handleRedirect(`/`)}/>
           <Divider />
           {
             Object.keys(this.state.years).map((y, yIndex) => {
@@ -37,11 +37,11 @@ class LeftMenu extends Component {
               return <ListItem key={`th_${yIndex}`} primaryText={years[y].title} primaryTogglesNestedList={true} nestedItems={
                     (this.props.user.auth === "admin" || this.props.user.auth === "overview" ?
                       [<ListItem key={1} primaryText={`${years[y].title}總覽`}
-                        onTouchTap={() => this.props.handleRedirect(`/?th=${years[y].th}&overview=true`)} />] : []
+                        onClick={() => this.props.handleRedirect(`/?th=${years[y].th}&overview=true`)} />] : []
                     ).concat(
                       <ListItem key={2} primaryText="比賽項目" primaryTogglesNestedList={true} nestedItems={
                           [
-                            <ListItem key={0} primaryText="所有比賽項目" onTouchTap={() => this.props.handleRedirect(`/?th=${years[y].th}`)} />
+                            <ListItem key={0} primaryText="所有比賽項目" onClick={() => this.props.handleRedirect(`/?th=${years[y].th}`)} />
                           ].concat(
                             years[y].th in this.state.sports ?
                             Object.keys(this.state.sports[years[y].th]).map((s, sIndex) => {
@@ -59,10 +59,10 @@ class LeftMenu extends Component {
                                   handleDisabled = true;
                                   style = {cursor: "default"};
                                 }
-                                rightIcon = <ActionDone color="#4caf50" />;
+                                rightIcon = <Done color="#4caf50" />;
                               }
                               return <ListItem key={`sportItem_${sIndex}`} primaryText={sport.title}
-                                onTouchTap={handleOnTouchTap} disabled={handleDisabled}
+                                onClick={handleOnTouchTap} disabled={handleDisabled}
                                 rightIcon={rightIcon} style={style} />
                             }) : []
                           )
