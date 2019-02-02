@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import queryString from 'query-string';
 
 import LoadDialog from '../components/LoadDialog';
 import Header from '../partials/Header';
@@ -81,7 +82,8 @@ class App extends Component {
   render() {
     let header = null;
     let content = null;
-    let query = this.props.location.query;
+    let query = queryString.parse(this.props.location.search);
+
     if(this.state.user) {
       let university = null;
       if(this.state.user.auth === "admin" || this.state.user.auth === "overview"){
