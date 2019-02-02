@@ -1,10 +1,8 @@
 import React, { Component } from 'react';
-import { AppBar, IconButton, Button } from '@material-ui/core';
+import { AppBar, Toolbar, IconButton, Typography, Button } from '@material-ui/core';
 import { Home, Menu } from '@material-ui/icons';
 
 import LeftMenu from './LeftMenu';
-
-import {fontFamily} from '../config';
 
 class Header extends Component {
   constructor(props) {
@@ -23,30 +21,30 @@ class Header extends Component {
     let rightButton = null;
     if(this.props.user) {
       leftButton = (
-        <IconButton
-          onClick={this.handleMenuToggle}>
+        <IconButton onClick={this.handleMenuToggle} color="inherit">
           <Menu />
           <LeftMenu user={this.props.user} menuOpen={this.state.menuOpen} handleMenuRequestChange={this.handleMenuRequestChange} handleRedirect={this.props.handleRedirect} />
         </IconButton>
       );
-      rightButton = <Button labelStyle={{fontFamily: fontFamily}} onClick={this.props.handleHeaderButtonClick} label="登出" />
+      rightButton = <Button onClick={this.props.handleHeaderButtonClick} color="inherit">登出</Button>
     }
     else if(this.props.login) {
-      leftButton = (<IconButton><Home /></IconButton>);
+      leftButton = (<IconButton color="inherit"><Home /></IconButton>);
       rightButton = null;
     }
     else {
-      leftButton = (<IconButton><Home /></IconButton>);
-      rightButton = <Button labelStyle={{fontFamily: fontFamily}} onClick={this.props.handleHeaderButtonClick} label="登入" />
+      leftButton = (<IconButton color="inherit"><Home /></IconButton>);
+      rightButton = <Button onClick={this.props.handleHeaderButtonClick} color="inherit">登入</Button>
     }
 
     return (
-      <AppBar
-        title={this.props.title}
-        iconElementLeft={leftButton}
-        iconElementRight={rightButton}
-        titleStyle={{fontFamily: fontFamily}}
-      />
+      <AppBar>
+        <Toolbar>
+          { leftButton }
+          <Typography variant="h6" color="inherit" style={{'flexGrow': 1}}>{this.props.title}</Typography>
+          { rightButton }
+        </Toolbar>
+      </AppBar>
     );
   }
 }
