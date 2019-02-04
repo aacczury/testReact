@@ -24,12 +24,15 @@ class App extends Component {
   }
 
   componentDidMount(){
-    var self = this;
-    window.firebase.auth().onAuthStateChanged(function(user) {
-      if(user && self.props.location.query.login)
+    const self = this;
+    const query = queryString.parse(this.props.location.search);
+
+    window.firebase.auth().onAuthStateChanged(user => {
+      if (user && query.login) {
         self.handleRedirect('/');
-      // need loading icon
-      if(user)
+      }
+
+      if (user) {
         window.firebase.database().ref(`/users/${user.uid}`).once('value').then(snapshot => {
           let userInfo = snapshot.val() ? snapshot.val() : {};
           Object.defineProperty(user, "auth", {
@@ -43,10 +46,12 @@ class App extends Component {
             loadDialogOpen: false
           });
         });
-      else self.setState({
-        user: user,
-        loadDialogOpen: false
-      });
+      } else {
+        self.setState({
+          user: user,
+          loadDialogOpen: false
+        });
+      }
     });
   }
 
@@ -62,7 +67,6 @@ class App extends Component {
       logout: () => {
         let self = this;
         window.firebase.auth().signOut().then(function(){
-          console.log("Logout safe."); // need a dialog
           self.handleRedirect('/');
         });
       },
@@ -81,9 +85,9 @@ class App extends Component {
   }
 
   render() {
+    const query = queryString.parse(this.props.location.search);
     let header = null;
     let content = null;
-    let query = queryString.parse(this.props.location.search);
 
     if(this.state.user) {
       let university = null;
