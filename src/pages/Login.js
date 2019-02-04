@@ -94,8 +94,8 @@ class Login extends Component {
 
   render() {
     let content = (
-      <div style={{textAlign: "center"}}>
-        <Card style={{width: "280px", margin: "10px", display: "inline-block", verticalAlign: "top"}}>
+      <div style={{display: 'flex', justifyContent: 'center', textAlign: 'center'}}>
+        <Card style={{width: "280px", marginTop: "20vh"}}>
           <CardContent>
             <InputContainer inputData={this.state.inputData} handleInputUpdate={this.handleUserInfoUpdate} />
             <Button
@@ -103,7 +103,7 @@ class Login extends Component {
               color='secondary'
               onClick={this.handleLogin}
               disabled={this.state.isLoginButtonDisabled}
-            >"登入"</Button>
+            >登入</Button>
           </CardContent>
         </Card>
       </div>

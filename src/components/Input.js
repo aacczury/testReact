@@ -18,14 +18,14 @@ class Input extends Component {
     }
   }
 
-  handleChange = (e, v) => {
-    let node = e ? e.target : this.inputNode.props;
-    this.setState({value: v});
-    if(node.name) {
-      this.props.handleInputUpdate({
-        [node.name]: v
-      });
-    }
+  handleChange = (event) => {
+    const target = event.target;
+    const value = target.type === 'checkbox' ? target.checked : target.value;
+    const name = target.name;
+
+    this.props.handleInputUpdate({
+      [name]: value
+    });
   }
 
   render() {
