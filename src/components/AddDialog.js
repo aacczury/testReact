@@ -18,11 +18,13 @@ class AddDialog extends Component {
   render() {
     let addDialogActions = [
       <Button
+        key='cancel'
         label="取消"
         color="primary"
         onClick={this.props.handleAddDialogClose}
       />,
       <Button
+        key='submit'
         label="送出"
         color="primary"
         onClick={this.props.handleAddSubmit}
