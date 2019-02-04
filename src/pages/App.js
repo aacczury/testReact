@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { withRouter } from "react-router-dom";
 import queryString from 'query-string';
 
 import LoadDialog from '../components/LoadDialog';
@@ -53,7 +54,7 @@ class App extends Component {
   }
 
   handleRedirect = url => {
-    this.props.router.push(url);
+    this.props.history.push(url);
   }
 
   handleHeaderButtonClick = event => {
@@ -148,4 +149,4 @@ class App extends Component {
   }
 }
 
-export default App;
+export default withRouter(App);

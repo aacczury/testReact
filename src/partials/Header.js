@@ -38,7 +38,7 @@ class Header extends Component {
     }
 
     return (
-      <AppBar>
+      <AppBar position='static'>
         <Toolbar>
           { leftButton }
           <Typography variant="h6" color="inherit" style={{'flexGrow': 1}}>{this.props.title}</Typography>
