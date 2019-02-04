@@ -11,8 +11,6 @@ import Sports from './Sports';
 import Participants from './Participants'
 import Overview from './Overview'
 
-//import './App.css';
-
 class App extends Component {
   constructor(props) {
     super(props);
