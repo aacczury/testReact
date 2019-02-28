@@ -81,28 +81,36 @@ class Sports extends Component {
           if(this.props.user.auth !== "admin" && this.props.user.auth !== "overview") {
             cardData.push({ order: 'order' in sport ? sport.order : +index + 1, title: sport.title, uid: sportUid, content: (
                 <div style={{display: "inline-block"}}>
-                  <Chip avatar={
-                    <Avatar color="#fff" backgroundColor="#4caf50">
-                      <Done />
-                    </Avatar>
-                  } backgroundColor="#c8e6c9" color="#222">已報名完成</Chip>
+                  <Chip
+                    style={{backgroundColor: "#c8e6c9", color: "#4caf50"}}
+                    avatar={
+                      <Avatar style={{color: "#fff", backgroundColor: "#4caf50"}}>
+                        <Done />
+                      </Avatar>
+                    }
+                    label='已報名完成'
+                  />
                 </div>
               )});
           } else {
             cardData.push({ order: 'order' in sport ? sport.order : +index + 1, title: sport.title, uid: sportUid, content: (
                 <div style={{display: "inline-block"}}>
-                  <Chip avatar={
-                    <Avatar color="#fff" backgroundColor="#4caf50">
-                      <Done />
-                    </Avatar>
-                  } backgroundColor="#c8e6c9" color="#222">已報名完成</Chip>
+                  <Chip
+                    style={{backgroundColor: "#c8e6c9", color: "#222"}}
+                    avatar={
+                      <Avatar style={{color: "#fff", backgroundColor: "#4caf50"}}>
+                        <Done />
+                      </Avatar>
+                    }
+                    label='已報名完成'
+                  />
                 </div>
               ), url: `/?th=${this.props.th}&university=${university}&sport=${sportUid}`});
           }
         } else {
           cardData.push({ order: 'order' in sport ? sport.order : +index + 1, title: sport.title, uid: sportUid, content: (
               <div style={{display: "inline-block"}}>
-                <Chip>尚未報名完成</Chip>
+                <Chip label='尚未報名完成' />
               </div>
             ), url: `/?th=${this.props.th}&university=${university}&sport=${sportUid}`});
         }
