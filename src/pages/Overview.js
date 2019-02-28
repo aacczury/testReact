@@ -31,24 +31,42 @@ class Overview extends Component {
     };
     this.updateDelay = null;
     this.updateSelectSport = {};
+    this.dataRef = null;
+  }
+
+  dbUpdate = () => {
+    const self = this;
+
+    if (this.dataRef && this.dataRef.off) {
+      this.dataRef.off();
+    }
+
+    if (!this.props.user) {
+      return;
+    }
+
+    this.dataRef = window.firebase.database().ref(`/participant/ncku/${this.props.th}`);
+    this.dataRef.on('value', participantShot => {
+      window.firebase.database().ref(`/sports/${this.props.th}`).once('value').then(sportsShot => {
+        window.firebase.database().ref(`/participants/ncku/${this.props.th}`).once('value').then(participantsShot => {
+          self.updateOverview(
+            true,
+            participantShot.val() ? participantShot.val() : {},
+            sportsShot.val() ? sportsShot.val() : {},
+            participantsShot.val() ? participantsShot.val() : {}
+          );
+        });
+      });
+    });
   }
 
   componentDidMount() {
-    if(this.props.user){
-      let self = this;
-      this.dataRef = window.firebase.database().ref(`/participant/ncku/${this.props.th}`);
-      this.dataRef.on('value', participantShot => {
-        window.firebase.database().ref(`/sports/${this.props.th}`).once('value').then(sportsShot => {
-          window.firebase.database().ref(`/participants/ncku/${this.props.th}`).once('value').then(participantsShot => {
-            self.setState({
-              participantShot: participantShot.val() ? participantShot.val() : {} ,
-              sportsShot: sportsShot.val() ? sportsShot.val() : {},
-              participantsShot: participantsShot.val() ? participantsShot.val() : {}
-            })
-            self.updateOverview();
-          });
-        });
-      });
+    this.dbUpdate();
+  }
+
+  componentDidUpdate(prevProps) {
+    if (!this.props.user || prevProps.th !== this.props.th) {
+      this.dbUpdate();
     }
   }
 
@@ -93,21 +111,20 @@ class Overview extends Component {
     }
   }
 
-  updateOverview = () => {
+  updateOverview = (isInit, participantShot, sportsShot, participantsShot) => {
     // need loading icon
-    let data = this.state.participantShot;
-    let sports = this.state.sportsShot;
-    let participants = this.state.participantsShot;
+    let data = participantShot ? participantShot : this.state.participantShot;
+    let sports = sportsShot ? sportsShot : this.state.sportsShot;
+    let participants = participantsShot ? participantsShot : this.state.participantsShot;
     let tableData = [], sportData = [];
     const statusList = ["leader", "member"];
-    let selectedSports = this.state.selectedSports;
-    let isInitSelectd = Object.keys(selectedSports).length === 0 ? true : false;
+    let selectedSports = isInit ? {} : this.state.selectedSports;
     let diffID = {}, conflictPtc = {};
     let countSize = {}, countLodging = 0, countBus = 0, countVegetarian = 0;
 
     Object.keys(sports).map(sportUid => {
       // check if selected or init will select all
-      if(isInitSelectd) selectedSports[sportUid] = true;
+      if(isInit) selectedSports[sportUid] = true;
       else if(!(sportUid in selectedSports) || !selectedSports[sportUid]) return 0;
 
       let perSportData = {sport: "", contact: {}, highStatusData: [], data: []};
@@ -224,7 +241,10 @@ class Overview extends Component {
       countLodging: countLodging,
       countBus: countBus,
       countVegetarian: countVegetarian,
-      loadDialogOpen: false
+      loadDialogOpen: false,
+      participantShot: participantShot ? participantShot : this.state.participantShot,
+      sportsShot: sportsShot ? sportsShot : this.state.sportsShot,
+      participantsShot: participantsShot ? participantsShot : this.state.participantsShot,
     });
   }
 
@@ -278,7 +298,7 @@ class Overview extends Component {
             return {selectedSports: prevState.selectedSports}
           }, () => {
             this.updateSelectSport = {};
-            this.updateOverview();
+            this.updateOverview(false);
           });
         }, 100);
       });
