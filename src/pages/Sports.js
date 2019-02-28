@@ -119,16 +119,32 @@ class Sports extends Component {
         cardData.push({ order: 'order' in sport ? sport.order : +index + 1, title: sport.title, uid: sportUid, content: (
           <div>
             {universityName.map(university => {
-              let bgcolor = null;
-              let fgcolor = 'primary';
-              if(sport.is_finish && university in sport.is_finish && sport.is_finish[university]){
-                bgcolor = "#c8e6c9";
-                fgcolor = 'default';
+              let statusChip = <Chip label='尚未報名完成' />;
+              if (sport.is_finish && university in sport.is_finish && sport.is_finish[university]) {
+                statusChip =
+                  <Chip
+                    style={{backgroundColor: "#c8e6c9", color: "#4caf50"}}
+                    avatar={
+                      <Avatar style={{color: "#fff", backgroundColor: "#4caf50"}}>
+                        <Done />
+                      </Avatar>
+                    }
+                    label='已報名完成'
+                  />;
               }
-              return <Button key={`btn_${university}`} backgroundColor={bgcolor} color={fgcolor}
-                onClick={() => this.props.handleRedirect(`/?th=${this.props.th}&university=${university}&sport=${sportUid}`)}>
-                  {university.toUpperCase()}
-                </Button>
+              return (
+                <React.Fragment key={`btn_fragment_${university}`}>
+                  <Button
+                    key={`btn_${university}`}
+                    color='primary'
+                    style={{margin: 2}}
+                    onClick={() => this.props.handleRedirect(`/?th=${this.props.th}&university=${university}&sport=${sportUid}`)}>
+                    {university.toUpperCase()}
+                  </Button>
+                  {statusChip}
+                  <br />
+                </React.Fragment>
+              )
             })}
           </div>
         )});
