@@ -30,7 +30,6 @@ class Overview extends Component {
       loadDialogOpen: true
     };
     this.updateDelay = null;
-    this.updateSelectSport = {};
     this.dataRef = null;
   }
 
@@ -278,31 +277,18 @@ class Overview extends Component {
     );
   }
 
-  handleLoadDialogOpen = () => {
-    this.setState({loadDialogOpen: true});
-  }
-
-  handleLoadDialogClose = () => {
-    this.setState({loadDialogOpen: false});
-  }
-
   handleSelectSport = d => {
-    Object.assign(this.updateSelectSport, d);
     if(this.updateDelay) clearTimeout(this.updateDelay);
     this.updateDelay = setTimeout(() => {
-      this.setState({loadDialogOpen: true}, () => {
-        setTimeout(() => {
-          this.setState(prevState => {
-            Object.keys(this.updateSelectSport).map(sportID =>
-                prevState.selectedSports[sportID] = this.updateSelectSport[sportID])
-            return {selectedSports: prevState.selectedSports}
-          }, () => {
-            this.updateSelectSport = {};
-            this.updateOverview(false);
-          });
-        }, 100);
-      });
+      this.setState({loadDialogOpen: true});
+      setTimeout(() => this.updateOverview(false), 100)
     }, 1500);
+    this.setState(prevState => ({
+      selectedSports: {
+        ...prevState.selectedSports,
+        ...d
+      }
+    }));
   }
 
   render() {
