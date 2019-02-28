@@ -4,6 +4,7 @@ import queryString from 'query-string';
 
 import LoadDialog from '../components/LoadDialog';
 import Header from '../partials/Header';
+import LeftMenu from '../partials/LeftMenu';
 import Main from './Main';
 import Login from './Login';
 import Years from './Years';
@@ -17,7 +18,8 @@ class App extends Component {
 
     this.state = {
       user: null,
-      loadDialogOpen: true
+      loadDialogOpen: true,
+      menuOpen: false,
     };
   }
 
@@ -74,13 +76,11 @@ class App extends Component {
     }[event]
   }
 
-  handleLoadDialogOpen = () => {
-    this.setState({loadDialogOpen: true});
-  }
+  handleMenuOpen = () => this.setState({menuOpen: true});
+  handleMenuClose = () => this.setState({menuOpen: false});
 
-  handleLoadDialogClose = () => {
-    this.setState({loadDialogOpen: false});
-  }
+  handleLoadDialogOpen = () => this.setState({loadDialogOpen: true});
+  handleLoadDialogClose = () => this.setState({loadDialogOpen: false});
 
   render() {
     const query = queryString.parse(this.props.location.search);
@@ -105,18 +105,18 @@ class App extends Component {
 
       if(query.th) {
         if(query.overview && (this.state.user.auth === "admin" || this.state.user.auth === "overview")) {
-          header = <Header title={`正興城灣盃-第${query.th}屆總覽`} user={this.state.user}
-            handleHeaderButtonClick={this.handleHeaderButtonClick("logout")} handleRedirect={this.handleRedirect} th={query.th} />
+          header = <Header title={`正興城灣盃-第${query.th}屆總覽`} user={this.state.user} handleMenuOpen={this.handleMenuOpen}
+            handleHeaderButtonClick={this.handleHeaderButtonClick("logout")} th={query.th} />
           content = <Overview user={this.state.user} th={query.th} />
         }
         else if(query.sport && university) {
-          header = <Header title={`正興城灣盃-第${query.th}屆報名資料`} user={this.state.user}
-            handleHeaderButtonClick={this.handleHeaderButtonClick("logout")} handleRedirect={this.handleRedirect} th={query.th} />
+          header = <Header title={`正興城灣盃-第${query.th}屆報名資料`} user={this.state.user} handleMenuOpen={this.handleMenuOpen}
+            handleHeaderButtonClick={this.handleHeaderButtonClick("logout")} th={query.th} />
           content = <Participants user={this.state.user} th={query.th} sport={query.sport} university={university} handleRedirect={this.handleRedirect} />
         }
         else if(!query.sport){
-          header = <Header title={`正興城灣盃-第${query.th}屆比賽項目`} user={this.state.user}
-            handleHeaderButtonClick={this.handleHeaderButtonClick("logout")} handleRedirect={this.handleRedirect} th={query.th} />
+          header = <Header title={`正興城灣盃-第${query.th}屆比賽項目`} user={this.state.user} handleMenuOpen={this.handleMenuOpen}
+            handleHeaderButtonClick={this.handleHeaderButtonClick("logout")} th={query.th} />
           content = <Sports user={this.state.user} handleRedirect={this.handleRedirect} th={query.th} />
         }
         else {
@@ -125,8 +125,8 @@ class App extends Component {
         }
       }
       else {
-        header = <Header title="正興城灣盃-歷屆資料" user={this.state.user}
-          handleHeaderButtonClick={this.handleHeaderButtonClick("logout")} handleRedirect={this.handleRedirect} />
+        header = <Header title="正興城灣盃-歷屆資料" user={this.state.user} handleMenuOpen={this.handleMenuOpen}
+          handleHeaderButtonClick={this.handleHeaderButtonClick("logout")} />
         content = <Years user={this.state.user} handleRedirect={this.handleRedirect} />;
       }
     }
@@ -145,6 +145,7 @@ class App extends Component {
       <div className="App">
         {header}
         {content}
+        <LeftMenu user={this.state.user} menuOpen={this.state.menuOpen} handleMenuClose={this.handleMenuClose} handleRedirect={this.handleRedirect} />
         <LoadDialog loadDialogOpen={this.state.loadDialogOpen} />
       </div>
     );
