@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Card, CardContent, IconButton, Button, Snackbar, SnackbarContent } from '@material-ui/core';
-import { Home, ExposurePlus1, Close } from '@material-ui/icons';
+import { ExposurePlus1, Close } from '@material-ui/icons';
 
 import {highStatusList, statusName, attrList, attrType, attrName} from '../config';
 import ParticipantInfo from '../components/ParticipantInfo';
@@ -216,7 +216,8 @@ class Participants extends Component {
         }
         if(attr === "email") {
           /* ref: http://emailregex.com/ */
-          let match = contact[attr].match(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/);
+          /* remove \[ in character set: https://regexr.com/ Within a character set, only \, -, and ] need to be escaped. */
+          let match = contact[attr].match(/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/);
           if(!match || match[0] !== contact[attr]) {
             errorContact[attr] = "信箱格式錯誤";
             break;
