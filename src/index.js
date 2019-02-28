@@ -6,14 +6,14 @@ import Routes from './Routes';
 import './index.css';
 
 const Index = () => (
-  <Routes basename="/act/chcwcup/register/" />
+  <Routes basename="/" />
 )
 
 // Initialize Firebase
 const firebaseConfig = {
-  apiKey: "AIzaSyAjdarRIsUshhdQOwaFLxlBneFWz12JrTU",
-  authDomain: "chcwcup.firebaseapp.com",
-  databaseURL: "https://chcwcup.firebaseio.com",
+  apiKey: "AIzaSyB4ox0dHobP_lh93NKepmTm-djJzLTJmKA",
+  authDomain: "chcwcup-bak.firebaseapp.com",
+  databaseURL: "https://chcwcup-bak.firebaseio.com",
 };
 window.firebase.initializeApp(firebaseConfig);
 
