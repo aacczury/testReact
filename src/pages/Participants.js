@@ -591,17 +591,12 @@ class Participants extends Component {
     let content = (
       <div style={{paddingTop: "64px"}}>
         <div style={{textAlign: "center"}}>
-          <div><Home /></div>
           { this.props.user.auth === "admin" && this.state.sportData.is_finish && this.state.sportData.is_finish[this.props.university]
              && this.state.sportData.is_finish[this.props.university] === true ?
             (<div>
-              <Button
-                variant="contained"
-                onClick={this.handleUnlock}
-                label="解鎖"
-                color="secondary"
-                style={{margin: "12px"}}
-              />
+              <Button variant="contained" onClick={this.handleUnlock} color="secondary" style={{margin: "12px"}}>
+                解鎖
+              </Button>
             </div>) :
             null
           }
@@ -612,13 +607,9 @@ class Participants extends Component {
           {ptcInfoDOM}
 
           <div>
-            <Button
-              variant="contained"
-              onClick={this.handleSendEmailDialogOpen}
-              label="送出"
-              color="secondary"
-              style={{margin: "12px"}}
-            />
+            <Button variant="contained" onClick={this.handleSendEmailDialogOpen} color="secondary" style={{margin: "12px"}}>
+              送出
+            </Button>
           </div>
         </div>
 
