@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@material-ui/core';
+import { Button, Dialog, DialogTitle, DialogContent, DialogActions } from '@material-ui/core';
 
 class AddDialog extends Component {
   constructor(props) {
@@ -16,33 +16,26 @@ class AddDialog extends Component {
   }
 
   render() {
-    let addDialogActions = [
-      <Button
-        key='cancel'
-        label="取消"
-        color="primary"
-        onClick={this.props.handleAddDialogClose}
-      />,
-      <Button
-        key='submit'
-        label="送出"
-        color="primary"
-        onClick={this.props.handleAddSubmit}
-      />,
-    ];
+    let addDialogActions = (
+      <React.Fragment>
+        <Button color="primary" onClick={this.props.handleAddDialogClose}>
+          取消
+        </Button>
+        <Button color="primary" onClick={this.props.handleAddSubmit}>
+          送出
+        </Button>
+      </React.Fragment>
+    );
 
     let addDialog = (
       <Dialog
-        modal={false}
         open={this.state.addDialogOpen}
         onClose={this.props.handleAddDialogClose}
         scroll='paper'
       >
         <DialogTitle>{this.props.title}</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            {this.props.content}
-          </DialogContentText>
+        <DialogContent style={{width: 300}}>
+          {this.props.content}
         </DialogContent>
         <DialogActions>{addDialogActions}</DialogActions>
       </Dialog>

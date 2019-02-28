@@ -156,7 +156,7 @@ class Years extends Component {
     if(this.props.user.auth === "admin")
       addDialog =
         <AddDialog title="新增盃賽" addDialogOpen={this.state.addDialogOpen} handleAddSubmit={this.handleAddYear}
-          handleAddDialogOpen={this.handleAddDialogOpen} handleAddDialogClose={this.handleAddDialogClose}
+          handleAddDialogClose={this.handleAddDialogClose}
           content={<InputContainer inputData={this.state.addYearData} handleInputUpdate={this.handleAddYearInfoUpdate} />} />;
 
     let content = (
