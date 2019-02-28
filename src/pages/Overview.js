@@ -422,14 +422,10 @@ class Overview extends Component {
 
     return (
       <div className="content" style={{textAlign: "center"}}>
-        <Button
-          variant="contained"
-          onClick={this.handleExportData}
-          label="匯出"
-          color='secondary'
-          style={{margin: "12px"}}
-          icon={<CloudDownload />}
-        />
+        <Button variant="contained" onClick={this.handleExportData} color='secondary' style={{margin: "12px"}}>
+          <CloudDownload style={{marginRight: 10}} />
+          匯出
+        </Button>
 
         <div className="card-container" style={{maxWidth: "900px", margin: "auto"}}>
           <Card style={{width: "100%", margin: "10px", verticalAlign: "top"}}>
