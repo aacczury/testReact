@@ -621,12 +621,14 @@ class Participants extends Component {
         <Snackbar
           open={this.state.errorAlertOpen}
           autoHideDuration={4000}
-          bodyStyle={{backgroundColor: "#F44336"}}
+          onClose={this.handleErrorAlertClose}
         >
           <SnackbarContent
+            style={{backgroundColor: "#F44336"}}
             message="資料有錯誤或缺漏"
             action={[
               <IconButton
+                key="close"
                 color="inherit"
                 onClick={this.handleErrorAlertClose}
               >
