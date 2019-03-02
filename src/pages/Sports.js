@@ -62,6 +62,81 @@ class Sports extends Component {
   componentWillUnmount = () => {
   }
 
+  sportCardDataUpdate = (sportData, cardData, sportUid, index) => {
+    const universityName = ["ncku", "ccu", "nsysu", "nchu"];
+    let sport = sportData[sportUid];
+    if (!this.state.isNCKUHost || (this.props.user.auth !== "admin" && this.props.user.auth !== "overview")) {
+      let university = "ncku";
+      if (0 <= universityName.indexOf(this.props.user.auth)) {
+        university = this.props.user.auth;
+      }
+      if (sport.is_finish && university in sport.is_finish && sport.is_finish[university]) {
+        let url = null;
+        if(this.props.user.auth === "admin" && this.props.user.auth === "overview") {
+          url = `/?th=${this.props.th}&university=${university}&sport=${sportUid}`;
+        }
+        cardData.push({
+          order: 'order' in sport ? sport.order : +index + 1,
+          title: sport.title,
+          uid: sportUid,
+          content: (
+            <div style={{display: "inline-block"}}>
+              <Chip
+                style={{backgroundColor: "#c8e6c9", color: "#222"}}
+                avatar={
+                  <Avatar style={{color: "#fff", backgroundColor: "#4caf50"}}>
+                    <Done />
+                  </Avatar>
+                }
+                label='已報名完成'
+              />
+            </div>
+          ),
+          url: url});
+      } else {
+        cardData.push({ order: 'order' in sport ? sport.order : +index + 1, title: sport.title, uid: sportUid, content: (
+            <div style={{display: "inline-block"}}>
+              <Chip label='尚未報名完成' />
+            </div>
+          ), url: `/?th=${this.props.th}&university=${university}&sport=${sportUid}`});
+      }
+    } else {
+      cardData.push({ order: 'order' in sport ? sport.order : +index + 1, title: sport.title, uid: sportUid, content: (
+        <div>
+          {universityName.map(university => {
+            let statusChip = <Chip label='尚未報名完成' />;
+            if (sport.is_finish && university in sport.is_finish && sport.is_finish[university]) {
+              statusChip =
+                <Chip
+                  style={{backgroundColor: "#c8e6c9", color: "#4caf50"}}
+                  avatar={
+                    <Avatar style={{color: "#fff", backgroundColor: "#4caf50"}}>
+                      <Done />
+                    </Avatar>
+                  }
+                  label='已報名完成'
+                />;
+            }
+            return (
+              <React.Fragment key={`btn_fragment_${university}`}>
+                <Button
+                  key={`btn_${university}`}
+                  color='primary'
+                  style={{margin: 2}}
+                  onClick={() => this.props.handleRedirect(`/?th=${this.props.th}&university=${university}&sport=${sportUid}`)}>
+                  {university.toUpperCase()}
+                </Button>
+                {statusChip}
+                <br />
+              </React.Fragment>
+            )
+          })}
+        </div>
+      )});
+    }
+    return 0;
+  }
+
   updateSports = (d) => {
     if(!this.state.isLoadingHost) {
       console.log("Wait loading host");
@@ -71,86 +146,7 @@ class Sports extends Component {
     // need loading icon
     let data = d ? d : {};
     let cardData = [];
-    const universityName = ["ncku", "ccu", "nsysu", "nchu"];
-    Object.keys(data).map((sportUid, index) => {
-      let sport = data[sportUid];
-      if(!this.state.isNCKUHost || (this.props.user.auth !== "admin" && this.props.user.auth !== "overview")) {
-        let university = "ncku";
-        if(this.props.user.auth in universityName) university = this.props.user.auth;
-        if(sport.is_finish && university in sport.is_finish && sport.is_finish[university]) {
-          if(this.props.user.auth !== "admin" && this.props.user.auth !== "overview") {
-            cardData.push({ order: 'order' in sport ? sport.order : +index + 1, title: sport.title, uid: sportUid, content: (
-                <div style={{display: "inline-block"}}>
-                  <Chip
-                    style={{backgroundColor: "#c8e6c9", color: "#4caf50"}}
-                    avatar={
-                      <Avatar style={{color: "#fff", backgroundColor: "#4caf50"}}>
-                        <Done />
-                      </Avatar>
-                    }
-                    label='已報名完成'
-                  />
-                </div>
-              )});
-          } else {
-            cardData.push({ order: 'order' in sport ? sport.order : +index + 1, title: sport.title, uid: sportUid, content: (
-                <div style={{display: "inline-block"}}>
-                  <Chip
-                    style={{backgroundColor: "#c8e6c9", color: "#222"}}
-                    avatar={
-                      <Avatar style={{color: "#fff", backgroundColor: "#4caf50"}}>
-                        <Done />
-                      </Avatar>
-                    }
-                    label='已報名完成'
-                  />
-                </div>
-              ), url: `/?th=${this.props.th}&university=${university}&sport=${sportUid}`});
-          }
-        } else {
-          cardData.push({ order: 'order' in sport ? sport.order : +index + 1, title: sport.title, uid: sportUid, content: (
-              <div style={{display: "inline-block"}}>
-                <Chip label='尚未報名完成' />
-              </div>
-            ), url: `/?th=${this.props.th}&university=${university}&sport=${sportUid}`});
-        }
-      }
-      else {
-        cardData.push({ order: 'order' in sport ? sport.order : +index + 1, title: sport.title, uid: sportUid, content: (
-          <div>
-            {universityName.map(university => {
-              let statusChip = <Chip label='尚未報名完成' />;
-              if (sport.is_finish && university in sport.is_finish && sport.is_finish[university]) {
-                statusChip =
-                  <Chip
-                    style={{backgroundColor: "#c8e6c9", color: "#4caf50"}}
-                    avatar={
-                      <Avatar style={{color: "#fff", backgroundColor: "#4caf50"}}>
-                        <Done />
-                      </Avatar>
-                    }
-                    label='已報名完成'
-                  />;
-              }
-              return (
-                <React.Fragment key={`btn_fragment_${university}`}>
-                  <Button
-                    key={`btn_${university}`}
-                    color='primary'
-                    style={{margin: 2}}
-                    onClick={() => this.props.handleRedirect(`/?th=${this.props.th}&university=${university}&sport=${sportUid}`)}>
-                    {university.toUpperCase()}
-                  </Button>
-                  {statusChip}
-                  <br />
-                </React.Fragment>
-              )
-            })}
-          </div>
-        )});
-      }
-      return 0;
-    });
+    Object.keys(data).map(this.sportCardDataUpdate.bind(null, data, cardData));
 
     cardData.sort((a, b) => {
       return a.order - b.order;

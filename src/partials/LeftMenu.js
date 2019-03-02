@@ -70,7 +70,7 @@ class LeftMenu extends Component {
   sportList = (years, y, s, sIndex) => {
     const universityName = ["ncku", "cuu", "nsysu", "nchu"];
     let sport = this.state.sports[years[y].th][s];
-    let university = this.props.user.auth in universityName ? this.props.user.auth : "ncku";
+    let university = 0 <= universityName.indexOf(this.props.user.auth) ? this.props.user.auth : "ncku";
     let handleOnTouchTap = () => this.props.handleRedirect(`/?th=${years[y].th}&university=${university}&sport=${s}`);
     let isDisabled = false;
     let isButton = true;
