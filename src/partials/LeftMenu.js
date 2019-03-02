@@ -126,14 +126,22 @@ class LeftMenu extends Component {
   }
 
   render() {
+    
     return (
       <Drawer open={this.props.menuOpen} onClose={this.props.handleMenuClose}>
         <List style={{minWidth: 250, width: '10vw'}}>
           <ListItem button onClick={() => this.props.handleRedirect(`/`)}>
             <ListItemText primary="首頁"/>
           </ListItem>
-          <Divider />
-          { Object.keys(this.state.years).map(this.yearList) }
+          {
+            this.props.user && this.props.user.auth ?
+            (
+              <React.Fragment>
+                <Divider />
+                { Object.keys(this.state.years).map(this.yearList) }
+              </React.Fragment>
+            ) : null
+          }
         </List>
         <Divider />
       </Drawer>
