@@ -224,7 +224,7 @@ class Overview extends Component {
         curColor = curColor === blue[200] ? indigo[200] : blue[200];
         needChangeColor = false;
       }
-      if((!i && tableData[i].name + tableData[i].id === tableData[i + 1].name + tableData[i + 1].id) ||
+      if ((!i && tableData[i + 1] && tableData[i].name + tableData[i].id === tableData[i + 1].name + tableData[i + 1].id) ||
         (i && tableData[i - 1].name + tableData[i - 1].id === tableData[i].name + tableData[i].id) ||
         (i !== tableData.length - 1  && tableData[i].name + tableData[i].id === tableData[i + 1].name + tableData[i + 1].id)) {
           //tableData[i].color = grey100;
