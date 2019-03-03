@@ -337,12 +337,18 @@ class Participants extends Component {
     let trStyle = `'border:1px solid #aaa;'`;
     let thStyle = `'font-family:sans-serif,微軟正黑體;padding:5px;color:#fff;background-color:#00bcd4;font-weight:900'`;
     let tdStyle = `'font-family:sans-serif,微軟正黑體;padding:5px;'`;
+    
+    const universityName = ["ncku", "ccu", "nsysu", "nchu"];
+    let university = "ncku";
+    if (0 <= universityName.indexOf(this.props.user.auth)) {
+      university = this.props.user.auth;
+    }
 
     let body = `
     <div style="font-family:sans-serif,微軟正黑體;">
       ${this.state.contact.name} 您好：<br /><br />
       歡迎使用第${this.props.th}屆正興城灣盃報名系統，<br />
-      您被設定為<span style="color:#2196f3">${this.state.sportData.title}</span>的聯絡人，<br />
+      您被設定為<span style="color:#2196f3">${university.toUpperCase()} ${this.state.sportData.title}</span>的聯絡人，<br />
       <span style="color:#2196f3">${this.state.sportData.title}</span>的報名資料如下：<br /><br />`;
     body += `
       <table style=${tableStyle}>
