@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import { Drawer, Divider, List, ListItem, ListItemText, Collapse } from '@material-ui/core';
 import { Done, ExpandLess, ExpandMore } from '@material-ui/icons';
 
+import { UNIVERSITY_LIST } from '../config';
+
 class LeftMenu extends Component {
   constructor(props) {
     super(props);
@@ -73,9 +75,8 @@ class LeftMenu extends Component {
   }
 
   sportList = (years, y, s, sIndex) => {
-    const universityName = ["ncku", "ccu", "nsysu", "nchu"];
     let sport = this.state.sports[years[y].th][s];
-    let university = 0 <= universityName.indexOf(this.props.user.auth) ? this.props.user.auth : "ncku";
+    let university = 0 <= UNIVERSITY_LIST.indexOf(this.props.user.auth) ? this.props.user.auth : "ncku";
     let handleOnClick = () => this.handleLeftMenuButtonClick(`/?th=${years[y].th}&university=${university}&sport=${s}`);
     let isDisabled = false;
     let isButton = true;

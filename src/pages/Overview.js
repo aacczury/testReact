@@ -8,7 +8,7 @@ import LoadDialog from '../components/LoadDialog';
 import Input from '../components/Input';
 
 import '../components/ResTable.css';
-import { highStatusList, statusName } from '../config';
+import { STATUS_HIGH_LIST, STATUS_NAME } from '../config';
 
 class Overview extends Component {
   constructor(props) {
@@ -131,12 +131,12 @@ class Overview extends Component {
       if(typeof perSportData.contact.name === "undefined") perSportData.contact.name = "";
       if(typeof perSportData.contact.phone === "undefined") perSportData.contact.phone = "";
       if(typeof perSportData.contact.email === "undefined") perSportData.contact.email = "";
-      highStatusList.map(s => {
+      STATUS_HIGH_LIST.map(s => {
         if(s in participants[sportUid]) {
           let d = data[participants[sportUid][s]]
           perSportData.highStatusData.push({
             "name": typeof d.name === "undefined" ? "" : d.name,
-            "status": typeof d.status === "undefined" ? "" : statusName[d.status]
+            "status": typeof d.status === "undefined" ? "" : STATUS_NAME[d.status]
           });
         }
         return 0;
@@ -166,7 +166,9 @@ class Overview extends Component {
         return 0
       };
       if(!selectedSports[data[participantUid].sport]) return 0; // if not select
-      if (highStatusList.indexOf(data[participantUid].status) !== -1) return 0 // high status didn't need calculate
+      if (0 <= STATUS_HIGH_LIST.indexOf(data[participantUid].status)) { // high status didn't need calculate
+        return 0;
+      }
       let curParticipant = this.getParticipantData(data, sports, participantUid); // will not contain undefined
       curParticipant.name = curParticipant.name.trim().replace(/[Ａ-Ｚａ-ｚ０-９]/g, function(s) {return String.fromCharCode(s.charCodeAt(0) - 0xFEE0)});
       curParticipant.id = curParticipant.id.trim().replace(/[Ａ-Ｚａ-ｚ０-９]/g, function(s) {return String.fromCharCode(s.charCodeAt(0) - 0xFEE0)});

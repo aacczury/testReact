@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Card, CardContent, IconButton, Button, Snackbar, SnackbarContent } from '@material-ui/core';
 import { ExposurePlus1, Close } from '@material-ui/icons';
 
-import {highStatusList, statusName, attrList, attrType, attrName} from '../config';
+import {UNIVERSITY_LIST, STATUS_HIGH_LIST, STATUS_NAME, ATTR_LIST, ATTR_TYPE, ATTR_NAME} from '../config';
 import ParticipantInfo from '../components/ParticipantInfo';
 import Input from '../components/Input';
 import AddDialog from '../components/AddDialog';
@@ -102,10 +102,10 @@ class Participants extends Component {
       return 1;
     }
 
-    highStatusList.map((status, index) => {
+    STATUS_HIGH_LIST.map((status, index) => {
       if(status in data && data[status]) {
         highStatusForm.push(<ParticipantInfo key={`ptc_high_${index}`} user={this.props.user}
-          university={this.props.university} th={this.props.th} uid={data[status]} status={statusName[status]}
+          university={this.props.university} th={this.props.th} uid={data[status]} status={STATUS_NAME[status]}
           handleUpdatePtcInfo={this.handleUpdatePtcInfo} errorPtc={errorPtc[data[status]]} />)
       }
       return 0;
@@ -114,7 +114,7 @@ class Participants extends Component {
     if ('leader' in data && data["leader"]) {
       let status = "leader"
       tableData.push(<ParticipantInfo key={`ptc_${status}`} user={this.props.user}
-        university={this.props.university} th={this.props.th} uid={data[status]} status={statusName[status]}
+        university={this.props.university} th={this.props.th} uid={data[status]} status={STATUS_NAME[status]}
         handleUpdatePtcInfo={this.handleUpdatePtcInfo} errorPtc={errorPtc[data[status]]} />)
     }
 
@@ -303,12 +303,12 @@ class Participants extends Component {
     let d = data ? data : {};
 
     let ptcData = {};
-    attrList.map(attr => {
+    ATTR_LIST.map(attr => {
       if(typeof d[attr] === 'undefined') {
-        ptcData[attr] = attrType[attr] === 'checkbox' ? false : '';
+        ptcData[attr] = ATTR_TYPE[attr] === 'checkbox' ? false : '';
       } else ptcData[attr] = d[attr];
 
-      if (attrType[attr] === 'checkbox') ptcData[attr] = ptcData[attr] ? 'V' : '';
+      if (ATTR_TYPE[attr] === 'checkbox') ptcData[attr] = ptcData[attr] ? 'V' : '';
       if (attr === 'size') ptcData[attr] = ptcData[attr].toUpperCase();
       if (attr === 'birthday' && ptcData[attr] !== '') {
         let birthday = new Date(ptcData[attr]);
@@ -337,10 +337,9 @@ class Participants extends Component {
     let trStyle = `'border:1px solid #aaa;'`;
     let thStyle = `'font-family:sans-serif,微軟正黑體;padding:5px;color:#fff;background-color:#00bcd4;font-weight:900'`;
     let tdStyle = `'font-family:sans-serif,微軟正黑體;padding:5px;'`;
-    
-    const universityName = ["ncku", "ccu", "nsysu", "nchu"];
+
     let university = "ncku";
-    if (0 <= universityName.indexOf(this.props.user.auth)) {
+    if (0 <= UNIVERSITY_LIST.indexOf(this.props.user.auth)) {
       university = this.props.user.auth;
     }
 
@@ -373,14 +372,14 @@ class Participants extends Component {
           <th style=${thStyle}>姓名</th>
         </tr>`;
       let isHighLevel = false;
-      highStatusList.map(status => {
+      STATUS_HIGH_LIST.map(status => {
         if(status in this.state.participantsData) {
           isHighLevel = true;
           let uid = this.state.participantsData[status];
           if(uid in this.state.ptcsData) {
             let ptcInfo = this.getParticipantData(this.state.ptcsData[uid]);
             body += `<tr style=${trStyle}>
-                      <td style=${tdStyle}>${statusName[status]}</td>
+                      <td style=${tdStyle}>${STATUS_NAME[status]}</td>
                       <td style=${tdStyle}>${ptcInfo.name}</td>
                     </tr>`;
           } else {
@@ -391,12 +390,12 @@ class Participants extends Component {
       });
     body += `</table><br />`;
 
-    const mailAttrList = ['status'].concat(attrList);
+    const mailAttrList = ['status'].concat(ATTR_LIST);
     body += `
       <table style=${tableStyle}>
         <tr style=${trStyle}>`;
     mailAttrList.map(attr => {
-      body += `<th style=${thStyle}>${attrName[attr]}</th>`;
+      body += `<th style=${thStyle}>${ATTR_NAME[attr]}</th>`;
       return 0;
     })
     body += `</tr>`;
@@ -407,8 +406,8 @@ class Participants extends Component {
       if(uid in this.state.ptcsData) {
         let ptcInfo = this.getParticipantData(this.state.ptcsData[uid]);
         body += `<tr style=${trStyle}>
-                  <td style=${tdStyle}>${statusName[status]}</td>`;
-        attrList.map(attr => {
+                  <td style=${tdStyle}>${STATUS_NAME[status]}</td>`;
+        ATTR_LIST.map(attr => {
           if(attr !== "status") {
             body += `<td style=${tdStyle}>${ptcInfo[attr]}</td>`;
           }
@@ -427,7 +426,7 @@ class Participants extends Component {
         let ptcInfo = this.getParticipantData(this.state.ptcsData[uid]);
         body += `<tr style=${trStyle}>
                   <td style=${tdStyle}>${memberName}</td>`;
-        attrList.map(attr => {
+        ATTR_LIST.map(attr => {
           if(attr !== "status") {
             body += `<td style=${tdStyle}>${ptcInfo[attr]}</td>`;
           }

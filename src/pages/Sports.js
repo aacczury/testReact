@@ -8,6 +8,8 @@ import CardContainer from '../containers/CardContainer';
 import InputContainer from '../containers/InputContainer';
 import LoadDialog from '../components/LoadDialog';
 
+import { UNIVERSITY_LIST, STATUS_LIST } from '../config';
+
 class Sports extends Component {
   constructor(props) {
     super(props);
@@ -67,13 +69,12 @@ class Sports extends Component {
   }
 
   sportCardDataUpdate = (sportData, cardData, sportUid, index) => {
-    const universityName = ["ncku", "ccu", "nsysu", "nchu"];
     let sport = sportData[sportUid];
 
     if (this.state.isNCKUHost && (this.props.user.auth === 'admin' || this.props.user.auth === 'overview')) {
       cardData.push({ order: 'order' in sport ? sport.order : +index + 1, title: sport.title, uid: sportUid, content: (
         <div>
-          {universityName.map(university => {
+          {UNIVERSITY_LIST.map(university => {
             let statusChip = <Chip label='尚未報名完成' />;
             if (sport.is_finish && university in sport.is_finish && sport.is_finish[university]) {
               statusChip =
@@ -111,7 +112,7 @@ class Sports extends Component {
     }
 
     let university = "ncku";
-    if (0 <= universityName.indexOf(this.props.user.auth)) {
+    if (0 <= UNIVERSITY_LIST.indexOf(this.props.user.auth)) {
       university = this.props.user.auth;
     }
     if (sport.is_finish && university in sport.is_finish && sport.is_finish[university]) {
@@ -204,12 +205,12 @@ class Sports extends Component {
 
       let th = this.props.th;
       let {title} = this.state.addSportInfo;
-      let universityName = this.state.isNCKUHost ? ["ncku", "ccu", "nsysu", "nchu"] : ["ncku"];
+      const sportUniversityList = this.state.isNCKUHost ? UNIVERSITY_LIST : ["ncku"];
       let sportUid = window.firebase.database().ref(`/sports/${th}/`).push().key;
       let updates = {
         [`/sports/${th}/${sportUid}`]: {title: title}
       }
-      universityName.map(university => {
+      sportUniversityList.map(university => {
         updates[`/participants/${university}/${th}/${sportUid}`] = {contact: {name: '', phone: '', email: ''}};
         Object.keys(this.state.addSportInfo).map(status => {
           if(status !== "title" && status !== "member" && status !=="member_num" && this.state.addSportInfo[status]) {
@@ -264,14 +265,13 @@ class Sports extends Component {
       let updates = {};
       updates[`/sports/${this.props.th}/${uid}`] = null;
 
-      const statusName = ["coach", "captain", "manager", "leader", "member"]
-      const universityName = this.state.isNCKUHost ? ["ncku", "ccu", "nchu", "nsysu"] : ["ncku"];
-      for(let i = 0; i < universityName.length; ++i) {
-        let university = universityName[i];
+      const sportUniversityList = this.state.isNCKUHost ? UNIVERSITY_LIST : ["ncku"];
+      for (let i = 0; i < sportUniversityList.length; ++i) {
+        let university = sportUniversityList[i];
         window.firebase.database().ref(`/participants/${university}/${this.props.th}/${uid}`)
                 .once('value').then(ptcShot => {
           let ptcs = ptcShot.val() ? ptcShot.val() : {};
-          statusName.map(status => {
+          STATUS_LIST.map(status => {
             if(!(status in ptcs)) return 1;
             if(status !== "member")
               updates[`/participant/${university}/${this.props.th}/${ptcs[status]}`] = null;
@@ -283,10 +283,10 @@ class Sports extends Component {
             return 0;
           })
           updates[`/participants/${university}/${this.props.th}/${uid}`] = null;
-          if(i === universityName.length - 1) // update at last
+          if(i === sportUniversityList.length - 1) // update at last
             window.firebase.database().ref().update(updates, (err) => err && console.error(err));
         }, err => err && console.error(err)) // end once ptcs
-      } // end universityName for loop
+      } // end sportUniversityList for loop
     } // end return closure
   }
 

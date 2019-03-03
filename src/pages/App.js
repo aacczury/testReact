@@ -12,6 +12,8 @@ import Sports from './Sports';
 import Participants from './Participants'
 import Overview from './Overview'
 
+import { UNIVERSITY_LIST } from '../config';
+
 class App extends Component {
   constructor(props) {
     super(props);
@@ -92,8 +94,7 @@ class App extends Component {
       if(this.state.user.auth === "admin" || this.state.user.auth === "overview"){
         university = query.university ? query.university : "ncku";
       } else {
-        let universityName = ["ncku", "ccu", "nsysu", "nchu"];
-        if(universityName.indexOf(this.state.user.auth) < 0) {
+        if (0 > UNIVERSITY_LIST.indexOf(this.state.user.auth)) {
           console.log("Error university"); // need handle
         }
         else if(query.university && this.state.user.auth !== query.university){
