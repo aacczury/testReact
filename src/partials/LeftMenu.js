@@ -56,6 +56,11 @@ class LeftMenu extends Component {
     }
   }
 
+  handleLeftMenuButtonClick = url => {
+    this.props.handleMenuClose();
+    this.props.handleRedirect(url);
+  }
+
   handleYearListOpen = yIndex => {
     this.setState(prevState => {
       if (prevState.yearsListOpen[yIndex]) {
@@ -71,14 +76,14 @@ class LeftMenu extends Component {
     const universityName = ["ncku", "ccu", "nsysu", "nchu"];
     let sport = this.state.sports[years[y].th][s];
     let university = 0 <= universityName.indexOf(this.props.user.auth) ? this.props.user.auth : "ncku";
-    let handleOnTouchTap = () => this.props.handleRedirect(`/?th=${years[y].th}&university=${university}&sport=${s}`);
+    let handleOnClick = () => this.handleLeftMenuButtonClick(`/?th=${years[y].th}&university=${university}&sport=${s}`);
     let isDisabled = false;
     let isButton = true;
     let rightIcon = null;
 
     if (sport.is_finish && university in sport.is_finish && sport.is_finish[university]) {
       if (this.props.user.auth !== "admin" && this.props.user.auth !== "overview") {
-        handleOnTouchTap = null;
+        handleOnClick = null;
         isDisabled = true;
         isButton = false;
       }
@@ -86,7 +91,7 @@ class LeftMenu extends Component {
     }
 
     return (
-      <ListItem button={isButton} key={`sportItem_${sIndex}`} onClick={handleOnTouchTap} disabled={isDisabled}>
+      <ListItem button={isButton} key={`sportItem_${sIndex}`} onClick={handleOnClick} disabled={isDisabled}>
         <ListItemText primary={sport.title} />
         {rightIcon}
       </ListItem>
@@ -110,12 +115,12 @@ class LeftMenu extends Component {
             (
               this.props.user.auth === "admin" || this.props.user.auth === "overview" ?
               [(
-                <ListItem button key={`overview_${yIndex}`} onClick={() => this.props.handleRedirect(`/?th=${years[y].th}&overview=true`)}>
+                <ListItem button key={`overview_${yIndex}`} onClick={() => this.handleLeftMenuButtonClick(`/?th=${years[y].th}&overview=true`)}>
                   <ListItemText primary={`${years[y].title}總覽`} />
                 </ListItem>
               )] : []
             ).concat(
-              <ListItem button key={`allSportItems_${yIndex}`} onClick={() => this.props.handleRedirect(`/?th=${years[y].th}`)}>
+              <ListItem button key={`allSportItems_${yIndex}`} onClick={() => this.handleLeftMenuButtonClick(`/?th=${years[y].th}`)}>
                 <ListItemText primary="所有比賽項目" />
               </ListItem>
             ).concat(
@@ -133,7 +138,7 @@ class LeftMenu extends Component {
     return (
       <Drawer open={this.props.menuOpen} onClose={this.props.handleMenuClose}>
         <List style={{minWidth: 250, width: '10vw'}}>
-          <ListItem button onClick={() => this.props.handleRedirect(`/`)}>
+          <ListItem button onClick={() => this.handleLeftMenuButtonClick(`/`)}>
             <ListItemText primary="首頁"/>
           </ListItem>
           {
