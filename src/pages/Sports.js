@@ -38,27 +38,43 @@ class Sports extends Component {
     this.dataRef = null;
   }
 
-  componentDidMount = () => {
-    window.addEventListener("beforeunload", this.beforeunload);
-    if(this.props.user){ // need varify
-      let self = this;
-      window.firebase.database().ref(`/years`).once('value').then(function(snapshot){
-        let data = snapshot.val() ? snapshot.val() : {};
-        Object.keys(data).map(k => {
-          if(data[k].th === self.props.th)
-            self.setState({isNCKUHost: data[k].ncku_host});
-          return 0;
-        })
-        self.setState({isLoadingHost: true});
+  sportDbUpdate = () => {
+    const self = this;
 
-        self.dataRef = window.firebase.database().ref(`/sports/${self.props.th}`);
-        self.dataRef.on('value', function(snapshot) {
-          self.updateSports(snapshot.val());
-        });
-        self.setState({
-          addSportData: self.createAddSportData(self.state.addSportInfo)
-        });
+    if (this.dataRef && this.dataRef.off) {
+      this.dataRef.off();
+    }
+
+    if (!this.props.user) {
+      return;
+    }
+
+    window.firebase.database().ref(`/years`).once('value').then(function(snapshot){
+      let data = snapshot.val() ? snapshot.val() : {};
+      Object.keys(data).map(k => {
+        if(data[k].th === self.props.th)
+          self.setState({isNCKUHost: data[k].ncku_host});
+        return 0;
+      })
+      self.setState({isLoadingHost: true});
+
+      self.dataRef = window.firebase.database().ref(`/sports/${self.props.th}`);
+      self.dataRef.on('value', function(snapshot) {
+        self.updateSports(snapshot.val());
       });
+      self.setState({
+        addSportData: self.createAddSportData(self.state.addSportInfo)
+      });
+    });
+  }
+
+  componentDidMount = () => {
+    this.sportDbUpdate();
+  }
+
+  componentDidUpdate = (prevProps) => {
+    if (!this.props.user || prevProps.th !== this.props.th) {
+      this.sportDbUpdate();
     }
   }
 
