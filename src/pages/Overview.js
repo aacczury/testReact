@@ -8,7 +8,7 @@ import LoadDialog from '../components/LoadDialog';
 import Input from '../components/Input';
 
 import '../components/ResTable.css';
-import { STATUS_HIGH_LIST, STATUS_NAME } from '../config';
+import { STATUS_HIGH_LIST, STATUS_NAME, UNIVERSITY_LIST } from '../config';
 
 class Overview extends Component {
   constructor(props) {
@@ -44,10 +44,14 @@ class Overview extends Component {
       return;
     }
 
-    this.dataRef = window.firebase.database().ref(`/participant/ncku/${this.props.th}`);
+    if (0 > UNIVERSITY_LIST.indexOf(this.props.university)) {
+      return;
+    }
+
+    this.dataRef = window.firebase.database().ref(`/participant/${this.props.university}/${this.props.th}`);
     this.dataRef.on('value', participantShot => {
       window.firebase.database().ref(`/sports/${this.props.th}`).once('value').then(sportsShot => {
-        window.firebase.database().ref(`/participants/ncku/${this.props.th}`).once('value').then(participantsShot => {
+        window.firebase.database().ref(`/participants/${this.props.university}/${this.props.th}`).once('value').then(participantsShot => {
           self.updateOverview(
             true,
             participantShot.val() ? participantShot.val() : {},
@@ -64,7 +68,7 @@ class Overview extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (!this.props.user || prevProps.th !== this.props.th) {
+    if (!this.props.user || prevProps.th !== this.props.th || prevProps.university !== this.props.university) {
       this.dbUpdate();
     }
   }

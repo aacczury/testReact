@@ -92,6 +92,20 @@ class LeftMenu extends Component {
     }
 
     return (
+      (this.props.user.auth === "admin" || this.props.user.auth === "overview") && years[y].ncku_host ?
+      UNIVERSITY_LIST.map((uvst, uvstIndex) => {
+        rightIcon = null;
+        if (sport.is_finish && uvst in sport.is_finish && sport.is_finish[uvst]) {
+          rightIcon = <Done style={{color: "#4caf50"}} />;
+        }
+        handleOnClick = () => this.handleLeftMenuButtonClick(`/?th=${years[y].th}&university=${uvst}&sport=${s}`);
+        return (
+          <ListItem button={isButton} key={`sportItem_${sIndex}_${uvstIndex}`} onClick={handleOnClick} disabled={isDisabled}>
+            <ListItemText inset primary={`${sport.title}-${uvst.toUpperCase()}`} />
+            {rightIcon}
+          </ListItem>
+        )
+      }) :
       <ListItem button={isButton} key={`sportItem_${sIndex}`} onClick={handleOnClick} disabled={isDisabled}>
         <ListItemText inset primary={sport.title} />
         {rightIcon}
@@ -101,6 +115,7 @@ class LeftMenu extends Component {
 
   yearList = (y, yIndex) => {
     let years = this.state.years;
+    let overviewUniversityList = years[y].ncku_host ? UNIVERSITY_LIST : ['ncku'];
     if (!years[y].ncku_host && this.props.user.auth !== 'ncku' && this.props.user.auth !== 'admin' && this.props.user.auth !== 'overview') {
       return <React.Fragment key={`fragment_yearList_${yIndex}`}></React.Fragment>;
     }
@@ -116,9 +131,13 @@ class LeftMenu extends Component {
             (
               this.props.user.auth === "admin" || this.props.user.auth === "overview" ?
               [(
-                <ListItem button key={`overview_${yIndex}`} onClick={() => this.handleLeftMenuButtonClick(`/?th=${years[y].th}&overview=true`)}>
-                  <ListItemText inset primary={`${years[y].title}總覽`} />
-                </ListItem>
+                overviewUniversityList.map((university, universityIdx) => {
+                  return (
+                    <ListItem button key={`overview_${yIndex}_${universityIdx}`} onClick={() => this.handleLeftMenuButtonClick(`/?th=${years[y].th}&university=${university}&overview=true`)}>
+                      <ListItemText inset primary={`${years[y].title}總覽-${university.toUpperCase()}`} />
+                    </ListItem>
+                  )
+                })
               )] : []
             ).concat(
               <ListItem button key={`allSportItems_${yIndex}`} onClick={() => this.handleLeftMenuButtonClick(`/?th=${years[y].th}`)}>
