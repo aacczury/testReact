@@ -92,7 +92,7 @@ class LeftMenu extends Component {
 
     return (
       <ListItem button={isButton} key={`sportItem_${sIndex}`} onClick={handleOnClick} disabled={isDisabled}>
-        <ListItemText primary={sport.title} />
+        <ListItemText inset primary={sport.title} />
         {rightIcon}
       </ListItem>
     )
@@ -116,12 +116,12 @@ class LeftMenu extends Component {
               this.props.user.auth === "admin" || this.props.user.auth === "overview" ?
               [(
                 <ListItem button key={`overview_${yIndex}`} onClick={() => this.handleLeftMenuButtonClick(`/?th=${years[y].th}&overview=true`)}>
-                  <ListItemText primary={`${years[y].title}總覽`} />
+                  <ListItemText inset primary={`${years[y].title}總覽`} />
                 </ListItem>
               )] : []
             ).concat(
               <ListItem button key={`allSportItems_${yIndex}`} onClick={() => this.handleLeftMenuButtonClick(`/?th=${years[y].th}`)}>
-                <ListItemText primary="所有比賽項目" />
+                <ListItemText inset primary="所有比賽項目" />
               </ListItem>
             ).concat(
               years[y].th in this.state.sports ? Object.keys(this.state.sports[years[y].th]).map(this.sportList.bind(null, years, y)) : []
