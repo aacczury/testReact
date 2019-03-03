@@ -116,7 +116,7 @@ class Sports extends Component {
     }
     if (sport.is_finish && university in sport.is_finish && sport.is_finish[university]) {
       let url = null;
-      if(this.props.user.auth === "admin" && this.props.user.auth === "overview") {
+      if (this.props.user.auth === "admin" || this.props.user.auth === "overview") {
         url = `/?th=${this.props.th}&university=${university}&sport=${sportUid}`;
       }
       cardData.push({
