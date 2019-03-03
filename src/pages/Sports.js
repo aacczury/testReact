@@ -33,6 +33,7 @@ class Sports extends Component {
 
     this.tmpSave = {};
     this.tmpRemove = {};
+    this.dataRef = null;
   }
 
   componentDidMount = () => {
@@ -60,6 +61,9 @@ class Sports extends Component {
   }
 
   componentWillUnmount = () => {
+    if (this.dataRef && this.dataRef.off) {
+      this.dataRef.off();
+    }
   }
 
   sportCardDataUpdate = (sportData, cardData, sportUid, index) => {
