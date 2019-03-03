@@ -68,7 +68,7 @@ class LeftMenu extends Component {
   }
 
   sportList = (years, y, s, sIndex) => {
-    const universityName = ["ncku", "cuu", "nsysu", "nchu"];
+    const universityName = ["ncku", "ccu", "nsysu", "nchu"];
     let sport = this.state.sports[years[y].th][s];
     let university = 0 <= universityName.indexOf(this.props.user.auth) ? this.props.user.auth : "ncku";
     let handleOnTouchTap = () => this.props.handleRedirect(`/?th=${years[y].th}&university=${university}&sport=${s}`);
@@ -95,6 +95,9 @@ class LeftMenu extends Component {
 
   yearList = (y, yIndex) => {
     let years = this.state.years;
+    if (!years[y].ncku_host && this.props.user.auth !== 'ncku' && this.props.user.auth !== 'admin' && this.props.user.auth !== 'overview') {
+      return <React.Fragment key={`fragment_yearList_${yIndex}`}></React.Fragment>;
+    }
     return (
       <React.Fragment key={`fragment_yearList_${yIndex}`}>
         <ListItem button key={`th_${yIndex}`} onClick={this.handleYearListOpen.bind(null, yIndex)}>
