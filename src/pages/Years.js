@@ -55,6 +55,10 @@ class Years extends Component {
     let data = d ? d : {};
     let cardData = [];
     Object.keys(data).map(k => {
+      if (!data[k].ncku_host && this.props.user.auth !== 'ncku' && this.props.user.auth !== 'admin' && this.props.user.auth !== 'overview') {
+        return 0;
+      }
+
       cardData.push({
         title: data[k].title,
         url: `/?th=${data[k].th}`, content: (

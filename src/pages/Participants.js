@@ -30,7 +30,8 @@ class Participants extends Component {
       sportData: {},
       sendEmailDialogOpen: false,
       errorAlertOpen: false,
-      loadDialogOpen: true
+      loadDialogOpen: true,
+      isNCKUHost: false
     };
 
     this.dataRef = window.firebase.database().ref(`/participants/${this.props.university}/${this.props.th}/${this.props.sport}`);
@@ -68,6 +69,20 @@ class Participants extends Component {
   componentWillUnmount = () => {
   }
 
+  yearFind = (yearData, th) => {
+    let yearUids = Object.keys(yearData);
+    let year = {};
+
+    yearUids.map(uid => {
+        if("th" in yearData[uid] && th === yearData[uid].th) {
+          year = yearData[uid];
+        }
+        return 0;
+    });
+
+    return year;
+  }
+
   updateParticipants = (d, s, y, e = {}) => {
     let data = d ? d : {};
     let sportData = s ? s : {};
@@ -75,6 +90,18 @@ class Participants extends Component {
     let errorPtc = e;
     let highStatusForm = [];
     let tableData = [];
+    let isNCKUHost = false;
+
+    const year = this.yearFind(y, this.props.th);
+    if ('ncku_host' in year && year.ncku_host) {
+      isNCKUHost = true;
+    }
+
+    if (!isNCKUHost && this.props.user.auth !== 'ncku' && this.props.user.auth !== 'admin' && this.props.user.auth !== 'overview') {
+      console.error(`${this.props.th}th can't get ${this.props.user.auth} data`);
+      return 1;
+    }
+
     highStatusList.map((status, index) => {
       if(status in data && data[status]) {
         highStatusForm.push(<ParticipantInfo key={`ptc_high_${index}`} user={this.props.user}
@@ -110,12 +137,13 @@ class Participants extends Component {
     this.setState({ // need loading
       highStatusForm: highStatusForm,
       tableData: tableData,
-      contact: data.contact,
+      contact: data.contact ? data.contact : {name: "", phone: "", email: ""},
       participantsData: data,
       sportData: sportData,
       yearData: yearData,
       errorPtc: errorPtc,
-      loadDialogOpen: false
+      loadDialogOpen: false,
+      isNCKUHost: isNCKUHost,
     });
   }
 
@@ -408,13 +436,7 @@ class Participants extends Component {
 
     body += `</table><br />`;
 
-    let yearUids = Object.keys(this.state.yearData);
-    let year = {};
-    yearUids.map(uid => {
-        if("th" in this.state.yearData[uid] && this.state.yearData[uid].th === this.props.th)
-          year = this.state.yearData[uid];
-        return 0;
-    });
+    const year = this.yearFind(this.state.yearData, this.props.th);
     body += `因資料已送出，無法再於系統修改，<br />
               如仍有需修改的資料或任何報名上的疑問，<br />
               煩請聯絡：<br />`;
@@ -486,6 +508,10 @@ class Participants extends Component {
   }
 
   render() {
+    if (!this.state.isNCKUHost && this.props.user.auth !== 'ncku' && this.props.user.auth !== 'admin' && this.props.user.auth !== 'overview') {
+      return <React.Fragment></React.Fragment>;
+    }
+
     let cancelHeadCell = (<th></th>);
 
     let plus1 = null;

@@ -65,42 +65,8 @@ class Sports extends Component {
   sportCardDataUpdate = (sportData, cardData, sportUid, index) => {
     const universityName = ["ncku", "ccu", "nsysu", "nchu"];
     let sport = sportData[sportUid];
-    if (!this.state.isNCKUHost || (this.props.user.auth !== "admin" && this.props.user.auth !== "overview")) {
-      let university = "ncku";
-      if (0 <= universityName.indexOf(this.props.user.auth)) {
-        university = this.props.user.auth;
-      }
-      if (sport.is_finish && university in sport.is_finish && sport.is_finish[university]) {
-        let url = null;
-        if(this.props.user.auth === "admin" && this.props.user.auth === "overview") {
-          url = `/?th=${this.props.th}&university=${university}&sport=${sportUid}`;
-        }
-        cardData.push({
-          order: 'order' in sport ? sport.order : +index + 1,
-          title: sport.title,
-          uid: sportUid,
-          content: (
-            <div style={{display: "inline-block"}}>
-              <Chip
-                style={{backgroundColor: "#c8e6c9", color: "#222"}}
-                avatar={
-                  <Avatar style={{color: "#fff", backgroundColor: "#4caf50"}}>
-                    <Done />
-                  </Avatar>
-                }
-                label='已報名完成'
-              />
-            </div>
-          ),
-          url: url});
-      } else {
-        cardData.push({ order: 'order' in sport ? sport.order : +index + 1, title: sport.title, uid: sportUid, content: (
-            <div style={{display: "inline-block"}}>
-              <Chip label='尚未報名完成' />
-            </div>
-          ), url: `/?th=${this.props.th}&university=${university}&sport=${sportUid}`});
-      }
-    } else {
+
+    if (this.state.isNCKUHost && (this.props.user.auth === 'admin' || this.props.user.auth === 'overview')) {
       cardData.push({ order: 'order' in sport ? sport.order : +index + 1, title: sport.title, uid: sportUid, content: (
         <div>
           {universityName.map(university => {
@@ -133,7 +99,48 @@ class Sports extends Component {
           })}
         </div>
       )});
+      return 0;
     }
+
+    if (!this.state.isNCKUHost && this.props.user.auth !== 'ncku' && this.props.user.auth !== 'admin' && this.props.user.auth !== 'overview') {
+      return 0;
+    }
+
+    let university = "ncku";
+    if (0 <= universityName.indexOf(this.props.user.auth)) {
+      university = this.props.user.auth;
+    }
+    if (sport.is_finish && university in sport.is_finish && sport.is_finish[university]) {
+      let url = null;
+      if(this.props.user.auth === "admin" && this.props.user.auth === "overview") {
+        url = `/?th=${this.props.th}&university=${university}&sport=${sportUid}`;
+      }
+      cardData.push({
+        order: 'order' in sport ? sport.order : +index + 1,
+        title: sport.title,
+        uid: sportUid,
+        content: (
+          <div style={{display: "inline-block"}}>
+            <Chip
+              style={{backgroundColor: "#c8e6c9", color: "#222"}}
+              avatar={
+                <Avatar style={{color: "#fff", backgroundColor: "#4caf50"}}>
+                  <Done />
+                </Avatar>
+              }
+              label='已報名完成'
+            />
+          </div>
+        ),
+        url: url});
+    } else {
+      cardData.push({ order: 'order' in sport ? sport.order : +index + 1, title: sport.title, uid: sportUid, content: (
+          <div style={{display: "inline-block"}}>
+            <Chip label='尚未報名完成' />
+          </div>
+        ), url: `/?th=${this.props.th}&university=${university}&sport=${sportUid}`});
+    }
+
     return 0;
   }
 
@@ -143,7 +150,10 @@ class Sports extends Component {
       setTimeout(() => this.updateSports(d), 1000);
       return ;
     }
-    // need loading icon
+    if (0 > ["ncku", "ccu", "nsysu", "nchu", 'admin', 'overview'].indexOf(this.props.user.auth)) {
+      console.error(`${this.props.th}th can't get ${this.props.user.auth} data`);
+      return;
+    }
     let data = d ? d : {};
     let cardData = [];
     Object.keys(data).map(this.sportCardDataUpdate.bind(null, data, cardData));
