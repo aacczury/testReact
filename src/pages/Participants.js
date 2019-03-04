@@ -2,11 +2,12 @@ import React, { Component } from 'react';
 import { Card, CardContent, IconButton, Button, Snackbar, SnackbarContent } from '@material-ui/core';
 import { ExposurePlus1, Close } from '@material-ui/icons';
 
-import {UNIVERSITY_LIST, STATUS_HIGH_LIST, STATUS_NAME, ATTR_LIST, ATTR_TYPE, ATTR_NAME} from '../config';
+import { STATUS_HIGH_LIST, STATUS_NAME, ATTR_LIST, ATTR_TYPE } from '../config';
 import ParticipantInfo from '../components/ParticipantInfo';
 import Input from '../components/Input';
 import AddDialog from '../components/AddDialog';
 import LoadDialog from '../components/LoadDialog';
+import SendPtcEmail from '../utils/SendPtcEmail'
 
 import '../components/ResTable.css';
 
@@ -326,151 +327,6 @@ class Participants extends Component {
     return ptcData;
   }
 
-  sendEmail = () => {
-    let xhr = new XMLHttpRequest();
-    xhr.open("POST", "http://stud.adm.ncku.edu.tw/act/chcwcup/register/mail.asp", true);
-    xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-
-    let title = encodeURI(`[第${this.props.th}屆正興城灣盃]+${this.state.sportData.title}+報名資料`);
-
-    let tableStyle = `'font-family:sans-serif,微軟正黑體;border-collapse:collapse;border:1px solid #aaa;'`;
-    let trStyle = `'border:1px solid #aaa;'`;
-    let thStyle = `'font-family:sans-serif,微軟正黑體;padding:5px;color:#fff;background-color:#00bcd4;font-weight:900'`;
-    let tdStyle = `'font-family:sans-serif,微軟正黑體;padding:5px;'`;
-
-    let university = "ncku";
-    if (0 <= UNIVERSITY_LIST.indexOf(this.props.user.auth)) {
-      university = this.props.user.auth;
-    }
-
-    let body = `
-    <div style="font-family:sans-serif,微軟正黑體;">
-      ${this.state.contact.name} 您好：<br /><br />
-      歡迎使用第${this.props.th}屆正興城灣盃報名系統，<br />
-      您被設定為<span style="color:#2196f3">${university.toUpperCase()} ${this.state.sportData.title}</span>的聯絡人，<br />
-      <span style="color:#2196f3">${this.state.sportData.title}</span>的報名資料如下：<br /><br />`;
-    body += `
-      <table style=${tableStyle}>
-        <tr style=${trStyle}>
-          <th style=${thStyle}></th>
-          <th style=${thStyle}>姓名</th>
-          <th style=${thStyle}>電話</th>
-          <th style=${thStyle}>信箱</th>
-        </tr>
-        <tr style=${trStyle}>
-          <td style=${tdStyle}>聯絡人</td>
-          <td style=${tdStyle}>${this.state.contact.name}</td>
-          <td style=${tdStyle}>${this.state.contact.phone}</td>
-          <td style=${tdStyle}>${this.state.contact.email}</td>
-        </tr>
-      </table><br /><br />`;
-
-      body += `
-      <table style=${tableStyle}>
-        <tr>
-          <th style=${thStyle}>身分</th>
-          <th style=${thStyle}>姓名</th>
-        </tr>`;
-      let isHighLevel = false;
-      STATUS_HIGH_LIST.map(status => {
-        if(status in this.state.participantsData) {
-          isHighLevel = true;
-          let uid = this.state.participantsData[status];
-          if(uid in this.state.ptcsData) {
-            let ptcInfo = this.getParticipantData(this.state.ptcsData[uid]);
-            body += `<tr style=${trStyle}>
-                      <td style=${tdStyle}>${STATUS_NAME[status]}</td>
-                      <td style=${tdStyle}>${ptcInfo.name}</td>
-                    </tr>`;
-          } else {
-            console.error(uid + " not in high ptcsData!!!");
-          }
-        }
-        return 0;
-      });
-    body += `</table><br />`;
-
-    const mailAttrList = ['status'].concat(ATTR_LIST);
-    body += `
-      <table style=${tableStyle}>
-        <tr style=${trStyle}>`;
-    mailAttrList.map(attr => {
-      body += `<th style=${thStyle}>${ATTR_NAME[attr]}</th>`;
-      return 0;
-    })
-    body += `</tr>`;
-
-    if ("leader" in this.state.participantsData && this.state.participantsData["leader"]) {
-      let status = "leader"
-      let uid = this.state.participantsData[status];
-      if(uid in this.state.ptcsData) {
-        let ptcInfo = this.getParticipantData(this.state.ptcsData[uid]);
-        body += `<tr style=${trStyle}>
-                  <td style=${tdStyle}>${STATUS_NAME[status]}</td>`;
-        ATTR_LIST.map(attr => {
-          if(attr !== "status") {
-            body += `<td style=${tdStyle}>${ptcInfo[attr]}</td>`;
-          }
-          return 0;
-        });
-        body += `</tr>`;
-      }
-    }
-
-    let memberName = isHighLevel ? "隊員" : "成員";
-    let memberUids = 'member' in this.state.participantsData ?
-                        Object.keys(this.state.participantsData["member"]) :
-                        [];
-    memberUids.map(uid => {
-      if(uid in this.state.ptcsData) {
-        let ptcInfo = this.getParticipantData(this.state.ptcsData[uid]);
-        body += `<tr style=${trStyle}>
-                  <td style=${tdStyle}>${memberName}</td>`;
-        ATTR_LIST.map(attr => {
-          if(attr !== "status") {
-            body += `<td style=${tdStyle}>${ptcInfo[attr]}</td>`;
-          }
-          return 0;
-        });
-        body += `</tr>`;
-      } else {
-        console.error(uid + " not in member ptcsData!!!");
-      }
-      return 0;
-    });
-
-    body += `</table><br />`;
-
-    const year = this.yearFind(this.state.yearData, this.props.th);
-    body += `因資料已送出，無法再於系統修改，<br />
-              如仍有需修改的資料或任何報名上的疑問，<br />
-              煩請聯絡：<br />`;
-    if ("contact" in year) {
-      Object.values(year.contact).map(contactInfo => {
-        body += `<br />
-        <div style="color:#2196F3">
-          ${contactInfo.title ? contactInfo.title : ""} ${contactInfo.name ? contactInfo.name : ""}<br />
-          ${contactInfo.phone ? "電話: " + contactInfo.phone + "<br />" : ""}
-          ${contactInfo.email ? "信箱: " + contactInfo.email + "<br />" : ""}
-        </div>`
-        return 0;
-      });
-    } else {
-      body += `<div style="color:#2196F3">
-        ${year.contact_name ? year.contact_name + "<br />" : ""}
-        ${year.contact_phone ? year.contact_phone + "<br />" : ""}
-        ${year.contact_email ? year.contact_email + "<br />" : ""}
-      </div>`
-    }
-    body += `<br />
-              感謝您的填寫<br />
-              正興城灣盃籌備團隊 敬上<br />
-              </div>
-              `
-    body = encodeURI(body);
-    xhr.send(`uid=${this.props.user.uid}&email=${this.state.contact.email}&title=${title}&body=${body}`);
-  }
-
   handleSubmit = () => {
     this.handleLoadDialogOpen();
     if(this.checkData()){
@@ -479,7 +335,7 @@ class Participants extends Component {
       return;
     }
     /* send email */
-    this.sendEmail();
+    SendPtcEmail(this.props, this.state, this.getParticipantData, this.yearFind);
     /* upload */
     this.uploadData(() => {
       this.handleSendEmailDialogClose();
