@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Card, CardContent, IconButton, Button, Snackbar, SnackbarContent } from '@material-ui/core';
 import { ExposurePlus1, Close } from '@material-ui/icons';
 
-import { STATUS_HIGH_LIST, STATUS_NAME, ATTR_LIST, ATTR_TYPE } from '../config';
+import { STATUS_HIGH_LIST, STATUS_NAME, ATTR_LIST, ATTR_FEW_LIST, ATTR_TYPE, ATTR_NAME } from '../config';
 import ParticipantInfo from '../components/ParticipantInfo';
 import Input from '../components/Input';
 import AddDialog from '../components/AddDialog';
@@ -265,7 +265,10 @@ class Participants extends Component {
     }
 
     /* check participants */
-    const checkAttrList = ["name", "deptyear", "id", "birthday", "size"];
+    let checkAttrList = ["name", "deptyear", "id", "birthday", "size"];
+    if (this.props.university) {
+      checkAttrList = ['name', 'size'];
+    }
     let ptcsUids = Object.keys(this.state.ptcsData);
     let errorPtc = {};
     for(let i = 0; i < ptcsUids.length; ++i) {
@@ -302,9 +305,13 @@ class Participants extends Component {
 
   getParticipantData = (data) => {
     let d = data ? data : {};
+    let ptcAttrList = 'ncku' === this.props.university ? ATTR_LIST : ATTR_FEW_LIST;
+    if ('ncku' !== this.props.university) {
+      ptcAttrList = ATTR_FEW_LIST;
+    }
 
     let ptcData = {};
-    ATTR_LIST.map(attr => {
+    ptcAttrList.map(attr => {
       if(typeof d[attr] === 'undefined') {
         ptcData[attr] = ATTR_TYPE[attr] === 'checkbox' ? false : '';
       } else ptcData[attr] = d[attr];
@@ -449,6 +456,10 @@ class Participants extends Component {
       )
     }
 
+    let ptcInfoAttrList = ['status'].concat(ATTR_LIST);
+    if ('ncku' !== this.props.university) {
+      ptcInfoAttrList = ['status'].concat(ATTR_FEW_LIST);
+    }
     let ptcInfoDOM = (
       <Card style={{margin: "10px", display: "inline-block", verticalAlign: "top"}}>
         <CardContent>
@@ -456,15 +467,9 @@ class Participants extends Component {
             <thead>
               <tr>
                 {cancelHeadCell}
-                <th>身分</th>
-                <th>姓名</th>
-                <th>系級</th>
-                <th>身分證字號</th>
-                <th>出生年月日 (例: 1991-01-01)</th>
-                <th>衣服尺寸</th>
-                <th>住宿</th>
-                <th>搭乘遊覽車</th>
-                <th>素食</th>
+                {
+                  ptcInfoAttrList.map(attr => <th key={`ptcInfo_th_${attr}`}>{ATTR_NAME[attr]}</th>)
+                }
               </tr>
             </thead>
             <tbody>

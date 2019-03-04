@@ -8,7 +8,7 @@ import LoadDialog from '../components/LoadDialog';
 import Input from '../components/Input';
 
 import '../components/ResTable.css';
-import { STATUS_HIGH_LIST, STATUS_NAME, UNIVERSITY_LIST } from '../config';
+import { STATUS_HIGH_LIST, STATUS_NAME, UNIVERSITY_LIST, ATTR_CHECK_LIST, ATTR_NAME } from '../config';
 
 class Overview extends Component {
   constructor(props) {
@@ -31,6 +31,7 @@ class Overview extends Component {
     };
     this.updateDelay = null;
     this.dataRef = null;
+    this.keyList = [];
   }
 
   dbUpdate = () => {
@@ -81,10 +82,9 @@ class Overview extends Component {
 
   getParticipantData = (data, sports, uid, memberName = "隊員") => {
     const statusName = {coach: "教練", captain: "領隊", manager: "管理", leader: "隊長", member: memberName};
-    const keyList = ["id", "name", "sport", "status", "deptyear", "birthday", "size", "lodging", "bus", "vegetarian"];
     let d = data[uid];
 
-    keyList.map(k => {
+    this.keyList.map(k => {
       if(typeof d[k] === "undefined") {
         if(k !== "lodging" && k !== "bus" && k !== "vegetarian") d[k] = "";
         else d[k] = false;
@@ -124,6 +124,10 @@ class Overview extends Component {
     let selectedSports = isInit ? {} : this.state.selectedSports;
     let diffID = {}, conflictPtc = {};
     let countSize = {}, countLodging = 0, countBus = 0, countVegetarian = 0;
+    this.keyList = ["id", "name", "sport", "status", "deptyear", "birthday", "size", "lodging", "bus", "vegetarian"];
+    if ('ncku' !== this.props.university) {
+      this.keyList = ["name", "sport", "status", "size"];
+    }
 
     Object.keys(sports).map(sportUid => {
       // check if selected or init will select all
@@ -174,9 +178,11 @@ class Overview extends Component {
         return 0;
       }
       let curParticipant = this.getParticipantData(data, sports, participantUid); // will not contain undefined
-      curParticipant.name = curParticipant.name.trim().replace(/[Ａ-Ｚａ-ｚ０-９]/g, function(s) {return String.fromCharCode(s.charCodeAt(0) - 0xFEE0)});
-      curParticipant.id = curParticipant.id.trim().replace(/[Ａ-Ｚａ-ｚ０-９]/g, function(s) {return String.fromCharCode(s.charCodeAt(0) - 0xFEE0)});
-      curParticipant.size = curParticipant.size.trim().replace(/[Ａ-Ｚａ-ｚ０-９]/g, function(s) {return String.fromCharCode(s.charCodeAt(0) - 0xFEE0)});
+      ['name', 'id', 'size'].map(attr => {
+        curParticipant[attr] = curParticipant[attr] ? curParticipant[attr] : "";
+        curParticipant[attr] = curParticipant[attr].trim().replace(/[Ａ-Ｚａ-ｚ０-９]/g, function(s) {return String.fromCharCode(s.charCodeAt(0) - 0xFEE0)});
+        return 0;
+      })
       if(curParticipant.name + curParticipant.id === '') return 1;
       tableData.push(curParticipant);
 
@@ -259,15 +265,29 @@ class Overview extends Component {
       outputString += s.sport + "\n";
       outputString += ",姓名,電話,信箱\n";
       outputString += `聯絡人,${s.contact.name},${s.contact.phone},${s.contact.email}\n`;
-      outputString += "身分,身分證字號,姓名,系級,生日,衣服尺寸,住宿,遊覽車,素食\n";
+      this.keyList.map((attr, attrIdx) => {
+        if (!attrIdx) {
+          outputString += ATTR_NAME[attr];
+        } else {
+          outputString += `,${ATTR_NAME[attr]}`;
+        }
+        return 0;
+      })
+      outputString += "\n";
       s.data.map(d => {
-        outputString += [
-          d.status, d.id, d.name,
-          d.deptyear, d.birthday, d.size,
-          d.lodging ? 'V' : '',
-          d.bus ? 'V' : '',
-          d.vegetarian ? 'V' : ''
-        ].join(',') + "\n";
+        this.keyList.map((attr, attrIdx) => {
+          let value = d[attr];
+          if (0 <= ATTR_CHECK_LIST.indexOf(attr)) {
+            value = value ? 'V' : '';
+          }
+          if (!attrIdx) {
+            outputString += value;
+          } else {
+            outputString += `,${value}`;
+          }
+          return 0;
+        })
+        outputString += "\n";
         return 0;
       });
       outputString += "\n";
@@ -301,16 +321,15 @@ class Overview extends Component {
     let tableItems = this.state.tableData.map((d, index) => {
       return (
         <tr style={{color: d.color,backgroundColor: d.bgcolor}} key={`tr_${index}_${d.id}`}>
-          <td data-label="身分證字號">{d.id}</td>
-          <td data-label="姓名">{d.name}</td>
-          <td data-label="項目">{d.sport}</td>
-          <td data-label="身分">{d.status}</td>
-          <td data-label="系級">{d.deptyear}</td>
-          <td data-label="生日">{d.birthday}</td>
-          <td data-label="衣服尺寸">{d.size}</td>
-          <td data-label="住宿">{d.lodging ? 'V' : ''}</td>
-          <td data-label="搭乘遊覽車">{d.bus ? 'V' : ''}</td>
-          <td data-label="素食">{d.vegetarian ? 'V' : ''}</td>
+          {
+            this.keyList.map(attr => {
+              let value = d[attr];
+              if (0 <= ATTR_CHECK_LIST.indexOf(attr)) {
+                value = value ? 'V' : '';
+              }
+              return <td data-label={ATTR_NAME[attr]} key={`td_ptc${index}_${attr}`}>{value}</td>
+            })
+          }
         </tr>
       )
     });
@@ -319,16 +338,9 @@ class Overview extends Component {
       <table>
         <thead>
           <tr>
-            <th>身分證字號</th>
-            <th>姓名</th>
-            <th>項目</th>
-            <th>身分</th>
-            <th>系級</th>
-            <th>生日</th>
-            <th>衣服尺寸</th>
-            <th>住宿</th>
-            <th>搭乘遊覽車</th>
-            <th>素食</th>
+            {
+              this.keyList.map(attr => <th key={`th_${attr}`}>{ATTR_NAME[attr]}</th>)
+            }
           </tr>
         </thead>
         <tbody>
@@ -383,32 +395,24 @@ class Overview extends Component {
                 <table>
                   <thead>
                     <tr>
-                      <th>身分證字號</th>
-                      <th>姓名</th>
-                      <th>項目</th>
-                      <th>身分</th>
-                      <th>系級</th>
-                      <th>生日</th>
-                      <th>衣服尺寸</th>
-                      <th>住宿</th>
-                      <th>搭乘遊覽車</th>
-                      <th>素食</th>
+                      {
+                        this.keyList.map(attr => <th key={`th_sport${sIndex}_${attr}`}>{ATTR_NAME[attr]}</th>)
+                      }
                     </tr>
                   </thead>
                   <tbody>
                     {s.data.map((d, pIndex) => {
                       return (
                         <tr key={`tr_${pIndex}_${d.id}`}>
-                          <td data-label="身分證字號">{d.id}</td>
-                          <td data-label="姓名">{d.name}</td>
-                          <td data-label="項目">{d.sport}</td>
-                          <td data-label="身分">{d.status}</td>
-                          <td data-label="系級">{d.deptyear}</td>
-                          <td data-label="生日">{d.birthday}</td>
-                          <td data-label="衣服尺寸">{d.size}</td>
-                          <td data-label="住宿">{d.lodging ? 'V' : ''}</td>
-                          <td data-label="搭乘遊覽車">{d.bus ? 'V' : ''}</td>
-                          <td data-label="素食">{d.vegetarian ? 'V' : ''}</td>
+                          {
+                            this.keyList.map(attr => {
+                              let value = d[attr];
+                              if (0 <= ATTR_CHECK_LIST.indexOf(attr)) {
+                                value = value ? 'V' : '';
+                              }
+                              return <td data-label={ATTR_NAME[attr]} key={`th_ptc${pIndex}_${attr}`}>{value}</td>
+                            })
+                          }
                         </tr>
                       )
                     })}
@@ -469,24 +473,30 @@ class Overview extends Component {
               }
             </CardContent>
           </Card>
-          <Card style={{width: "280px", margin: "10px", display: "inline-block", verticalAlign: "top"}}>
-            <CardHeader title="住宿人數" />
-            <CardContent>
-              {this.state.countLodging}
-            </CardContent>
-          </Card>
-          <Card style={{width: "280px", margin: "10px", display: "inline-block", verticalAlign: "top"}}>
-            <CardHeader title="搭乘遊覽車人數" />
-            <CardContent>
-              {this.state.countBus}
-            </CardContent>
-          </Card>
-          <Card style={{width: "280px", margin: "10px", display: "inline-block", verticalAlign: "top"}}>
-            <CardHeader title="素食人數" />
-            <CardContent>
-              {this.state.countVegetarian}
-            </CardContent>
-          </Card>
+          {
+            'ncku' === this.props.university ? (
+              <React.Fragment>
+                <Card style={{width: "280px", margin: "10px", display: "inline-block", verticalAlign: "top"}}>
+                  <CardHeader title="住宿人數" />
+                  <CardContent>
+                    {this.state.countLodging}
+                  </CardContent>
+                </Card>
+                <Card style={{width: "280px", margin: "10px", display: "inline-block", verticalAlign: "top"}}>
+                  <CardHeader title="搭乘遊覽車人數" />
+                  <CardContent>
+                    {this.state.countBus}
+                  </CardContent>
+                </Card>
+                <Card style={{width: "280px", margin: "10px", display: "inline-block", verticalAlign: "top"}}>
+                  <CardHeader title="素食人數" />
+                  <CardContent>
+                    {this.state.countVegetarian}
+                  </CardContent>
+                </Card>
+              </React.Fragment>
+            ) : null
+          }
 
           {sportContainer}
 

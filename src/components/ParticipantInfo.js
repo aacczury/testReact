@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import {ATTR_LIST, ATTR_NAME, ATTR_TYPE, STATUS_HIGH_LIST} from '../config';
+import {ATTR_LIST, ATTR_FEW_LIST, ATTR_NAME, ATTR_TYPE, STATUS_HIGH_LIST} from '../config';
 import ResTR from './ResTR'
 
 class ParticipantInfo extends Component {
@@ -42,12 +42,15 @@ class ParticipantInfo extends Component {
   }
 
   createInputData = (ptcInfo, errorText = {}) => {
+    let inputAttrList = ATTR_LIST;
+    if ('ncku' !== this.props.university) {
+      inputAttrList = ATTR_FEW_LIST;
+    }
     if (STATUS_HIGH_LIST.indexOf(ptcInfo.status) !== -1) {
-      let attr = "name";
-      return [{type: ATTR_TYPE[attr], name: attr, label: ATTR_NAME[attr], value: ptcInfo[attr], errorText: errorText[attr]}];
+      inputAttrList = ['name'];
     }
 
-    return ATTR_LIST.map(attr => {
+    return inputAttrList.map(attr => {
       return {type: ATTR_TYPE[attr], name: attr, label: ATTR_NAME[attr], value: ptcInfo[attr], errorText: errorText[attr]};
     })
   }
@@ -56,12 +59,18 @@ class ParticipantInfo extends Component {
     // need loading icon
     let data = d ? d : {};
     let ptcInfo = {};
-    ATTR_LIST.map(attr => {
+    let inputAttrList = ATTR_LIST;
+    if ('ncku' !== this.props.university) {
+      inputAttrList = ATTR_FEW_LIST;
+    }
+    if (STATUS_HIGH_LIST.indexOf(ptcInfo.status) !== -1) {
+      inputAttrList = ['name'];
+    }
+    ptcInfo.status = "status" in data ? data.status : "";
+    inputAttrList.map(attr => {
       ptcInfo[attr] = typeof data[attr] === 'undefined' ? (ATTR_TYPE[attr] !== 'checkbox' ? '' : false) : data[attr];
       return 0;
-    });
-    ptcInfo.status = "status" in data ? data.status : "";
-
+    })
     let inputData = this.createInputData(ptcInfo, e);
     this.setState({ // need loading
       inputData: inputData,

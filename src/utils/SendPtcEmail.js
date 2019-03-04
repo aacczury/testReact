@@ -1,4 +1,4 @@
-import { UNIVERSITY_LIST, STATUS_HIGH_LIST, STATUS_NAME, ATTR_LIST, ATTR_NAME } from '../config';
+import { UNIVERSITY_LIST, STATUS_HIGH_LIST, STATUS_NAME, ATTR_LIST, ATTR_FEW_LIST, ATTR_NAME } from '../config';
 
 const SendPtcEmail = (props, state, getParticipantData, yearFind) => {
   let xhr = new XMLHttpRequest();
@@ -64,7 +64,11 @@ const SendPtcEmail = (props, state, getParticipantData, yearFind) => {
     });
   body += `</table><br />`;
 
-  const mailAttrList = ['status'].concat(ATTR_LIST);
+  let ptcAttrList = ATTR_LIST;
+  if ('ncku' !== props.university) {
+    ptcAttrList = ATTR_FEW_LIST;
+  }
+  const mailAttrList = ['status'].concat(ptcAttrList);
   body += `
     <table style=${tableStyle}>
       <tr style=${trStyle}>`;
@@ -81,7 +85,7 @@ const SendPtcEmail = (props, state, getParticipantData, yearFind) => {
       let ptcInfo = getParticipantData(state.ptcsData[uid]);
       body += `<tr style=${trStyle}>
                 <td style=${tdStyle}>${STATUS_NAME[status]}</td>`;
-      ATTR_LIST.map(attr => {
+      ptcAttrList.map(attr => {
         if(attr !== "status") {
           body += `<td style=${tdStyle}>${ptcInfo[attr]}</td>`;
         }
@@ -100,7 +104,7 @@ const SendPtcEmail = (props, state, getParticipantData, yearFind) => {
       let ptcInfo = getParticipantData(state.ptcsData[uid]);
       body += `<tr style=${trStyle}>
                 <td style=${tdStyle}>${memberName}</td>`;
-      ATTR_LIST.map(attr => {
+      ptcAttrList.map(attr => {
         if(attr !== "status") {
           body += `<td style=${tdStyle}>${ptcInfo[attr]}</td>`;
         }
