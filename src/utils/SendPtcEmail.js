@@ -120,9 +120,10 @@ const SendPtcEmail = (props, state, getParticipantData) => {
 
   body += `</table><br />`;
 
-  body += `因資料已送出，無法再於系統修改，<br />
-            如仍有需修改的資料或任何報名上的疑問，<br />
-            煩請聯絡：<br />`;
+  body += `感謝您的填寫！<br />
+  資料送出後將無法再於系統修改，<br />
+  如需更正資料或任何報名上的疑問，<br />
+  煩請聯絡各校活動承辦人：<br />`;
   if ("contact" in year) {
     Object.values(year.contact).map(contactInfo => {
       body += `<br />
@@ -141,8 +142,7 @@ const SendPtcEmail = (props, state, getParticipantData) => {
     </div>`
   }
   body += `<br />
-            感謝您的填寫<br />
-            正興城灣盃籌備團隊 敬上<br />
+            ${year.year} 第 ${year.th} 屆正興城灣盃籌備團隊 敬上<br />
             </div>
             `
   body = encodeURI(body);
