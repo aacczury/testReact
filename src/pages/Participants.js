@@ -2,12 +2,13 @@ import React, { Component } from 'react';
 import { Card, CardContent, IconButton, Button, Snackbar, SnackbarContent } from '@material-ui/core';
 import { ExposurePlus1, Close } from '@material-ui/icons';
 
-import { STATUS_HIGH_LIST, STATUS_NAME, ATTR_LIST, ATTR_FEW_LIST, ATTR_TYPE, ATTR_NAME } from '../config';
+import { STATUS_HIGH_LIST, STATUS_NAME, ATTR_LIST, ATTR_NCKU_FEW_LIST, ATTR_FEW_LIST, ATTR_TYPE, ATTR_NAME } from '../config';
 import ParticipantInfo from '../components/ParticipantInfo';
 import Input from '../components/Input';
 import AddDialog from '../components/AddDialog';
 import LoadDialog from '../components/LoadDialog';
-import SendPtcEmail from '../utils/SendPtcEmail'
+import SendPtcEmail from '../utils/SendPtcEmail';
+import YearFind from '../utils/YearFind';
 
 import '../components/ResTable.css';
 
@@ -32,10 +33,11 @@ class Participants extends Component {
       sendEmailDialogOpen: false,
       errorAlertOpen: false,
       loadDialogOpen: true,
-      isNCKUHost: false
     };
 
     this.dataRef = window.firebase.database().ref(`/participants/${this.props.university}/${this.props.th}/${this.props.sport}`);
+    this.isNckuHost = false;
+    this.attrList = [];
   }
 
   componentDidMount = () => {
@@ -70,20 +72,6 @@ class Participants extends Component {
   componentWillUnmount = () => {
   }
 
-  yearFind = (yearData, th) => {
-    let yearUids = Object.keys(yearData);
-    let year = {};
-
-    yearUids.map(uid => {
-        if("th" in yearData[uid] && th === yearData[uid].th) {
-          year = yearData[uid];
-        }
-        return 0;
-    });
-
-    return year;
-  }
-
   updateParticipants = (d, s, y, e = {}) => {
     let data = d ? d : {};
     let sportData = s ? s : {};
@@ -91,14 +79,17 @@ class Participants extends Component {
     let errorPtc = e;
     let highStatusForm = [];
     let tableData = [];
-    let isNCKUHost = false;
 
-    const year = this.yearFind(y, this.props.th);
-    if ('ncku_host' in year && year.ncku_host) {
-      isNCKUHost = true;
+    const year = YearFind(y, this.props.th);
+    this.isNckuHost = year.ncku_host ? true : false;
+    this.attrList = ATTR_LIST;
+    if ('ncku' !== this.props.university) {
+      this.attrList = ATTR_FEW_LIST;
+    } else if (this.isNckuHost) {
+      this.attrList = ATTR_NCKU_FEW_LIST;
     }
 
-    if (!isNCKUHost && this.props.user.auth !== 'ncku' && this.props.user.auth !== 'admin' && this.props.user.auth !== 'overview') {
+    if (!this.isNckuHost && this.props.user.auth !== 'ncku' && this.props.user.auth !== 'admin' && this.props.user.auth !== 'overview') {
       console.error(`${this.props.th}th can't get ${this.props.user.auth} data`);
       return 1;
     }
@@ -107,7 +98,7 @@ class Participants extends Component {
       if(status in data && data[status]) {
         highStatusForm.push(<ParticipantInfo key={`ptc_high_${index}`} user={this.props.user}
           university={this.props.university} th={this.props.th} uid={data[status]} status={STATUS_NAME[status]}
-          handleUpdatePtcInfo={this.handleUpdatePtcInfo} errorPtc={errorPtc[data[status]]} />)
+          handleUpdatePtcInfo={this.handleUpdatePtcInfo} errorPtc={errorPtc[data[status]]} attrList={this.attrList} />)
       }
       return 0;
     });
@@ -116,7 +107,7 @@ class Participants extends Component {
       let status = "leader"
       tableData.push(<ParticipantInfo key={`ptc_${status}`} user={this.props.user}
         university={this.props.university} th={this.props.th} uid={data[status]} status={STATUS_NAME[status]}
-        handleUpdatePtcInfo={this.handleUpdatePtcInfo} errorPtc={errorPtc[data[status]]} />)
+        handleUpdatePtcInfo={this.handleUpdatePtcInfo} errorPtc={errorPtc[data[status]]} attrList={this.attrList} />)
     }
 
     let memberName = tableData.length === 0 ? "成員" : "隊員";
@@ -126,11 +117,11 @@ class Participants extends Component {
           tableData.push(<ParticipantInfo key={`ptc_member_${index}`} user={this.props.user} university={this.props.university}
             th={this.props.th} uid={uid} status={memberName}
             handleUpdatePtcInfo={this.handleUpdatePtcInfo} errorPtc={errorPtc[uid]}
-            handleRemoveParticipantInfo={this.handleRemoveParticipantInfo(uid)} />);
+            handleRemoveParticipantInfo={this.handleRemoveParticipantInfo(uid)} attrList={this.attrList} />);
         else
           tableData.push(<ParticipantInfo key={`ptc_member_${index}`} user={this.props.user} university={this.props.university}
             th={this.props.th} uid={uid} status={memberName}
-            handleUpdatePtcInfo={this.handleUpdatePtcInfo} errorPtc={errorPtc[uid]} />);
+            handleUpdatePtcInfo={this.handleUpdatePtcInfo} errorPtc={errorPtc[uid]} attrList={this.attrList} />);
         return 0;
       });
     }
@@ -144,7 +135,6 @@ class Participants extends Component {
       yearData: yearData,
       errorPtc: errorPtc,
       loadDialogOpen: false,
-      isNCKUHost: isNCKUHost,
     });
   }
 
@@ -305,13 +295,8 @@ class Participants extends Component {
 
   getParticipantData = (data) => {
     let d = data ? data : {};
-    let ptcAttrList = 'ncku' === this.props.university ? ATTR_LIST : ATTR_FEW_LIST;
-    if ('ncku' !== this.props.university) {
-      ptcAttrList = ATTR_FEW_LIST;
-    }
-
     let ptcData = {};
-    ptcAttrList.map(attr => {
+    this.attrList.map(attr => {
       if(typeof d[attr] === 'undefined') {
         ptcData[attr] = ATTR_TYPE[attr] === 'checkbox' ? false : '';
       } else ptcData[attr] = d[attr];
@@ -342,7 +327,7 @@ class Participants extends Component {
       return;
     }
     /* send email */
-    SendPtcEmail(this.props, this.state, this.getParticipantData, this.yearFind);
+    SendPtcEmail(this.props, this.state, this.getParticipantData);
     /* upload */
     this.uploadData(() => {
       this.handleSendEmailDialogClose();
@@ -376,7 +361,7 @@ class Participants extends Component {
   }
 
   render() {
-    if (!this.state.isNCKUHost && this.props.user.auth !== 'ncku' && this.props.user.auth !== 'admin' && this.props.user.auth !== 'overview') {
+    if (!this.isNckuHost && this.props.user.auth !== 'ncku' && this.props.user.auth !== 'admin' && this.props.user.auth !== 'overview') {
       return <React.Fragment></React.Fragment>;
     }
 
@@ -456,10 +441,7 @@ class Participants extends Component {
       )
     }
 
-    let ptcInfoAttrList = ['status'].concat(ATTR_LIST);
-    if ('ncku' !== this.props.university) {
-      ptcInfoAttrList = ['status'].concat(ATTR_FEW_LIST);
-    }
+    const ptcInfoAttrList = ['status'].concat(this.attrList);
     let ptcInfoDOM = (
       <Card style={{margin: "10px", display: "inline-block", verticalAlign: "top"}}>
         <CardContent>

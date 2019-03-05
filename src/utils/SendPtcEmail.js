@@ -1,6 +1,7 @@
-import { UNIVERSITY_LIST, STATUS_HIGH_LIST, STATUS_NAME, ATTR_LIST, ATTR_FEW_LIST, ATTR_NAME } from '../config';
+import { STATUS_HIGH_LIST, STATUS_NAME, ATTR_LIST, ATTR_NCKU_FEW_LIST, ATTR_FEW_LIST, ATTR_NAME } from '../config';
+import YearFind from './YearFind';
 
-const SendPtcEmail = (props, state, getParticipantData, yearFind) => {
+const SendPtcEmail = (props, state, getParticipantData) => {
   let xhr = new XMLHttpRequest();
   xhr.open("POST", "http://stud.adm.ncku.edu.tw/act/chcwcup/register/mail.asp", true);
   xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
@@ -12,10 +13,15 @@ const SendPtcEmail = (props, state, getParticipantData, yearFind) => {
   let thStyle = `'font-family:sans-serif,微軟正黑體;padding:5px;color:#fff;background-color:#00bcd4;font-weight:900'`;
   let tdStyle = `'font-family:sans-serif,微軟正黑體;padding:5px;'`;
 
-  let university = "ncku";
-  if (0 <= UNIVERSITY_LIST.indexOf(props.user.auth)) {
-    university = props.user.auth;
+  let university = props.university;
+  const year = YearFind(state.yearData, props.th);
+  let attrList = ATTR_LIST;
+  if ('ncku' !== props.university) {
+    attrList = ATTR_FEW_LIST;
+  } else if (year.ncku_host) {
+    attrList = ATTR_NCKU_FEW_LIST;
   }
+  const mailAttrList = ['status'].concat(attrList);
 
   let body = `
   <div style="font-family:sans-serif,微軟正黑體;">
@@ -64,11 +70,6 @@ const SendPtcEmail = (props, state, getParticipantData, yearFind) => {
     });
   body += `</table><br />`;
 
-  let ptcAttrList = ATTR_LIST;
-  if ('ncku' !== props.university) {
-    ptcAttrList = ATTR_FEW_LIST;
-  }
-  const mailAttrList = ['status'].concat(ptcAttrList);
   body += `
     <table style=${tableStyle}>
       <tr style=${trStyle}>`;
@@ -85,7 +86,7 @@ const SendPtcEmail = (props, state, getParticipantData, yearFind) => {
       let ptcInfo = getParticipantData(state.ptcsData[uid]);
       body += `<tr style=${trStyle}>
                 <td style=${tdStyle}>${STATUS_NAME[status]}</td>`;
-      ptcAttrList.map(attr => {
+      attrList.map(attr => {
         if(attr !== "status") {
           body += `<td style=${tdStyle}>${ptcInfo[attr]}</td>`;
         }
@@ -104,7 +105,7 @@ const SendPtcEmail = (props, state, getParticipantData, yearFind) => {
       let ptcInfo = getParticipantData(state.ptcsData[uid]);
       body += `<tr style=${trStyle}>
                 <td style=${tdStyle}>${memberName}</td>`;
-      ptcAttrList.map(attr => {
+      attrList.map(attr => {
         if(attr !== "status") {
           body += `<td style=${tdStyle}>${ptcInfo[attr]}</td>`;
         }
@@ -119,7 +120,6 @@ const SendPtcEmail = (props, state, getParticipantData, yearFind) => {
 
   body += `</table><br />`;
 
-  const year = yearFind(state.yearData, props.th);
   body += `因資料已送出，無法再於系統修改，<br />
             如仍有需修改的資料或任何報名上的疑問，<br />
             煩請聯絡：<br />`;

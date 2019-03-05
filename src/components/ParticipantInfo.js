@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import {ATTR_LIST, ATTR_FEW_LIST, ATTR_NAME, ATTR_TYPE, STATUS_HIGH_LIST} from '../config';
+import {ATTR_NAME, ATTR_TYPE, STATUS_HIGH_LIST} from '../config';
 import ResTR from './ResTR'
 
 class ParticipantInfo extends Component {
@@ -42,10 +42,7 @@ class ParticipantInfo extends Component {
   }
 
   createInputData = (ptcInfo, errorText = {}) => {
-    let inputAttrList = ATTR_LIST;
-    if ('ncku' !== this.props.university) {
-      inputAttrList = ATTR_FEW_LIST;
-    }
+    let inputAttrList = this.props.attrList;
     if (STATUS_HIGH_LIST.indexOf(ptcInfo.status) !== -1) {
       inputAttrList = ['name'];
     }
@@ -59,10 +56,7 @@ class ParticipantInfo extends Component {
     // need loading icon
     let data = d ? d : {};
     let ptcInfo = {};
-    let inputAttrList = ATTR_LIST;
-    if ('ncku' !== this.props.university) {
-      inputAttrList = ATTR_FEW_LIST;
-    }
+    let inputAttrList = this.props.attrList;
     if (STATUS_HIGH_LIST.indexOf(ptcInfo.status) !== -1) {
       inputAttrList = ['name'];
     }

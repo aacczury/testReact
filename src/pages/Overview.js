@@ -9,6 +9,7 @@ import Input from '../components/Input';
 
 import '../components/ResTable.css';
 import { STATUS_HIGH_LIST, STATUS_NAME, UNIVERSITY_LIST, ATTR_CHECK_LIST, ATTR_NAME } from '../config';
+import YearFind from '../utils/YearFind';
 
 class Overview extends Component {
   constructor(props) {
@@ -32,6 +33,7 @@ class Overview extends Component {
     this.updateDelay = null;
     this.dataRef = null;
     this.keyList = [];
+    this.isNckuHost = false;
   }
 
   dbUpdate = () => {
@@ -51,14 +53,17 @@ class Overview extends Component {
 
     this.dataRef = window.firebase.database().ref(`/participant/${this.props.university}/${this.props.th}`);
     this.dataRef.on('value', participantShot => {
-      window.firebase.database().ref(`/sports/${this.props.th}`).once('value').then(sportsShot => {
-        window.firebase.database().ref(`/participants/${this.props.university}/${this.props.th}`).once('value').then(participantsShot => {
-          self.updateOverview(
-            true,
-            participantShot.val() ? participantShot.val() : {},
-            sportsShot.val() ? sportsShot.val() : {},
-            participantsShot.val() ? participantsShot.val() : {}
-          );
+      window.firebase.database().ref(`/years`).once('value').then(yearsShot => {
+        window.firebase.database().ref(`/sports/${this.props.th}`).once('value').then(sportsShot => {
+          window.firebase.database().ref(`/participants/${this.props.university}/${this.props.th}`).once('value').then(participantsShot => {
+            self.updateOverview(
+              true,
+              participantShot.val() ? participantShot.val() : {},
+              yearsShot.val() ? yearsShot.val() : {},
+              sportsShot.val() ? sportsShot.val() : {},
+              participantsShot.val() ? participantsShot.val() : {}
+            );
+          });
         });
       });
     });
@@ -114,19 +119,25 @@ class Overview extends Component {
     }
   }
 
-  updateOverview = (isInit, participantShot, sportsShot, participantsShot) => {
+  updateOverview = (isInit, participantShot, yearsShot, sportsShot, participantsShot) => {
     // need loading icon
     let data = participantShot ? participantShot : this.state.participantShot;
     let sports = sportsShot ? sportsShot : this.state.sportsShot;
+    const years = yearsShot ? yearsShot : this.state.yearsShot;
     let participants = participantsShot ? participantsShot : this.state.participantsShot;
     let tableData = [], sportData = [];
     const statusList = ["leader", "member"];
     let selectedSports = isInit ? {} : this.state.selectedSports;
     let diffID = {}, conflictPtc = {};
     let countSize = {}, countLodging = 0, countBus = 0, countVegetarian = 0;
+
+    const y = YearFind(years, this.props.th);
+    this.isNckuHost = y.ncku_host ? true : false;
     this.keyList = ["id", "name", "sport", "status", "deptyear", "birthday", "size", "lodging", "bus", "vegetarian"];
     if ('ncku' !== this.props.university) {
-      this.keyList = ["name", "sport", "status", "size"];
+      this.keyList = ["name", "sport", "status"];
+    } else if (this.isNckuHost) {
+      this.keyList = ["name", "sport", "status", "deptyear", "birthday", "size"]
     }
 
     Object.keys(sports).map(sportUid => {
@@ -254,6 +265,7 @@ class Overview extends Component {
       countVegetarian: countVegetarian,
       loadDialogOpen: false,
       participantShot: participantShot ? participantShot : this.state.participantShot,
+      yearsShot: years ? years : this.state.yearsShot,
       sportsShot: sportsShot ? sportsShot : this.state.sportsShot,
       participantsShot: participantsShot ? participantsShot : this.state.participantsShot,
     });
@@ -452,7 +464,7 @@ class Overview extends Component {
           </Card>
 
           <Card style={{width: "280px", margin: "10px", display: "inline-block", verticalAlign: "top"}}>
-            <CardHeader title={(<div>人數<br />(依姓名+身份證字號)</div>)}  />
+            <CardHeader title={(<div>人數<br />(依姓名+(身份證字號))</div>)}  />
             <CardContent>
               {this.state.countDiffID}
             </CardContent>
@@ -463,18 +475,22 @@ class Overview extends Component {
               {this.state.countConflictPtc}
             </CardContent>
           </Card>
-          <Card style={{width: "280px", margin: "10px", display: "inline-block", verticalAlign: "top"}}>
-            <CardHeader title="衣服尺寸人數" />
-            <CardContent>
-              {
-                Object.keys(this.state.countSize).map((size, index) => {
-                  return <div key={`${size}_${index}`}>{size}：{this.state.countSize[size]}</div>
-                })
-              }
-            </CardContent>
-          </Card>
           {
             'ncku' === this.props.university ? (
+              <Card style={{width: "280px", margin: "10px", display: "inline-block", verticalAlign: "top"}}>
+                <CardHeader title="衣服尺寸人數" />
+                <CardContent>
+                  {
+                    Object.keys(this.state.countSize).map((size, index) => {
+                      return <div key={`${size}_${index}`}>{size}：{this.state.countSize[size]}</div>
+                    })
+                  }
+                </CardContent>
+              </Card>
+            ) : null
+          }
+          {
+            'ncku' === this.props.university && !this.isNckuHost ? (
               <React.Fragment>
                 <Card style={{width: "280px", margin: "10px", display: "inline-block", verticalAlign: "top"}}>
                   <CardHeader title="住宿人數" />
