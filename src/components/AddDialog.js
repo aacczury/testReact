@@ -34,7 +34,7 @@ class AddDialog extends Component {
         scroll='paper'
       >
         <DialogTitle>{this.props.title}</DialogTitle>
-        <DialogContent style={{width: 300}}>
+        <DialogContent style={{width: 500}}>
           {this.props.content}
         </DialogContent>
         <DialogActions>{addDialogActions}</DialogActions>
