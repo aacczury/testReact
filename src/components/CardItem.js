@@ -32,7 +32,7 @@ class CardItem extends Component {
       )
 
     let cardComponent = (
-        <Card style={{width: "280px", margin: "10px", display: "inline-block", verticalAlign: "top"}}>
+        <Card style={{width: this.props.width ? this.props.width : "280px", margin: "10px", display: "inline-block", verticalAlign: "top"}}>
           {clearButton}
           { this.props.url ?
             <CardHeader title={this.props.title} subheader={this.props.subtitle} style={{cursor: "pointer"}}

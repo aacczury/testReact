@@ -72,11 +72,11 @@ class Years extends Component {
           title: data[k].title,
           url: `/?th=${data[k].th}`, content: (
           <div>
+            {`活動地點: ${data[k].venue ? data[k].venue : ''}`}<br />
+            {`活動日期: ${data[k].date ? data[k].date : ''}`}<br />
             {`主辦單位: ${data[k].organizer ? data[k].organizer : ''}`}<br />
             {`協辦單位: ${data[k].coorganizer ? data[k].coorganizer : ''}`}<br />
             {`承辦單位: ${data[k].implementer ? data[k].implementer : ''}`}<br />
-            {`活動地點: ${data[k].venue ? data[k].venue : ''}`}<br />
-            {`活動日期: ${data[k].date ? data[k].date : ''}`}<br />
           </div>
         )};
         return 0;
@@ -86,9 +86,9 @@ class Years extends Component {
         title: data[k].title,
         url: `/?th=${data[k].th}`, content: (
         <div>
-          {`主辦單位: ${data[k].organizer ? data[k].organizer : ''}`}<br />
           {`活動地點: ${data[k].venue ? data[k].venue : ''}`}<br />
           {`活動日期: ${data[k].date ? data[k].date : ''}`}<br />
+          {`主辦單位: ${data[k].organizer ? data[k].organizer : ''}`}<br />
         </div>
       )});
       return 0;
@@ -198,7 +198,7 @@ class Years extends Component {
         <div style={{textAlign: "center"}}>
           <img src={logo} alt='logo' style={{width: '200px'}} /><br />
           {addCard}
-          <CardItem {...this.state.curYearData} handleRedirect={this.props.handleRedirect} />
+          <CardItem {...this.state.curYearData} width='500px' handleRedirect={this.props.handleRedirect} />
           <Divider style={{margin: '50px'}} />
           <h2>過去活動</h2>
           <CardContainer cardData={this.state.cardData} handleRedirect={this.props.handleRedirect} />
