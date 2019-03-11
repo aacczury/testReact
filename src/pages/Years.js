@@ -6,6 +6,7 @@ import AddDialog from '../components/AddDialog';
 import CardContainer from '../containers/CardContainer';
 import InputContainer from '../containers/InputContainer';
 import LoadDialog from '../components/LoadDialog';
+import CardItem from '../components/CardItem';
 
 import logo from '../assets/logo.png';
 
@@ -15,6 +16,7 @@ class Years extends Component {
 
     this.state = {
       cardData: [],
+      curYearData: {},
       addYearData: [],
       addYearInfo: {
         yearYear: '',
@@ -58,8 +60,25 @@ class Years extends Component {
     // need loading icon
     let data = d ? d : {};
     let cardData = [];
-    Object.keys(data).map(k => {
+    let curYearData = {};
+
+    Object.keys(data).map((k, kIdx) => {
       if (!data[k].ncku_host && this.props.user.auth !== 'ncku' && this.props.user.auth !== 'admin' && this.props.user.auth !== 'overview') {
+        return 0;
+      }
+
+      if (Object.keys(data).length - 1 === kIdx) {
+        curYearData = {
+          title: data[k].title,
+          url: `/?th=${data[k].th}`, content: (
+          <div>
+            {`主辦單位: ${data[k].organizer ? data[k].organizer : ''}`}<br />
+            {`協辦單位: ${data[k].coorganizer ? data[k].coorganizer : ''}`}<br />
+            {`承辦單位: ${data[k].implementer ? data[k].implementer : ''}`}<br />
+            {`活動地點: ${data[k].venue ? data[k].venue : ''}`}<br />
+            {`活動日期: ${data[k].date ? data[k].date : ''}`}<br />
+          </div>
+        )};
         return 0;
       }
 
@@ -67,6 +86,7 @@ class Years extends Component {
         title: data[k].title,
         url: `/?th=${data[k].th}`, content: (
         <div>
+          {`主辦單位: ${data[k].organizer ? data[k].organizer : ''}`}<br />
           {`活動地點: ${data[k].venue ? data[k].venue : ''}`}<br />
           {`活動日期: ${data[k].date ? data[k].date : ''}`}<br />
         </div>
@@ -76,6 +96,7 @@ class Years extends Component {
 
     this.setState({ // need loading
       cardData: cardData,
+      curYearData: curYearData,
       loadDialogOpen: false
     });
   }
@@ -177,7 +198,9 @@ class Years extends Component {
         <div style={{textAlign: "center"}}>
           <img src={logo} alt='logo' style={{width: '200px'}} /><br />
           {addCard}
+          <CardItem {...this.state.curYearData} handleRedirect={this.props.handleRedirect} />
           <Divider style={{margin: '50px'}} />
+          <h2>過去活動</h2>
           <CardContainer cardData={this.state.cardData} handleRedirect={this.props.handleRedirect} />
           {addDialog}
         </div>
