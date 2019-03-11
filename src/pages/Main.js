@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
-import { Home } from '@material-ui/icons';
+
+import logo from '../assets/logo.png';
 
 class Main extends Component {
   render() {
     let content = (
       <div style={{paddingTop: "64px"}}>
         <div style={{textAlign: "center"}}>
-          <Home />
+          <img src={logo} alt='logo' style={{width: '200px'}} /><br />
           <h1>正興城灣盃報名系統</h1>
           <h2>請先登入</h2>
         </div>

@@ -1,11 +1,13 @@
 import React, { Component } from 'react';
-import { Home } from '@material-ui/icons';
+import { Divider } from '@material-ui/core';
 
 import AddCard from '../components/AddCard';
 import AddDialog from '../components/AddDialog';
 import CardContainer from '../containers/CardContainer';
 import InputContainer from '../containers/InputContainer';
 import LoadDialog from '../components/LoadDialog';
+
+import logo from '../assets/logo.png';
 
 class Years extends Component {
   constructor(props) {
@@ -173,8 +175,9 @@ class Years extends Component {
     let content = (
       <div style={{paddingTop: "64px"}}>
         <div style={{textAlign: "center"}}>
-          <Home />
+          <img src={logo} alt='logo' style={{width: '200px'}} /><br />
           {addCard}
+          <Divider style={{margin: '50px'}} />
           <CardContainer cardData={this.state.cardData} handleRedirect={this.props.handleRedirect} />
           {addDialog}
         </div>
