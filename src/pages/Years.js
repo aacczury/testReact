@@ -20,6 +20,7 @@ class Years extends Component {
         yearTitle: '',
         yearOrganizer: '',
         yearCoorganizer: '',
+        yearImplementer: '',
         yearDate: '',
         yearVenue: '',
         yearContactName: '',
@@ -83,6 +84,7 @@ class Years extends Component {
       { type: "text", name: "yearTh", text: "屆數 ex:12", value: addYearInfo.yearTh, disabled: false },
       { type: "text", name: "yearOrganizer", text: "主辦單位 ex:國立中山大學", value: addYearInfo.yearOrganizer, disabled: false },
       { type: "text", name: "yearCoorganizer", text: "協辦單位 ex:國立中正大學、國立中興大學、國立成功大學", value: addYearInfo.yearCoorganizer, disabled: false },
+      { type: "text", name: "yearImplementer", text: "承辦單位 ex:國立中山大學學生事務處課指組、國立中山大學體育室", value: addYearInfo.yearImplementer, disabled: false },
       { type: "text", name: "yearTitle", text: "顯示名稱 ex:第12屆", value: addYearInfo.yearTitle, disabled: false },
       { type: "text", name: "yearDate", text: "活動日期 ex:106年5月20-21日", value: addYearInfo.yearDate, disabled: false },
       { type: "text", name: "yearVenue", text: "活動地點 ex:中山大學", value: addYearInfo.yearVenue, disabled: false },
@@ -105,7 +107,7 @@ class Years extends Component {
 
   handleAddYear = () => { // pop screen
     if(this.props.user.auth === "admin") {
-      let {yearYear, yearTh, yearOrganizer, yearCoorganizer, yearTitle, yearDate, yearVenue,
+      let {yearYear, yearTh, yearOrganizer, yearCoorganizer, yearImplementer, yearTitle, yearDate, yearVenue,
             yearContactName, yearContactPhone, yearContactEmail, yearNCKUHost} = this.state.addYearInfo; // need check collision
       let yearUid = window.firebase.database().ref(`/years`).push().key;
       window.firebase.database().ref().update({
@@ -114,6 +116,7 @@ class Years extends Component {
           th: yearTh,
           organizer: yearOrganizer,
           coorganizer: yearCoorganizer,
+          implementer: yearImplementer,
           title: yearTitle,
           date: yearDate,
           venue: yearVenue,
@@ -132,6 +135,7 @@ class Years extends Component {
                 yearTh: '',
                 yearOrganizer: '',
                 yearCoorganizer: '',
+                yearImplementer: '',
                 yearTitle: '',
                 yearDate: '',
                 yearVenue: '',
