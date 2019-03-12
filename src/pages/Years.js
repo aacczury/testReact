@@ -62,12 +62,12 @@ class Years extends Component {
     let cardData = [];
     let curYearData = {};
 
-    Object.keys(data).map((k, kIdx) => {
+    Object.keys(data).map(k => {
       if (!data[k].ncku_host && this.props.user.auth !== 'ncku' && this.props.user.auth !== 'admin' && this.props.user.auth !== 'overview') {
         return 0;
       }
 
-      if (Object.keys(data).length - 1 === kIdx) {
+      if ('第14屆' === data[k].title) {
         curYearData = {
           title: data[k].title,
           url: `/?th=${data[k].th}`,
