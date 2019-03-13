@@ -89,11 +89,11 @@ class Years extends Component {
                   </tr>
                   <tr style={{border: '0px', padding: '0px'}}>
                     <td style={{border: '0px', padding: '0px', width: '80px', verticalAlign: 'top'}}>協辦單位: </td>
-                    <td style={{border: '0px', padding: '0px'}}>{`${data[k].coorganizer ? data[k].coorganizer : ''}`}</td>
+                    <td style={{border: '0px', padding: '0px'}}>{data[k].coorganizer ? data[k].coorganizer.split('\n').map((s, sIdx) => <React.Fragment key={sIdx}>{s}<br/></React.Fragment>) : ''}</td>
                   </tr>
                   <tr style={{border: '0px', padding: '0px'}}>
                     <td style={{border: '0px', padding: '0px', width: '80px', verticalAlign: 'top'}}>主辦單位: </td>
-                    <td style={{border: '0px', padding: '0px'}}>{`${data[k].implementer ? data[k].implementer : ''}`}</td>
+                    <td style={{border: '0px', padding: '0px'}}>{data[k].implementer ? data[k].implementer.split('\n').map((s, sIdx) => <React.Fragment key={sIdx}>{s}<br/></React.Fragment>) : ''}</td>
                   </tr>
                 </tbody>
               </table>
