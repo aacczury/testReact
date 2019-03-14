@@ -1,12 +1,26 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 
 import Routes from './Routes';
 
 import './index.css';
 
+const theme = createMuiTheme({
+  palette: {
+    primary: {
+      main: '#b71c1c'
+    },
+    secondary: {
+      main: '#039be5',
+    },
+  },
+});
+
 const Index = () => (
-  <Routes basename="/" />
+  <MuiThemeProvider theme={theme}>
+    <Routes basename="/" />
+  </MuiThemeProvider>
 )
 
 // Initialize Firebase
