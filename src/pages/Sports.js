@@ -108,7 +108,7 @@ class Sports extends Component {
               <React.Fragment key={`btn_fragment_${university}`}>
                 <Button
                   key={`btn_${university}`}
-                  color='primary'
+                  color='secondary'
                   style={{margin: 2}}
                   onClick={() => this.props.handleRedirect(`/?th=${this.props.th}&university=${university}&sport=${sportUid}`)}>
                   {university.toUpperCase()}
