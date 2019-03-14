@@ -15,6 +15,9 @@ const theme = createMuiTheme({
       main: '#039be5',
     },
   },
+  typography: {
+    useNextVariants: true,
+  },
 });
 
 const Index = () => (
