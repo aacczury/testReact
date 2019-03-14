@@ -36,13 +36,15 @@ class Sports extends Component {
     this.tmpSave = {};
     this.tmpRemove = {};
     this.dataRef = null;
+    this.dataListener = null;
   }
 
   sportDbUpdate = () => {
     const self = this;
 
-    if (this.dataRef && this.dataRef.off) {
-      this.dataRef.off();
+    if (this.dataRef && this.dataRef.off && this.dataListener) {
+      this.dataRef.off('value', this.dataListener);
+      this.dataListener = null;
     }
 
     if (!this.props.user) {
@@ -59,7 +61,7 @@ class Sports extends Component {
       self.setState({isLoadingHost: true});
 
       self.dataRef = window.firebase.database().ref(`/sports/${self.props.th}`);
-      self.dataRef.on('value', function(snapshot) {
+      self.dataListener = self.dataRef.on('value', function(snapshot) {
         self.updateSports(snapshot.val());
       });
       self.setState({
@@ -79,8 +81,9 @@ class Sports extends Component {
   }
 
   componentWillUnmount = () => {
-    if (this.dataRef && this.dataRef.off) {
-      this.dataRef.off();
+    if (this.dataRef && this.dataRef.off && this.dataListener) {
+      this.dataRef.off('value', this.dataListener);
+      this.dataListener = null;
     }
   }
 

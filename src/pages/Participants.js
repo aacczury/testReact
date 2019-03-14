@@ -36,6 +36,7 @@ class Participants extends Component {
     };
 
     this.dataRef = window.firebase.database().ref(`/participants/${this.props.university}/${this.props.th}/${this.props.sport}`);
+    this.dataListener = null;
     this.isNckuHost = false;
     this.attrList = [];
   }
@@ -56,7 +57,10 @@ class Participants extends Component {
   componentWillReceiveProps = (nextProps) => {
     // You don't have to do this check first, but it can help prevent an unneeded render
     if (nextProps.th !== this.props.th || nextProps.sport !== this.props.sport || nextProps.university !== this.props.university) {
-      this.dataRef.off('value', this.dataListener);
+      if (this.dataRef && this.dataRef.off && this.dataListener) {
+        this.dataRef.off('value', this.dataListener);
+        this.dataListener = null;
+      }
       this.dataRef = window.firebase.database().ref(`/participants/${nextProps.university}/${nextProps.th}/${nextProps.sport}`);
       let self = this;
       window.firebase.database().ref(`/years`).once('value').then(yearShort => {
@@ -70,6 +74,10 @@ class Participants extends Component {
   }
 
   componentWillUnmount = () => {
+    if (this.dataRef && this.dataRef.off && this.dataListener) {
+      this.dataRef.off('value', this.dataListener);
+      this.dataListener = null;
+    }
   }
 
   updateParticipants = (d, s, y, e = {}) => {

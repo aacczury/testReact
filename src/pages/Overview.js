@@ -32,6 +32,7 @@ class Overview extends Component {
     };
     this.updateDelay = null;
     this.dataRef = null;
+    this.dataListener = null;
     this.keyList = [];
     this.isNckuHost = false;
   }
@@ -39,8 +40,9 @@ class Overview extends Component {
   dbUpdate = () => {
     const self = this;
 
-    if (this.dataRef && this.dataRef.off) {
-      this.dataRef.off();
+    if (this.dataRef && this.dataRef.off && this.dataListener) {
+      this.dataRef.off('value', this.dataListener);
+      this.dataListener = null;
     }
 
     if (!this.props.user) {
@@ -52,7 +54,7 @@ class Overview extends Component {
     }
 
     this.dataRef = window.firebase.database().ref(`/participant/${this.props.university}/${this.props.th}`);
-    this.dataRef.on('value', participantShot => {
+    this.dataListener = this.dataRef.on('value', participantShot => {
       window.firebase.database().ref(`/years`).once('value').then(yearsShot => {
         window.firebase.database().ref(`/sports/${this.props.th}`).once('value').then(sportsShot => {
           window.firebase.database().ref(`/participants/${this.props.university}/${this.props.th}`).once('value').then(participantsShot => {
@@ -80,8 +82,9 @@ class Overview extends Component {
   }
 
   componentWillUnmount() {
-    if(this.dataRef && this.dataRef.off){
-      this.dataRef.off();
+    if(this.dataRef && this.dataRef.off && this.dataListener){
+      this.dataRef.off('value', this.dataListener);
+      this.dataListener = null;
     }
   }
 

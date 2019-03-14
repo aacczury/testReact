@@ -35,24 +35,46 @@ class Years extends Component {
       addDialogOpen: false,
       loadDialogOpen: true
     };
+
+    this.dataRef = null;
+    this.dataListener = null;
+  }
+
+  yearDbUpdate = () => {
+    const self = this;
+
+    if(this.dataRef && this.dataRef.off && this.dataListener){
+      this.dataRef.off('value', this.dataListener);
+      this.dataListener = null;
+    }
+
+    if (!this.props.user) {
+      return;
+    }
+
+    this.dataRef = window.firebase.database().ref(`/years`);
+    this.dataListener = this.dataRef.on('value', function(snapshot) {
+      self.updateYears(snapshot.val());
+    });
+    this.setState({
+      addYearData: this.createAddYearData(this.state.addYearInfo)
+    });
   }
 
   componentDidMount() {
-    if(this.props.user){
-      let self = this;
-      this.dataRef = window.firebase.database().ref(`/years`);
-      this.dataRef.on('value', function(snapshot) {
-        self.updateYears(snapshot.val());
-      });
-      this.setState({
-        addYearData: this.createAddYearData(this.state.addYearInfo)
-      });
+    this.yearDbUpdate();
+  }
+
+  componentDidUpdate(prevProps) {
+    if (!this.props.user || !prevProps.user || prevProps.user.uid !== this.props.user.uid) {
+      this.yearDbUpdate();
     }
   }
 
   componentWillUnmount() {
-    if(this.dataRef && this.dataRef.off){
-      this.dataRef.off();
+    if(this.dataRef && this.dataRef.off && this.dataListener){
+      this.dataRef.off('value', this.dataListener);
+      this.dataListener = null;
     }
   }
 

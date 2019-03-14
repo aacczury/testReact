@@ -14,29 +14,35 @@ class LeftMenu extends Component {
       yearsListOpen: [],
     };
     this.yearsRef = null;
+    this.yearListener = null;
     this.sportsRef = null;
+    this.sportsListener = null;
   }
 
   yearsSportsUpdate = () => {
     const self = this;
 
-    if (this.yearsRef && this.yearsRef.off) {
-      this.yearsRef.off();
+    if (this.yearsRef && this.yearsRef.off && this.yearListener) {
+      this.yearsRef.off('value', this.yearListener);
+      this.yearListener = null;
     }
-    if (this.sportsRef && this.sportsRef.off) {
-      this.sportsRef.off();
+    if (this.sportsRef && this.sportsRef.off && this.sportsListener) {
+      this.sportsRef.off('value', this.sportsListener);
+      this.sportsListener = null;
     }
 
-    if(this.props.user){
-      this.yearsRef = window.firebase.database().ref(`/years`);
-      this.yearsRef.on('value', years => {
-        self.setState({years: years.val() ? years.val() : {}});
-      });
-      this.sportsRef = window.firebase.database().ref(`/sports`);
-      this.sportsRef.on('value', sports => {
-        self.setState({sports: sports.val() ? sports.val() : {}});
-      });
+    if (!this.props.user) {
+      return;
     }
+
+    this.yearsRef = window.firebase.database().ref(`/years`);
+    this.yearListener = this.yearsRef.on('value', years => {
+      self.setState({years: years.val() ? years.val() : {}});
+    });
+    this.sportsRef = window.firebase.database().ref(`/sports`);
+    this.sportsListener = this.sportsRef.on('value', sports => {
+      self.setState({sports: sports.val() ? sports.val() : {}});
+    });
   }
 
   componentDidMount() {
@@ -50,11 +56,13 @@ class LeftMenu extends Component {
   }
 
   componentWillUnmount() {
-    if (this.yearsRef && this.yearsRef.off) {
-      this.yearsRef.off();
+    if (this.yearsRef && this.yearsRef.off && this.yearListener) {
+      this.yearsRef.off('value', this.yearListener);
+      this.yearListener = null;
     }
-    if (this.sportsRef && this.sportsRef.off) {
-      this.sportsRef.off();
+    if (this.sportsRef && this.sportsRef.off && this.sportsListener) {
+      this.sportsRef.off('value', this.sportsListener);
+      this.sportsListener = null;
     }
   }
 
