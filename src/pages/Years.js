@@ -89,7 +89,7 @@ class Years extends Component {
         return 0;
       }
 
-      if ('第14屆' === data[k].title) {
+      if (`${new Date().getFullYear()}` === data[k].year) {
         curYearData = {
           title: data[k].title,
           url: `/?th=${data[k].th}`,
@@ -254,7 +254,11 @@ class Years extends Component {
         <div style={{textAlign: "center"}}>
           <img src={logo} alt='logo' style={{width: '200px', margin: '10px'}} /><br />
           {addCard}
-          <CardItem {...this.state.curYearData} handleRedirect={this.props.handleRedirect} />
+          {
+            Object.entries(this.state.curYearData).length !== 0
+            ? <CardItem {...this.state.curYearData} handleRedirect={this.props.handleRedirect} />
+            : null
+          }
           <Divider style={{margin: '50px'}} />
           <h2>過去活動</h2>
           <CardContainer cardData={this.state.cardData} handleRedirect={this.props.handleRedirect} />
