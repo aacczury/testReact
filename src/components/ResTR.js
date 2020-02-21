@@ -18,8 +18,8 @@ class ResTR extends Component {
     if(this.props.handleRemoveParticipantInfo)
       clearButton = (
         <td data-label="">
-          <IconButton>
-            <Clear onClick={this.props.handleRemoveParticipantInfo} />
+          <IconButton onClick={this.props.handleRemoveParticipantInfo}>
+            <Clear />
           </IconButton>
         </td>
       )

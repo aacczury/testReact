@@ -380,8 +380,8 @@ class Participants extends Component {
       plus1 = (
         <tr>
           <td colSpan="10">
-            {<IconButton>
-              <ExposurePlus1 onClick={this.handleAddParticipantInfo} />
+            {<IconButton onClick={this.handleAddParticipantInfo}>
+              <ExposurePlus1 />
             </IconButton>}
           </td>
         </tr>

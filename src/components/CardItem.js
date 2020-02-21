@@ -11,6 +11,8 @@ class CardItem extends Component {
     };
   }
 
+  handCardHeaderClick = () => this.props.handleRedirect(this.props.url);
+
   render() {
     let cardContent = null;
     if(this.props.content) {
@@ -25,8 +27,8 @@ class CardItem extends Component {
     if(this.props.handleRemoveCard)
       clearButton = (
         <div style={{textAlign: "right"}}>
-          <IconButton>
-            <Clear onClick={this.props.handleRemoveCard} />
+          <IconButton onClick={this.props.handleRemoveCard} >
+            <Clear />
           </IconButton>
         </div>
       )
@@ -36,7 +38,7 @@ class CardItem extends Component {
           {clearButton}
           { this.props.url ?
             <CardHeader title={this.props.title} subheader={this.props.subtitle} style={{cursor: "pointer"}}
-              onClick={() => this.props.handleRedirect(this.props.url)} /> :
+              onClick={this.handCardHeaderClick} /> :
             <CardHeader title={this.props.title} subheader={this.props.subtitle}  />
           }
           {cardContent}
